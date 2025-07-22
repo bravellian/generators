@@ -1,0 +1,17 @@
+<Project>
+	<ItemGroup>
+		<AdditionalFiles Include="**\_generate.xml" />
+		<AdditionalFiles Include="**\*.enum.json" />
+		<AdditionalFiles Include="**\*.string_enum.json" />
+		<AdditionalFiles Include="**\*.number_enum.json" />
+		<AdditionalFiles Include="**\*.guid.json" />
+		<AdditionalFiles Include="**\*.string.json" />
+		<AdditionalFiles Include="**\*.fast.json" />
+		<AdditionalFiles Include="**\*.fastid.json" />
+		<AdditionalFiles Include="**\*.multi.json" />
+		<AdditionalFiles Include="**\*.dto.json" />
+		<AdditionalFiles Include="**\*.entity.json" />
+		
+		<CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="SourceItemType" />
+	</ItemGroup>
+</Project>

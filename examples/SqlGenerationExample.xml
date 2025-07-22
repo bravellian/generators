@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SqlGenerationConfiguration>
+  <!-- The namespace to use for generated entities -->
+  <Namespace>MyProject.Entities</Namespace>
+  
+  <!-- Whether to generate navigation properties between related entities -->
+  <GenerateNavigationProperties>true</GenerateNavigationProperties>
+
+  <!-- Whether to generate a DbContext class (default: true) -->
+  <GenerateDbContext>true</GenerateDbContext>
+  
+  <!-- The base class for the DbContext (default: "BravillianDbContextBase") -->
+  <DbContextBaseClass>BravillianDbContextBase</DbContextBaseClass>
+</SqlGenerationConfiguration>

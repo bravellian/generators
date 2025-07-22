@@ -1,0 +1,54 @@
+{
+  "generatedCapabilitiesNamespace": "Bravillian.Repositories.Erps",
+  "generatedInterfacesNamespace": "Bravillian.Repositories.Erps",
+  "capabilities": [
+    {
+      "name": "Vendor.CanRead",
+      "interface": "IVendorListReader",
+      "description": "Ability to list all vendors for the tenant."
+    },
+    {
+      "name": "Vendor.CanReadById",
+      "interface": "IVendorByIdReader", 
+      "description": "Ability to retrieve a single vendor by its ERP ID."
+    },
+    {
+      "name": "VendorContact.CanReadById",
+      "interface": "IVendorContactByIdReader",
+      "description": "Ability to retrieve a single vendor contact by its ERP ID."
+    },
+    {
+      "name": "Job.CanRead",
+      "interface": "IJobListReader",
+      "description": "Ability to list all jobs for the tenant."
+    },
+    {
+      "name": "Customer.CanRead",
+      "interface": "ICustomerListReader",
+      "description": "Ability to list all customers for the tenant."
+    }
+  ],
+  "adapterProfiles": [
+    {
+      "name": "ViewpointVista",
+      "targetNamespace": "Bravillian.Repositories.Erps.Viewpoint.Vista",
+      "targetClassName": "VistaErpAdapter",
+      "supportedCapabilities": [
+        "Vendor.CanRead",
+        "Vendor.CanReadById",
+        "Job.CanRead",
+        "Customer.CanRead"
+      ]
+    },
+    {
+      "name": "ViewpointSpectrum",
+      "targetNamespace": "Bravillian.Repositories.Erps.Viewpoint.Spectrum", 
+      "targetClassName": "SpectrumErpAdapter",
+      "supportedCapabilities": [
+        "Vendor.CanRead",
+        "VendorContact.CanReadById",
+        "Job.CanRead"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ErpCapabilityDefinitions 
+    GeneratedCapabilitiesNamespace="Bravillian.TestGeneration.Erps" 
+    GeneratedInterfacesNamespace="Bravillian.TestGeneration.Erps.Interfaces">
+
+    <Capabilities>
+        <Capability Name="Vendor.CanRead" Interface="IVendorListReader" Description="Ability to list all vendors for the tenant." />
+        <Capability Name="Vendor.CanReadById" Interface="IVendorByIdReader" Description="Ability to retrieve a single vendor by its ERP ID." />
+        <Capability Name="Invoice.CanCreate" Interface="IInvoiceWriter" Description="Ability to create new invoices in the ERP system." />
+    </Capabilities>
+
+    <AdapterProfiles>
+        <AdapterProfile Name="TestAdapter" TargetNamespace="Bravillian.TestGeneration.TestAdapters" TargetClassName="TestErpAdapter">
+            <SupportsCapability Name="Vendor.CanRead" />
+            <SupportsCapability Name="Invoice.CanCreate" />
+        </AdapterProfile>
+    </AdapterProfiles>
+
+</ErpCapabilityDefinitions>

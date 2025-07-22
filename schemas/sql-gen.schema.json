@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "C# Code Generator Configuration",
+  "description": "Configuration file for driving the SQL-based C# code generator.",
+  "type": "object",
+  "properties": {
+    "namespace": { "type": "string" },
+    "dbContextName": { "type": "string" },
+    "dbContextBaseClass": { "type": "string" },
+    "generateDbContext": { "type": "boolean" },
+    "ignoreSchemas": {
+      "description": "A list of database schema names to ignore during code generation. Case-insensitive.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "globalTypeMappings": {
+      "description": "Global, rule-based mappings from SQL column definitions to C# types.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": { "type": "string" },
+          "priority": { "type": "integer", "default": 100 },
+          "match": {
+            "type": "object",
+            "properties": {
+              "schemaNameRegex": { "type": "string" },
+              "tableNameRegex": { "type": "string" },
+              "columnNameRegex": { "type": "string" },
+              "sqlType": { "type": ["string", "array"], "items": { "type": "string" } }
+            },
+            "additionalProperties": false
+          },
+          "apply": {
+            "type": "object",
+            "properties": {
+              "csharpType": { "type": "string" }
+            },
+            "required": ["csharpType"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["match", "apply"]
+      }
+    },
+    "tables": {
+      "description": "Configuration overrides for specific tables or views.",
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z0-9_]+\\.[a-zA-Z0-9_]+$": {
+          "type": "object",
+          "properties": {
+            "description": { "type": "string" },
+            "csharpClassName": { "type": "string" },
+            "primaryKeyOverride": { "type": "array", "items": { "type": "string" } },
+            "scopeKey": { 
+              "type": "string", 
+              "description": "The column name to use for multi-tenant/scoping functionality. This column will be included in all data access method WHERE clauses."
+            },
+            "updateConfig": {
+              "type": "object",
+              "properties": {
+                "ignoreColumns": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "readMethods": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "matchColumns": { "type": "array", "items": { "type": "string" } }
+                },
+                "required": ["name", "matchColumns"]
+              }
+            },
+            "columnOverrides": {
+              "type": "object",
+              "patternProperties": {
+                "^[a-zA-Z0-9_]+$": {
+                  "type": "object",
+                  "properties": {
+                    "description": { "type": "string" },
+                    "sqlType": { "type": "string" },
+                    "isNullable": { "type": "boolean" },
+                    "csharpType": { "type": "string" }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

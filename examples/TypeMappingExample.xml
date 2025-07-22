@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TypeMappingConfiguration>
+  <TypeMappingRules>
+    <!-- Example: Map any column ending with 'Id' to use Guid type -->
+    <TypeMappingRule ColumnNamePattern=".*Id$" 
+                     TargetType="Guid" 
+                     IsRegexPattern="true" />
+    
+    <!-- Example: Map columns named 'Email' to use custom EmailAddress type -->
+    <TypeMappingRule ColumnNamePattern="Email" 
+                     TargetType="EmailAddress" 
+                     IsNullable="false" />
+    
+    <!-- Example: Map columns in specific table -->
+    <TypeMappingRule TableNamePattern="Users" 
+                     ColumnNamePattern="FirstName" 
+                     TargetType="PersonName" />
+  </TypeMappingRules>
+</TypeMappingConfiguration>

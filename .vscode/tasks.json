@@ -1,0 +1,97 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/Bravillian.Generators.sln",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "test",
+                "${workspaceFolder}/tests/Bravillian.Generators.Tests/Bravillian.Generators.Tests.csproj"
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build-release",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "-c",
+                "Release",
+                "--interactive",
+                "-p:Version=${input:versionNumber}"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "pack-release",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "pack",
+                "-c",
+                "Release",
+                "-p:Version=${input:versionNumber}",
+                "--no-build"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "nuget-push",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "nuget",
+                "push",
+                "${workspaceFolder}/src/Bravillian.Generators.Cli/bin/Release/Bravillian.Generators.Cli.${input:versionNumber}.nupkg",
+                "--source",
+                "Bravillian",
+                "--api-key",
+                "az"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Publish Package",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "build-release",
+                "pack-release",
+                "nuget-push"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "versionNumber",
+            "type": "promptString",
+            "description": "Please enter the package version number (e.g., 1.0.10)."
+        }
+    ]
+}

@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Converted Type Mapping Configuration for SQL Entity Source Generator -->
+<TypeMappingConfiguration>
+  <TypeMappingRules>
+    
+    <!-- Pattern-based mappings -->
+    <TypeMappingRule ColumnNamePattern=".*Amount" 
+                     CSharpTypePattern="decimal" 
+                     TargetType="Bravillian.Core.Money" 
+                     IsRegexPattern="true" />
+    
+    <TypeMappingRule ColumnNamePattern=".*Percentage" 
+                     CSharpTypePattern="decimal" 
+                     TargetType="Bravillian.Core.Percentage" 
+                     IsRegexPattern="true" />
+    
+    <TypeMappingRule ColumnNamePattern=".*Context$" 
+                     TargetType="Bravillian.Core.JsonContext" 
+                     IsRegexPattern="true" />
+    
+    <TypeMappingRule ColumnNamePattern=".*Predicate$" 
+                     TargetType="Bravillian.Core.BasicPredicate" 
+                     IsRegexPattern="true" />
+
+    <!-- Table and column specific mappings -->
+    <TypeMappingRule ColumnNamePattern="ErpInvoiceId" 
+                     CSharpTypePattern="long" 
+                     TargetType="Bravillian.Core.InvoiceIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="ErpInvoiceLineItemId" 
+                     CSharpTypePattern="long" 
+                     TargetType="Bravillian.Core.InvoiceLineItemIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="RuleJson" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.Core.JsonContext" />
+
+    <!-- Exceptions -->
+    <TypeMappingRule TableNamePattern="QueueItem" 
+                     ColumnNamePattern="QueueItemId" 
+                     CSharpTypePattern="long" 
+                     TargetType="long" />
+
+    <!-- String-backed identifier mappings -->
+    <TypeMappingRule ColumnNamePattern="JobErpId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.JobErpIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="VendorErpId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.VendorErpIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="TaxCodeErpId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.TaxCodeErpIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="ApInvoiceErpId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.ApInvoiceErpIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="ApPaymentErpId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.ApPaymentErpIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="ApPaymentLineItemErpId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.ApPaymentLineItemErpIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="JournalPaymentErpId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.ApPaymentErpIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="CostTypeErpId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.CostTypeErpIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="CostCodeErpId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.CostCodeErpIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="ApInvoiceLineItemErpId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.ApInvoiceLineItemErpIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="SubcontractErpId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.SubcontractErpIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="SubcontractLineItemErpId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.SubcontractLineItemErpIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="PurchaseOrderErpId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.PurchaseOrderErpIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="PurchaseOrderLineItemErpId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.PurchaseOrderLineItemErpIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="JournalPaymentLineItemErpId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.ApPaymentLineItemErpIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="UserObjectId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.Core.UserObjectId" />
+    
+    <TypeMappingRule ColumnNamePattern="OrganizationSubscriptionId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.Core.OrganizationSubscriptionIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="ErpRecordSource" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.Core.ErpRecordSource" />
+    
+    <TypeMappingRule ColumnNamePattern="ErpSystem" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.Core.ErpSystem" />
+    
+    <TypeMappingRule ColumnNamePattern="SignatureRequestExternalId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.Core.SignatureRequestExternalIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="SupplierErpId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.Core.SupplierErpId" />
+    
+    <TypeMappingRule ColumnNamePattern="StripeCustomerId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.Core.StripeCustomerIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="RowFingerprint" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.DataFingerprint" />
+    
+    <TypeMappingRule ColumnNamePattern="ProviderRequestId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.ProviderRequestIdentifier" />
+
+    <!-- Table-specific ErpId mappings -->
+    <TypeMappingRule TableNamePattern="Job" 
+                     ColumnNamePattern="ErpId" 
+                     TargetType="Bravillian.JobErpIdentifier" />
+    
+    <TypeMappingRule TableNamePattern="Vendor" 
+                     ColumnNamePattern="ErpId" 
+                     TargetType="Bravillian.VendorErpIdentifier" />
+    
+    <TypeMappingRule TableNamePattern="TaxCode" 
+                     ColumnNamePattern="ErpId" 
+                     TargetType="Bravillian.TaxCodeErpIdentifier" />
+    
+    <TypeMappingRule TableNamePattern="ApInvoice" 
+                     ColumnNamePattern="ErpId" 
+                     TargetType="Bravillian.ApInvoiceErpIdentifier" />
+    
+    <TypeMappingRule TableNamePattern="ApInvoiceLineItem" 
+                     ColumnNamePattern="ErpId" 
+                     TargetType="Bravillian.ApInvoiceLineItemErpIdentifier" />
+    
+    <TypeMappingRule TableNamePattern="ApPayment" 
+                     ColumnNamePattern="ErpId" 
+                     TargetType="Bravillian.ApPaymentErpIdentifier" />
+    
+    <TypeMappingRule TableNamePattern="ApPaymentLineItem" 
+                     ColumnNamePattern="ErpId" 
+                     TargetType="Bravillian.ApPaymentLineItemErpIdentifier" />
+    
+    <TypeMappingRule TableNamePattern="CostType" 
+                     ColumnNamePattern="ErpId" 
+                     TargetType="Bravillian.CostTypeErpIdentifier" />
+    
+    <TypeMappingRule TableNamePattern="CostCode" 
+                     ColumnNamePattern="ErpId" 
+                     TargetType="Bravillian.CostCodeErpIdentifier" />
+    
+    <TypeMappingRule TableNamePattern="Subcontract" 
+                     ColumnNamePattern="ErpId" 
+                     TargetType="Bravillian.SubcontractErpIdentifier" />
+    
+    <TypeMappingRule TableNamePattern="SubcontractChangeOrder" 
+                     ColumnNamePattern="ErpId" 
+                     TargetType="Bravillian.SubcontractChangeOrderErpIdentifier" />
+    
+    <TypeMappingRule TableNamePattern="SubcontractLineItem" 
+                     ColumnNamePattern="ErpId" 
+                     TargetType="Bravillian.SubcontractLineItemErpIdentifier" />
+    
+    <TypeMappingRule TableNamePattern="PurchaseOrder" 
+                     ColumnNamePattern="ErpId" 
+                     TargetType="Bravillian.PurchaseOrderErpIdentifier" />
+    
+    <TypeMappingRule TableNamePattern="PurchaseOrderLineItem" 
+                     ColumnNamePattern="ErpId" 
+                     TargetType="Bravillian.PurchaseOrderLineItemErpIdentifier" />
+    
+    <TypeMappingRule TableNamePattern="PurchaseOrderChangeOrder" 
+                     ColumnNamePattern="ErpId" 
+                     TargetType="Bravillian.PurchaseOrderChangeOrderErpIdentifier" />
+
+    <!-- GuidBacked identifier mappings -->
+    <TypeMappingRule ColumnNamePattern="AzureMarketplaceSubscriptionId" 
+                     CSharpTypePattern="long" 
+                     TargetType="Bravillian.Core.AzureMarketplaceSubscriptionIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="BillingFrequencyId" 
+                     CSharpTypePattern="long" 
+                     TargetType="Bravillian.Core.BillingFrequencyIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="AccountingSystemId" 
+                     CSharpTypePattern="long" 
+                     TargetType="Bravillian.Core.AccountingSystemIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="AddressUsaRawId" 
+                     CSharpTypePattern="long" 
+                     TargetType="Bravillian.Core.AddressUsaRawIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="AddressUsaStandardizedId" 
+                     CSharpTypePattern="long" 
+                     TargetType="Bravillian.Core.AddressUsaStandardizedIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="ErpCompanyId" 
+                     CSharpTypePattern="long" 
+                     TargetType="Bravillian.ErpCompanyIdentifier" />
+
+    <!-- Enum mappings -->
+    <TypeMappingRule ColumnNamePattern="VendorRole" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.Core.VendorUserRole" />
+    
+    <TypeMappingRule ColumnNamePattern="PaymentWaiverGroupType" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.Core.PaymentWaiverGroupType" />
+    
+    <TypeMappingRule ColumnNamePattern="BillingFrequencyType" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.Core.BillingFrequencyType" />
+    
+    <TypeMappingRule ColumnNamePattern="EventType" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.Core.PwEventType" />
+
+    <!-- Table-specific enum mappings -->
+    <TypeMappingRule TableNamePattern="VendorUser" 
+                     ColumnNamePattern="Role" 
+                     TargetType="Bravillian.Core.VendorUserRole" />
+    
+    <TypeMappingRule TableNamePattern="PaymentWaiverGroup" 
+                     ColumnNamePattern="Type" 
+                     TargetType="Bravillian.Core.PaymentWaiverGroupType" />
+    
+    <TypeMappingRule TableNamePattern="BillingFrequencie" 
+                     ColumnNamePattern="Type" 
+                     TargetType="Bravillian.Core.BillingFrequencyType" />
+    
+    <TypeMappingRule TableNamePattern="Event" 
+                     ColumnNamePattern="Type" 
+                     TargetType="Bravillian.Core.PwEventType" />
+
+    <!-- Email mapping -->
+    <TypeMappingRule ColumnNamePattern="Email" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.EmailAddress" />
+
+    <!-- Money-related mappings with regex patterns -->
+    <TypeMappingRule ColumnNamePattern="TotalContractAmount|TotalChangeAmount|TotalInvoiceAmount|TotalInvoicedRetentionAmount|OriginalAmount|Retention|UnitCost|Balance|DebitTotal|CreditTotal" 
+                     CSharpTypePattern="decimal" 
+                     TargetType="Bravillian.Core.Money" 
+                     IsRegexPattern="true" />
+
+    <!-- Percentage mappings with regex patterns -->
+    <TypeMappingRule ColumnNamePattern="RetentionPercentage|DefaultRetentionPercentage" 
+                     CSharpTypePattern="decimal" 
+                     TargetType="Bravillian.Core.Percentage" 
+                     IsRegexPattern="true" />
+
+    <!-- Common identifier patterns -->
+    <TypeMappingRule ColumnNamePattern="JobId" 
+                     CSharpTypePattern="long" 
+                     TargetType="Bravillian.Core.JobIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="VendorId" 
+                     CSharpTypePattern="long" 
+                     TargetType="Bravillian.Core.VendorIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="CommitmentId" 
+                     CSharpTypePattern="long" 
+                     TargetType="Bravillian.Core.CommitmentIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="PurchaseOrderId" 
+                     CSharpTypePattern="long" 
+                     TargetType="Bravillian.Core.PurchaseOrderIdentifier" />
+
+    <!-- BravillianTenantId special handling -->
+    <TypeMappingRule ColumnNamePattern="BravillianTenantId" 
+                     TargetType="Bravillian.Core.BravillianTenantIdentifier" />
+    
+    <TypeMappingRule ColumnNamePattern="TenantId" 
+                     CSharpTypePattern="long" 
+                     TargetType="Bravillian.Core.BravillianTenantIdentifier" />
+
+    <!-- Context and JSON mappings -->
+    <TypeMappingRule ColumnNamePattern="DocumentContext" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.Core.JsonContext" />
+    
+    <TypeMappingRule ColumnNamePattern="Context" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.Core.JsonContext" />
+    
+    <TypeMappingRule ColumnNamePattern="Metadata" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.Core.JsonContext" />
+
+    <!-- Status mappings -->
+    <TypeMappingRule TableNamePattern="PurchaseOrder" 
+                     ColumnNamePattern="Status" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.ErpPurchaseOrderStatus" />
+    
+    <TypeMappingRule TableNamePattern="Commitment" 
+                     ColumnNamePattern="Status" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.ErpCommitmentStatus" />
+    
+    <TypeMappingRule TableNamePattern="Job" 
+                     ColumnNamePattern="Status" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.ErpJobStatus" />
+
+    <!-- Schema-specific mappings -->
+    <TypeMappingRule SchemaNamePattern="erp" 
+                     ColumnNamePattern="RecordSource" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.RecordSource" />
+    
+    <TypeMappingRule ColumnNamePattern="RecordSource" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.RecordSource" />
+
+    <!-- Special cases with table and column specificity -->
+    <TypeMappingRule TableNamePattern="SigningRequest" 
+                     ColumnNamePattern="ProviderRequestId" 
+                     TargetType="Bravillian.ProviderRequestIdentifier" />
+    
+    <TypeMappingRule TableNamePattern="SigningRequest" 
+                     ColumnNamePattern="Code" 
+                     TargetType="Bravillian.Core.Common.ShortCode" />
+    
+    <TypeMappingRule TableNamePattern="SigningRequest" 
+                     ColumnNamePattern="Workflow" 
+                     TargetType="Bravillian.SigningWorkflow" />
+
+    <!-- Additional common patterns that can be inferred from your mapping -->
+    
+    <!-- UserId patterns -->
+    <TypeMappingRule ColumnNamePattern="UserId" 
+                     CSharpTypePattern="string" 
+                     TargetType="Bravillian.Core.UserObjectId" />
+    
+    <!-- Timestamp pattern -->
+    <TypeMappingRule ColumnNamePattern="Timestamp" 
+                     CSharpTypePattern="string" 
+                     TargetType="System.DateTimeOffset" />
+
+  </TypeMappingRules>
+</TypeMappingConfiguration>

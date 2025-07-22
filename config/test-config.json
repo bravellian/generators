@@ -1,0 +1,40 @@
+{
+  "namespace": "TestGenerated.Entities",
+  "generateNavigationProperties": true,
+  "tables": {
+    "dbo.Users": {
+      "entityName": "User",
+      "columnOverrides": {
+        "Id": {
+          "csharpType": "int",
+          "isNullable": false
+        },
+        "Username": {
+          "csharpType": "string",
+          "isNullable": false
+        }
+      }
+    },
+    "dbo.Orders": {
+      "entityName": "Order",
+      "columnOverrides": {
+        "Total": {
+          "csharpType": "decimal",
+          "isNullable": false
+        }
+      }
+    }
+  },
+  "globalTypeMappings": [
+    {
+      "priority": 100,
+      "description": "Map NVARCHAR to string",
+      "match": {
+        "sqlType": ["nvarchar"]
+      },
+      "apply": {
+        "csharpType": "string"
+      }
+    }
+  ]
+}

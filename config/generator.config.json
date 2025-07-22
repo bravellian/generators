@@ -1,0 +1,239 @@
+{
+  "globalTypeMappings": [
+    {
+      "description": "Map all columns ending with 'Amount' to Money type",
+      "priority": 100,
+      "match": {
+        "sqlType": [".*"],
+        "columnNameRegex": ".*Amount$"
+      },
+      "apply": {
+        "csharpType": "Bravillian.Money"
+      }
+    },
+    {
+      "description": "Map all columns ending with 'Percentage' to Percentage type",
+      "priority": 100,
+      "match": {
+        "sqlType": [".*"],
+        "columnNameRegex": ".*Percentage$"
+      },
+      "apply": {
+        "csharpType": "Bravillian.Percentage"
+      }
+    },
+    {
+      "description": "Map all columns ending with 'Context' to JsonContext type",
+      "priority": 100,
+      "match": {
+        "sqlType": [".*"],
+        "columnNameRegex": ".*Context$"
+      },
+      "apply": {
+        "csharpType": "Bravillian.JsonContext"
+      }
+    },
+    {
+      "description": "Map all columns ending with 'Predicate' to BasicPredicate type",
+      "priority": 100,
+      "match": {
+        "sqlType": [".*"],
+        "columnNameRegex": ".*Predicate$"
+      },
+      "apply": {
+        "csharpType": "Bravillian.BasicPredicate"
+      }
+    },
+    {
+      "description": "Map ErpInvoiceId to InvoiceIdentifier type",
+      "priority": 150,
+      "match": {
+        "sqlType": [".*"],
+        "columnNameRegex": "^ErpInvoiceId$"
+      },
+      "apply": {
+        "csharpType": "Bravillian.InvoiceIdentifier"
+      }
+    },
+    {
+      "description": "Map ErpInvoiceLineItemId to InvoiceLineItemIdentifier type",
+      "priority": 150,
+      "match": {
+        "sqlType": [".*"],
+        "columnNameRegex": "^ErpInvoiceLineItemId$"
+      },
+      "apply": {
+        "csharpType": "Bravillian.InvoiceLineItemIdentifier"
+      }
+    },
+    {
+      "description": "Map RuleJson to JsonContext type",
+      "priority": 150,
+      "match": {
+        "sqlType": [".*"],
+        "columnNameRegex": "^RuleJson$"
+      },
+      "apply": {
+        "csharpType": "Bravillian.JsonContext"
+      }
+    },
+    {
+      "description": "Map JobErpId to JobErpIdentifier type",
+      "priority": 150,
+      "match": {
+        "sqlType": [".*"],
+        "columnNameRegex": "^JobErpId$"
+      },
+      "apply": {
+        "csharpType": "Bravillian.JobErpIdentifier"
+      }
+    },
+    {
+      "description": "Map VendorErpId to VendorErpIdentifier type",
+      "priority": 150,
+      "match": {
+        "sqlType": [".*"],
+        "columnNameRegex": "^VendorErpId$"
+      },
+      "apply": {
+        "csharpType": "Bravillian.VendorErpIdentifier"
+      }
+    },
+    {
+      "description": "Map TaxCodeErpId to TaxCodeErpIdentifier type",
+      "priority": 150,
+      "match": {
+        "sqlType": [".*"],
+        "columnNameRegex": "^TaxCodeErpId$"
+      },
+      "apply": {
+        "csharpType": "Bravillian.TaxCodeErpIdentifier"
+      }
+    },
+    {
+      "description": "Map ApInvoiceErpId to ApInvoiceErpIdentifier type",
+      "priority": 150,
+      "match": {
+        "sqlType": [".*"],
+        "columnNameRegex": "^ApInvoiceErpId$"
+      },
+      "apply": {
+        "csharpType": "Bravillian.ApInvoiceErpIdentifier"
+      }
+    },
+    {
+      "description": "Map ApPaymentErpId to ApPaymentErpIdentifier type",
+      "priority": 150,
+      "match": {
+        "sqlType": [".*"],
+        "columnNameRegex": "^ApPaymentErpId$"
+      },
+      "apply": {
+        "csharpType": "Bravillian.ApPaymentErpIdentifier"
+      }
+    },
+    {
+      "description": "Map ApPaymentLineItemErpId to ApPaymentLineItemErpIdentifier type",
+      "priority": 150,
+      "match": {
+        "sqlType": [".*"],
+        "columnNameRegex": "^ApPaymentLineItemErpId$"
+      },
+      "apply": {
+        "csharpType": "Bravillian.ApPaymentLineItemErpIdentifier"
+      }
+    },
+    {
+      "description": "Map JournalPaymentErpId to ApPaymentErpIdentifier type",
+      "priority": 150,
+      "match": {
+        "sqlType": [".*"],
+        "columnNameRegex": "^JournalPaymentErpId$"
+      },
+      "apply": {
+        "csharpType": "Bravillian.ApPaymentErpIdentifier"
+      }
+    },
+    {
+      "description": "Map CostTypeErpId to CostTypeErpIdentifier type",
+      "priority": 150,
+      "match": {
+        "sqlType": [".*"],
+        "columnNameRegex": "^CostTypeErpId$"
+      },
+      "apply": {
+        "csharpType": "Bravillian.CostTypeErpIdentifier"
+      }
+    },
+    {
+      "description": "Map CostCodeErpId to CostCodeErpIdentifier type",
+      "priority": 150,
+      "match": {
+        "sqlType": [".*"],
+        "columnNameRegex": "^CostCodeErpId$"
+      },
+      "apply": {
+        "csharpType": "Bravillian.CostCodeErpIdentifier"
+      }
+    },
+    {
+      "description": "Map ApInvoiceLineItemErpId to ApInvoiceLineItemErpIdentifier type",
+      "priority": 150,
+      "match": {
+        "sqlType": [".*"],
+        "columnNameRegex": "^ApInvoiceLineItemErpId$"
+      },
+      "apply": {
+        "csharpType": "Bravillian.ApInvoiceLineItemErpIdentifier"
+      }
+    }
+  ],
+  "tables": {
+    "dbo.QueueItem": {
+      "description": "QueueItem table specific mappings",
+      "columnOverrides": {
+        "QueueItemId": {
+          "csharpType": "long"
+        }
+      }
+    },
+    "dbo.SigningRequest": {
+      "description": "SigningRequest table specific mappings",
+      "columnOverrides": {
+        "ProviderRequestId": {
+          "csharpType": "Bravillian.ProviderRequestIdentifier"
+        },
+        "Code": {
+          "csharpType": "Bravillian.ShortCode"
+        },
+        "Workflow": {
+          "csharpType": "Bravillian.SigningWorkflow"
+        }
+      }
+    },
+    "dbo.Job": {
+      "description": "Job table specific mappings",
+      "columnOverrides": {
+        "ErpId": {
+          "csharpType": "Bravillian.JobErpIdentifier"
+        }
+      }
+    },
+    "dbo.Vendor": {
+      "description": "Vendor table specific mappings",
+      "columnOverrides": {
+        "ErpId": {
+          "csharpType": "Bravillian.VendorErpIdentifier"
+        }
+      }
+    },
+    "dbo.TaxCode": {
+      "description": "TaxCode table specific mappings",
+      "columnOverrides": {
+        "ErpId": {
+          "csharpType": "Bravillian.TaxCodeErpIdentifier"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "Color",
+  "namespace": "TestNamespace",
+  "values": {
+    "Red": {
+      "value": "red",
+      "display": "Red Color"
+    },
+    "Blue": {
+      "value": "blue",
+      "display": "Blue Color"  
+    },
+    "Green": {
+      "value": "green",
+      "display": "Green Color"
+    }
+  }
+}

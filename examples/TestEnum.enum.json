@@ -1,0 +1,31 @@
+{
+  "name": "TestAccountingSystemEnum",
+  "namespace": "TestNamespace",
+  "properties": {
+    "SystemId": {
+      "type": "int"
+    },
+    "ApiEndpoint": {
+      "type": "string"
+    },
+    "IsCloudBased": {
+      "type": "bool"
+    }
+  },
+  "values": {
+    "None": {
+      "value": "none",
+      "documentation": "No accounting system selected"
+    },
+    "ViewpointVista": {
+      "value": "viewpoint_vista",
+      "display": "Viewpoint Vista",
+      "documentation": "Viewpoint Vista construction management system"
+    },
+    "Quickbooks": {
+      "value": "quickbooks",
+      "display": "Quickbooks",
+      "documentation": "QuickBooks accounting software"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "capabilitiesReference": {
+    "generatedCapabilitiesNamespace": "Bravillian.Repositories.Erps",
+    "generatedInterfacesNamespace": "Bravillian.Repositories.Erps",
+    "capabilitiesFile": "ErpCapabilities.erp-capabilities-only.json"
+  },
+  "adapterProfile": {
+    "name": "ViewpointSpectrum",
+    "targetNamespace": "Bravillian.Repositories.Erps.ViewpointSpectrum",
+    "targetClassName": "ViewpointSpectrumAdapter",
+    "supportedCapabilities": [
+      "Vendor.CanRead",
+      "Vendor.CanReadById",
+      "VendorContact.CanReadById",
+      "VendorContact.CanListByVendor"
+    ]
+  }
+}

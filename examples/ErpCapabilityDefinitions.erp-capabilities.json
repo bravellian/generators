@@ -1,0 +1,363 @@
+{
+  "generatedCapabilitiesNamespace": "Bravillian.Repositories.Erps",
+  "generatedInterfacesNamespace": "Bravillian.Repositories.Erps",
+  "capabilities": [
+    {
+      "name": "Vendor.CanRead",
+      "interface": "IVendorListReader",
+      "description": "Ability to list all vendors for the tenant."
+    },
+    {
+      "name": "Vendor.CanReadById",
+      "interface": "IVendorByIdReader",
+      "description": "Ability to retrieve a single vendor by its ERP ID."
+    },
+    {
+      "name": "VendorContact.CanReadById",
+      "interface": "IVendorContactByIdReader",
+      "description": "Ability to retrieve a single vendor contact by its ERP ID."
+    },
+    {
+      "name": "VendorContact.CanListByVendor",
+      "interface": "IVendorContactListByVendorReader",
+      "description": "Ability to list contacts associated with a specific vendor."
+    },
+    {
+      "name": "VendorContact.CanWrite",
+      "interface": "IVendorContactWriter",
+      "description": "Ability to create or update vendor contacts in the ERP."
+    },
+    {
+      "name": "Job.CanRead",
+      "interface": "IJobListReader",
+      "description": "Ability to list all jobs for the tenant."
+    },
+    {
+      "name": "Job.CanReadById",
+      "interface": "IJobByIdReader",
+      "description": "Ability to retrieve a single job by its ERP ID."
+    },
+    {
+      "name": "InternalUser.CanRead",
+      "interface": "IInternalUserListReader",
+      "description": "Ability to list all internal users for the tenant."
+    },
+    {
+      "name": "InternalUser.CanReadById",
+      "interface": "IInternalUserByIdReader",
+      "description": "Ability to retrieve a single internal user by its ERP ID."
+    },
+    {
+      "name": "Customer.CanRead",
+      "interface": "ICustomerListReader",
+      "description": "Ability to list all customers for the tenant."
+    },
+    {
+      "name": "Customer.CanReadById",
+      "interface": "ICustomerByIdReader",
+      "description": "Ability to retrieve a single customer by its ERP ID."
+    },
+    {
+      "name": "CustomerContract.CanRead",
+      "interface": "ICustomerContractListReader",
+      "description": "Ability to list all customer contracts for the tenant."
+    },
+    {
+      "name": "CustomerContract.CanReadById",
+      "interface": "ICustomerContractByIdReader",
+      "description": "Ability to retrieve a single customer contract by its ERP ID."
+    },
+    {
+      "name": "CustomerContract.CanListByCustomer",
+      "interface": "ICustomerContractListByCustomerReader",
+      "description": "Ability to list contracts associated with a specific customer."
+    },
+    {
+      "name": "CustomerContact.CanReadById",
+      "interface": "ICustomerContactByIdReader",
+      "description": "Ability to retrieve a single customer contact by its ERP ID."
+    },
+    {
+      "name": "CustomerContact.CanListByCustomer",
+      "interface": "ICustomerContactListByCustomerReader",
+      "description": "Ability to list contacts associated with a specific customer."
+    },
+    {
+      "name": "CustomerContact.CanWrite",
+      "interface": "ICustomerContactWriter",
+      "description": "Ability to create or update customer contacts in the ERP."
+    },
+    {
+      "name": "ApInvoice.CanRead",
+      "interface": "IApInvoiceListReader",
+      "description": "Ability to list AP invoices for the tenant (potentially filtered)."
+    },
+    {
+      "name": "ApInvoice.CanReadById",
+      "interface": "IApInvoiceByIdReader",
+      "description": "Ability to retrieve a single AP invoice by its ERP ID."
+    },
+    {
+      "name": "ApInvoiceLineItem.CanListByInvoice",
+      "interface": "IApInvoiceLineItemListByInvoiceReader",
+      "description": "Ability to list line items for a specific AP invoice."
+    },
+    {
+      "name": "ApInvoiceLineItem.CanReadById",
+      "interface": "IApInvoiceLineItemByIdReader",
+      "description": "Ability to retrieve a single AP invoice line item by its ERP ID."
+    },
+    {
+      "name": "ApPayment.CanRead",
+      "interface": "IApPaymentListReader",
+      "description": "Ability to list AP payments for the tenant."
+    },
+    {
+      "name": "ApPayment.CanReadById",
+      "interface": "IApPaymentByIdReader",
+      "description": "Ability to retrieve a single AP payment by its ERP ID."
+    },
+    {
+      "name": "ApPaymentLineItem.CanListByPayment",
+      "interface": "IApPaymentLineItemListByPaymentReader",
+      "description": "Ability to list line items for a specific AP payment."
+    },
+    {
+      "name": "ApPaymentLineItem.CanReadById",
+      "interface": "IApPaymentLineItemByIdReader",
+      "description": "Ability to retrieve a single AP payment line item by its ERP ID."
+    },
+    {
+      "name": "PurchaseOrder.CanRead",
+      "interface": "IPurchaseOrderListReader",
+      "description": "Ability to list purchase orders for the tenant."
+    },
+    {
+      "name": "PurchaseOrder.CanReadById",
+      "interface": "IPurchaseOrderByIdReader",
+      "description": "Ability to retrieve a single purchase order by its ERP ID."
+    },
+    {
+      "name": "PurchaseOrderLineItem.CanListByPurchaseOrder",
+      "interface": "IPurchaseOrderLineItemListByPoReader",
+      "description": "Ability to list line items for a specific purchase order."
+    },
+    {
+      "name": "PurchaseOrderLineItem.CanReadById",
+      "interface": "IPurchaseOrderLineItemByIdReader",
+      "description": "Ability to retrieve a single purchase order line item by its ERP ID."
+    },
+    {
+      "name": "Subcontract.CanRead",
+      "interface": "ISubcontractListReader",
+      "description": "Ability to list subcontracts for the tenant."
+    },
+    {
+      "name": "Subcontract.CanReadById",
+      "interface": "ISubcontractByIdReader",
+      "description": "Ability to retrieve a single subcontract by its ERP ID."
+    },
+    {
+      "name": "Subcontract.CanListByJob",
+      "interface": "ISubcontractListByJobReader",
+      "description": "Ability to list subcontracts associated with a specific job."
+    },
+    {
+      "name": "SubcontractLineItem.CanListBySubcontract",
+      "interface": "ISubcontractLineItemListBySubcontractReader",
+      "description": "Ability to list line items for a specific subcontract."
+    },
+    {
+      "name": "SubcontractLineItem.CanReadById",
+      "interface": "ISubcontractLineItemByIdReader",
+      "description": "Ability to retrieve a single subcontract line item by its ERP ID."
+    },
+    {
+      "name": "SubcontractChangeOrder.CanRead",
+      "interface": "ISubcontractChangeOrderListReader",
+      "description": "Ability to list change orders for the tenant."
+    },
+    {
+      "name": "SubcontractChangeOrder.CanReadById",
+      "interface": "ISubcontractChangeOrderByIdReader",
+      "description": "Ability to retrieve a single change order by its ERP ID."
+    },
+    {
+      "name": "SubcontractChangeOrder.CanListBySubcontract",
+      "interface": "ISubcontractChangeOrderListBySubcontractReader",
+      "description": "Ability to list change orders associated with a specific subcontract."
+    },
+    {
+      "name": "SubcontractChangeOrderLineItem.CanListBySubcontractChangeOrder",
+      "interface": "ISubcontractChangeOrderLineItemListByCoReader",
+      "description": "Ability to list line items for a specific change order."
+    },
+    {
+      "name": "SubcontractChangeOrderLineItem.CanReadById",
+      "interface": "ISubcontractChangeOrderLineItemByIdReader",
+      "description": "Ability to retrieve a single change order line item by its ERP ID."
+    },
+    {
+      "name": "PurchaseOrderChangeOrder.CanRead",
+      "interface": "IPurchaseOrderChangeOrderListReader",
+      "description": "Ability to list change orders for the tenant."
+    },
+    {
+      "name": "PurchaseOrderChangeOrder.CanReadById",
+      "interface": "IPurchaseOrderChangeOrderByIdReader",
+      "description": "Ability to retrieve a single change order by its ERP ID."
+    },
+    {
+      "name": "PurchaseOrderChangeOrder.CanListByPurchaseOrder",
+      "interface": "IPurchaseOrderChangeOrderListByPoReader",
+      "description": "Ability to list change orders associated with a specific purchase order."
+    },
+    {
+      "name": "PurchaseOrderChangeOrderLineItem.CanListByPurchaseOrderChangeOrder",
+      "interface": "IPurchaseOrderChangeOrderLineItemListByCoReader",
+      "description": "Ability to list line items for a specific change order."
+    },
+    {
+      "name": "PurchaseOrderChangeOrderLineItem.CanReadById",
+      "interface": "IPurchaseOrderChangeOrderLineItemByIdReader",
+      "description": "Ability to retrieve a single change order line item by its ERP ID."
+    },
+    {
+      "name": "CostCode.CanRead",
+      "interface": "ICostCodeListReader",
+      "description": "Ability to list all cost codes for the tenant."
+    },
+    {
+      "name": "CostCode.CanReadById",
+      "interface": "ICostCodeByIdReader",
+      "description": "Ability to retrieve a single cost code by its ERP ID."
+    },
+    {
+      "name": "CostType.CanRead",
+      "interface": "ICostTypeListReader",
+      "description": "Ability to list all cost types for the tenant."
+    },
+    {
+      "name": "CostType.CanReadById",
+      "interface": "ICostTypeByIdReader",
+      "description": "Ability to retrieve a single cost type by its ERP ID."
+    },
+    {
+      "name": "TaxCode.CanRead",
+      "interface": "ITaxCodeListReader",
+      "description": "Ability to list all tax codes for the tenant."
+    },
+    {
+      "name": "TaxCode.CanReadById",
+      "interface": "ITaxCodeByIdReader",
+      "description": "Ability to retrieve a single tax code by its ERP ID."
+    },
+    {
+      "name": "Supplier.CanRead",
+      "interface": "ISupplierListReader",
+      "description": "Ability to list all suppliers for the tenant."
+    },
+    {
+      "name": "Supplier.CanReadById",
+      "interface": "ISupplierByIdReader",
+      "description": "Ability to retrieve a single supplier by its ERP ID."
+    },
+    {
+      "name": "Attachment.CanReadByPayment",
+      "interface": "IAttachmentListByPaymentReader",
+      "description": "Ability to list attachment metadata associated with a payment."
+    },
+    {
+      "name": "Attachment.CanWriteToPayment",
+      "interface": "IAttachmentPaymentWriter",
+      "description": "Ability to create/upload attachments associated with a payment."
+    },
+    {
+      "name": "Attachment.CanReadByInvoice",
+      "interface": "IAttachmentListByInvoiceReader",
+      "description": "Ability to list attachment metadata associated with an invoice."
+    },
+    {
+      "name": "Attachment.CanWriteToInvoice",
+      "interface": "IAttachmentInvoiceWriter",
+      "description": "Ability to create/upload attachments associated with an invoice."
+    },
+    {
+      "name": "ApInvoiceBatch.CanCreate",
+      "interface": "IApInvoiceBatchCreator",
+      "description": "Ability to create an AP Invoice Batch in the ERP."
+    }
+  ],
+  "adapterProfiles": [
+    {
+      "name": "ViewpointVista",
+      "targetNamespace": "Bravillian.Repositories.Erps.ViewpointVista",
+      "targetClassName": "ViewpointVistaAdapter",
+      "supportedCapabilities": [
+        "Vendor.CanRead",
+        "Vendor.CanReadById",
+        "VendorContact.CanReadById",
+        "VendorContact.CanListByVendor",
+        "InternalUser.CanRead",
+        "InternalUser.CanReadById",
+        "Job.CanRead",
+        "Job.CanReadById",
+        "Customer.CanRead",
+        "Customer.CanReadById",
+        "CustomerContract.CanRead",
+        "CustomerContract.CanReadById",
+        "CustomerContract.CanListByCustomer",
+        "CustomerContact.CanReadById",
+        "CustomerContact.CanListByCustomer",
+        "ApInvoice.CanRead",
+        "ApInvoice.CanReadById",
+        "ApInvoiceLineItem.CanListByInvoice",
+        "ApInvoiceLineItem.CanReadById",
+        "ApPayment.CanRead",
+        "ApPayment.CanReadById",
+        "ApPaymentLineItem.CanListByPayment",
+        "ApPaymentLineItem.CanReadById",
+        "PurchaseOrder.CanRead",
+        "PurchaseOrder.CanReadById",
+        "PurchaseOrderLineItem.CanListByPurchaseOrder",
+        "PurchaseOrderLineItem.CanReadById",
+        "Subcontract.CanRead",
+        "Subcontract.CanReadById",
+        "Subcontract.CanListByJob",
+        "SubcontractLineItem.CanListBySubcontract",
+        "SubcontractLineItem.CanReadById",
+        "SubcontractChangeOrder.CanRead",
+        "SubcontractChangeOrder.CanReadById",
+        "SubcontractChangeOrder.CanListBySubcontract",
+        "SubcontractChangeOrderLineItem.CanListBySubcontractChangeOrder",
+        "SubcontractChangeOrderLineItem.CanReadById",
+        "PurchaseOrderChangeOrder.CanRead",
+        "PurchaseOrderChangeOrder.CanReadById",
+        "PurchaseOrderChangeOrder.CanListByPurchaseOrder",
+        "PurchaseOrderChangeOrderLineItem.CanListByPurchaseOrderChangeOrder",
+        "PurchaseOrderChangeOrderLineItem.CanReadById",
+        "CostCode.CanRead",
+        "CostCode.CanReadById",
+        "CostType.CanRead",
+        "CostType.CanReadById",
+        "TaxCode.CanRead",
+        "TaxCode.CanReadById",
+        "Attachment.CanReadByPayment",
+        "Attachment.CanWriteToPayment",
+        "Attachment.CanReadByInvoice",
+        "Attachment.CanWriteToInvoice"
+      ]
+    },
+    {
+      "name": "ViewpointSpectrum",
+      "targetNamespace": "Bravillian.Repositories.Erps.ViewpointSpectrum",
+      "targetClassName": "ViewpointSpectrumAdapter",
+      "supportedCapabilities": [
+        "Vendor.CanRead",
+        "Vendor.CanReadById",
+        "VendorContact.CanReadById",
+        "VendorContact.CanListByVendor"
+      ]
+    }
+  ]
+}

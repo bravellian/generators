@@ -1,0 +1,234 @@
+{
+  "generatedCapabilitiesNamespace": "Bravillian.Repositories.Erps",
+  "generatedInterfacesNamespace": "Bravillian.Repositories.Erps",
+  "capabilities": [
+    {
+      "name": "Vendor.CanRead",
+      "description": "Ability to list all vendors for the tenant."
+    },
+    {
+      "name": "Vendor.CanReadById",
+      "description": "Ability to retrieve a single vendor by its ERP ID."
+    },
+    {
+      "name": "VendorContact.CanReadById",
+      "description": "Ability to retrieve a single vendor contact by its ERP ID."
+    },
+    {
+      "name": "VendorContact.CanListByVendor",
+      "description": "Ability to list contacts associated with a specific vendor."
+    },
+    {
+      "name": "VendorContact.CanWrite",
+      "description": "Ability to create or update vendor contacts in the ERP."
+    },
+    {
+      "name": "Job.CanRead",
+      "description": "Ability to list all jobs for the tenant."
+    },
+    {
+      "name": "Job.CanReadById",
+      "description": "Ability to retrieve a single job by its ERP ID."
+    },
+    {
+      "name": "InternalUser.CanRead",
+      "description": "Ability to list all internal users for the tenant."
+    },
+    {
+      "name": "InternalUser.CanReadById",
+      "description": "Ability to retrieve a single internal user by its ERP ID."
+    },
+    {
+      "name": "Customer.CanRead",
+      "description": "Ability to list all customers for the tenant."
+    },
+    {
+      "name": "Customer.CanReadById",
+      "description": "Ability to retrieve a single customer by its ERP ID."
+    },
+    {
+      "name": "CustomerContract.CanRead",
+      "description": "Ability to list all customer contracts for the tenant."
+    },
+    {
+      "name": "CustomerContract.CanReadById",
+      "description": "Ability to retrieve a single customer contract by its ERP ID."
+    },
+    {
+      "name": "CustomerContract.CanListByCustomer",
+      "description": "Ability to list contracts associated with a specific customer."
+    },
+    {
+      "name": "CustomerContact.CanReadById",
+      "description": "Ability to retrieve a single customer contact by its ERP ID."
+    },
+    {
+      "name": "CustomerContact.CanListByCustomer",
+      "description": "Ability to list contacts associated with a specific customer."
+    },
+    {
+      "name": "CustomerContact.CanWrite",
+      "description": "Ability to create or update customer contacts in the ERP."
+    },
+    {
+      "name": "ApInvoice.CanRead",
+      "description": "Ability to list AP invoices for the tenant (potentially filtered)."
+    },
+    {
+      "name": "ApInvoice.CanReadById",
+      "description": "Ability to retrieve a single AP invoice by its ERP ID."
+    },
+    {
+      "name": "ApInvoiceLineItem.CanListByInvoice",
+      "description": "Ability to list line items for a specific AP invoice."
+    },
+    {
+      "name": "ApInvoiceLineItem.CanReadById",
+      "description": "Ability to retrieve a single AP invoice line item by its ERP ID."
+    },
+    {
+      "name": "ApPayment.CanRead",
+      "description": "Ability to list AP payments for the tenant."
+    },
+    {
+      "name": "ApPayment.CanReadById",
+      "description": "Ability to retrieve a single AP payment by its ERP ID."
+    },
+    {
+      "name": "ApPaymentLineItem.CanListByPayment",
+      "description": "Ability to list line items for a specific AP payment."
+    },
+    {
+      "name": "ApPaymentLineItem.CanReadById",
+      "description": "Ability to retrieve a single AP payment line item by its ERP ID."
+    },
+    {
+      "name": "PurchaseOrder.CanRead",
+      "description": "Ability to list purchase orders for the tenant."
+    },
+    {
+      "name": "PurchaseOrder.CanReadById",
+      "description": "Ability to retrieve a single purchase order by its ERP ID."
+    },
+    {
+      "name": "PurchaseOrderLineItem.CanListByPurchaseOrder",
+      "description": "Ability to list line items for a specific purchase order."
+    },
+    {
+      "name": "PurchaseOrderLineItem.CanReadById",
+      "description": "Ability to retrieve a single purchase order line item by its ERP ID."
+    },
+    {
+      "name": "Subcontract.CanRead",
+      "description": "Ability to list subcontracts for the tenant."
+    },
+    {
+      "name": "Subcontract.CanReadById",
+      "description": "Ability to retrieve a single subcontract by its ERP ID."
+    },
+    {
+      "name": "Subcontract.CanListByJob",
+      "description": "Ability to list subcontracts associated with a specific job."
+    },
+    {
+      "name": "SubcontractLineItem.CanListBySubcontract",
+      "description": "Ability to list line items for a specific subcontract."
+    },
+    {
+      "name": "SubcontractLineItem.CanReadById",
+      "description": "Ability to retrieve a single subcontract line item by its ERP ID."
+    },
+    {
+      "name": "SubcontractChangeOrder.CanRead",
+      "description": "Ability to list change orders for the tenant."
+    },
+    {
+      "name": "SubcontractChangeOrder.CanReadById",
+      "description": "Ability to retrieve a single change order by its ERP ID."
+    },
+    {
+      "name": "SubcontractChangeOrder.CanListBySubcontract",
+      "description": "Ability to list change orders associated with a specific subcontract."
+    },
+    {
+      "name": "SubcontractChangeOrderLineItem.CanListBySubcontractChangeOrder",
+      "description": "Ability to list line items for a specific change order."
+    },
+    {
+      "name": "SubcontractChangeOrderLineItem.CanReadById",
+      "description": "Ability to retrieve a single change order line item by its ERP ID."
+    },
+    {
+      "name": "PurchaseOrderChangeOrder.CanRead",
+      "description": "Ability to list change orders for the tenant."
+    },
+    {
+      "name": "PurchaseOrderChangeOrder.CanReadById",
+      "description": "Ability to retrieve a single change order by its ERP ID."
+    },
+    {
+      "name": "PurchaseOrderChangeOrder.CanListByPurchaseOrder",
+      "description": "Ability to list change orders associated with a specific purchase order."
+    },
+    {
+      "name": "PurchaseOrderChangeOrderLineItem.CanListByPurchaseOrderChangeOrder",
+      "description": "Ability to list line items for a specific change order."
+    },
+    {
+      "name": "PurchaseOrderChangeOrderLineItem.CanReadById",
+      "description": "Ability to retrieve a single change order line item by its ERP ID."
+    },
+    {
+      "name": "CostCode.CanRead",
+      "description": "Ability to list all cost codes for the tenant."
+    },
+    {
+      "name": "CostCode.CanReadById",
+      "description": "Ability to retrieve a single cost code by its ERP ID."
+    },
+    {
+      "name": "CostType.CanRead",
+      "description": "Ability to list all cost types for the tenant."
+    },
+    {
+      "name": "CostType.CanReadById",
+      "description": "Ability to retrieve a single cost type by its ERP ID."
+    },
+    {
+      "name": "TaxCode.CanRead",
+      "description": "Ability to list all tax codes for the tenant."
+    },
+    {
+      "name": "TaxCode.CanReadById",
+      "description": "Ability to retrieve a single tax code by its ERP ID."
+    },
+    {
+      "name": "Supplier.CanRead",
+      "description": "Ability to list all suppliers for the tenant."
+    },
+    {
+      "name": "Supplier.CanReadById",
+      "description": "Ability to retrieve a single supplier by its ERP ID."
+    },
+    {
+      "name": "Attachment.CanReadByPayment",
+      "description": "Ability to list attachment metadata associated with a payment."
+    },
+    {
+      "name": "Attachment.CanWriteToPayment",
+      "description": "Ability to create/upload attachments associated with a payment."
+    },
+    {
+      "name": "Attachment.CanReadByInvoice",
+      "description": "Ability to list attachment metadata associated with an invoice."
+    },
+    {
+      "name": "Attachment.CanWriteToInvoice",
+      "description": "Ability to create/upload attachments associated with an invoice."
+    },
+    {
+      "name": "ApInvoiceBatch.CanCreate",
+      "description": "Ability to create an AP Invoice Batch in the ERP."
+    }
+  ]
+}

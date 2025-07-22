@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Example Type Mapping Configuration for SQL Entity Source Generator -->
+<TypeMappingConfiguration>
+  <TypeMappingRules>
+    
+    <!-- Example 1: Map any column ending with 'Id' to use Guid type -->
+    <TypeMappingRule ColumnNamePattern=".*Id$" 
+                     TargetType="Guid" 
+                     IsRegexPattern="true" />
+    
+    <!-- Example 2: Map specific column names to custom types -->
+    <TypeMappingRule ColumnNamePattern="Email" 
+                     TargetType="EmailAddress" 
+                     IsNullable="false" />
+                     
+    <!-- Example 3: Map columns in specific tables -->
+    <TypeMappingRule TableNamePattern="Users" 
+                     ColumnNamePattern="FirstName" 
+                     TargetType="PersonName" />
+                     
+    <!-- Example 4: Map by schema, table, and column -->
+    <TypeMappingRule SchemaNamePattern="dbo"
+                     TableNamePattern="Orders" 
+                     ColumnNamePattern="Status" 
+                     TargetType="OrderStatus" />
+                     
+    <!-- Example 5: Include C# type pattern matching -->
+    <TypeMappingRule ColumnNamePattern="CreatedAt"
+                     CSharpTypePattern="DateTime"
+                     TargetType="DateTimeOffset" 
+                     IsNullable="false" />
+                     
+  </TypeMappingRules>
+</TypeMappingConfiguration>

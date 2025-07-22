@@ -1,0 +1,810 @@
+<?xml version="1.0" encoding="utf-16"?>
+<Patterns xmlns="urn:schemas-jetbrains-com:member-reordering-patterns">
+    <TypePattern DisplayName="Non-reorderable types">
+        <TypePattern.Match>
+            <Or>
+                <And>
+                    <Kind Is="Interface" />
+                    <Or>
+                        <HasAttribute Name="System.Runtime.InteropServices.InterfaceTypeAttribute" />
+                        <HasAttribute Name="System.Runtime.InteropServices.ComImport" />
+                    </Or>
+                </And>
+                <Kind Is="Struct" />
+                <HasAttribute Name="JetBrains.Annotations.NoReorderAttribute" />
+                <HasAttribute Name="JetBrains.Annotations.NoReorder" />
+            </Or>
+        </TypePattern.Match>
+    </TypePattern>
+    <TypePattern DisplayName="xUnit.net Test Classes"
+        RemoveRegions="All">
+        <TypePattern.Match>
+            <And>
+                <Kind Is="Class" />
+                <HasMember>
+                    <And>
+                        <Kind Is="Method" />
+                        <HasAttribute Name="Xunit.FactAttribute"
+                            Inherited="True" />
+                        <HasAttribute Name="Xunit.TheoryAttribute"
+                            Inherited="True" />
+                    </And>
+                </HasMember>
+            </And>
+        </TypePattern.Match>
+        <Entry DisplayName="Setup/Teardown Methods">
+            <Entry.Match>
+                <Or>
+                    <Kind Is="Constructor" />
+                    <And>
+                        <Kind Is="Method" />
+                        <ImplementsInterface Name="System.IDisposable" />
+                    </And>
+                </Or>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Kind Order="Constructor" />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="All other members" />
+        <Entry DisplayName="Test Methods">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Method" />
+                    <HasAttribute Name="Xunit.FactAttribute" />
+                    <HasAttribute Name="Xunit.TheoryAttribute" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+    </TypePattern>
+    <TypePattern DisplayName="StyleCop">
+        <TypePattern.Match>
+            <Or>
+                <Kind Is="Class" />
+                <Kind Is="Struct" />
+                <Kind Is="Interface" />
+                <Kind Is="Record" />
+            </Or>
+        </TypePattern.Match>
+        <Entry DisplayName="Public Constants">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Constant" />
+                    <Access Is="Public" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Internal Constants">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Constant" />
+                    <Access Is="Internal" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="ProtectedInternal Constants">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Constant" />
+                    <Access Is="ProtectedInternal" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Protected Constants">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Constant" />
+                    <Access Is="Protected" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="PrivateProtected Constants">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Constant" />
+                    <Access Is="PrivateProtected" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Private Constants">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Constant" />
+                    <Access Is="Private" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Public Fields">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Field" />
+                    <Access Is="Public" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Internal Fields">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Field" />
+                    <Access Is="Internal" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="ProtectedInternal Fields">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Field" />
+                    <Access Is="ProtectedInternal" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Protected Fields">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Field" />
+                    <Access Is="Protected" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="PrivateProtected Fields">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Field" />
+                    <Access Is="PrivateProtected" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Private Fields">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Field" />
+                    <Access Is="Private" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Static Constructor">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Constructor" />
+                    <Static />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Public Constructors">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Constructor" />
+                    <Access Is="Public" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Internal Constructors">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Constructor" />
+                    <Access Is="Internal" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="ProtectedInternal Constructors">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Constructor" />
+                    <Access Is="ProtectedInternal" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Protected Constructors">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Constructor" />
+                    <Access Is="Protected" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="PrivateProtected Constructors">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Constructor" />
+                    <Access Is="PrivateProtected" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Private Constructors">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Constructor" />
+                    <Access Is="Private" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Destructor">
+            <Entry.Match>
+                <Kind Is="Destructor" />
+            </Entry.Match>
+        </Entry>
+        <Entry DisplayName="Public Delegates">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Delegate" />
+                    <Access Is="Public" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Internal Delegates">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Delegate" />
+                    <Access Is="Internal" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="ProtectedInternal Delegates">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Delegate" />
+                    <Access Is="ProtectedInternal" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Protected Delegates">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Delegate" />
+                    <Access Is="Protected" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="PrivateProtected Delegates">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Delegate" />
+                    <Access Is="PrivateProtected" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Private Delegates">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Delegate" />
+                    <Access Is="Private" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Public Events">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Event" />
+                    <Access Is="Public" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Internal Events">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Event" />
+                    <Access Is="Internal" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="ProtectedInternal Events">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Event" />
+                    <Access Is="ProtectedInternal" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Protected Events">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Event" />
+                    <Access Is="Protected" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="PrivateProtected Events">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Event" />
+                    <Access Is="PrivateProtected" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Private Events">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Event" />
+                    <Access Is="Private" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Public Enums">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Enum" />
+                    <Access Is="Public" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Internal Enums">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Enum" />
+                    <Access Is="Internal" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="ProtectedInternal Enums">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Enum" />
+                    <Access Is="ProtectedInternal" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Internal Enums">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Enum" />
+                    <Access Is="Internal" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Protected Enums">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Enum" />
+                    <Access Is="Protected" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="PrivateProtected Enums">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Enum" />
+                    <Access Is="PrivateProtected" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Private Enums">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Enum" />
+                    <Access Is="Private" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Public Properties">
+            <Entry.Match>
+                <And>
+                    <Or>
+                        <Kind Is="Property" />
+                        <Kind Is="Autoproperty" />
+                    </Or>
+                    <Access Is="Public" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Internal Properties">
+            <Entry.Match>
+                <And>
+                    <Or>
+                        <Kind Is="Property" />
+                        <Kind Is="Autoproperty" />
+                    </Or>
+                    <Access Is="Internal" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="ProtectedInternal Properties">
+            <Entry.Match>
+                <And>
+                    <Or>
+                        <Kind Is="Property" />
+                        <Kind Is="Autoproperty" />
+                    </Or>
+                    <Access Is="ProtectedInternal" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Protected Properties">
+            <Entry.Match>
+                <And>
+                    <Or>
+                        <Kind Is="Property" />
+                        <Kind Is="Autoproperty" />
+                    </Or>
+                    <Access Is="Protected" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="PrivateProtected Properties">
+            <Entry.Match>
+                <And>
+                    <Or>
+                        <Kind Is="Property" />
+                        <Kind Is="Autoproperty" />
+                    </Or>
+                    <Access Is="PrivateProtected" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Private Properties">
+            <Entry.Match>
+                <And>
+                    <Or>
+                        <Kind Is="Property" />
+                        <Kind Is="Autoproperty" />
+                    </Or>
+                    <Access Is="Private" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Indexers">
+            <Entry.Match>
+                <Kind Is="Indexer" />
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Operators">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Operator" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Public Methods">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Method" />
+                    <Access Is="Public" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Internal Methods">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Method" />
+                    <Access Is="Internal" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="ProtectedInternal Methods">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Method" />
+                    <Access Is="ProtectedInternal" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Protected Methods">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Method" />
+                    <Access Is="Protected" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="PrivateProtected Methods">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Method" />
+                    <Access Is="PrivateProtected" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Private Methods">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Method" />
+                    <Access Is="Private" />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+                <Name />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Structs">
+            <Entry.Match>
+                <Kind Is="Struct" />
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Classes">
+            <Entry.Match>
+                <Kind Is="Class" />
+            </Entry.Match>
+            <Entry.SortBy>
+                <Access />
+                <Static />
+                <Readonly />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="All other members" />
+        <Entry DisplayName="Interface Implementations">
+            <Entry.Match>
+                <And>
+                    <Kind Is="Member" />
+                    <ImplementsInterface />
+                </And>
+            </Entry.Match>
+            <Entry.SortBy>
+                <ImplementsInterface Immediate="True" />
+            </Entry.SortBy>
+        </Entry>
+        <Entry DisplayName="Nested Types">
+            <Entry.Match>
+                <Kind Is="Type" />
+            </Entry.Match>
+        </Entry>
+    </TypePattern>
+</Patterns>

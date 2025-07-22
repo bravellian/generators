@@ -1,0 +1,66 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "*.enum.json",
+        "*.string_enum.json"
+      ],
+      "url": "./schemas/string-backed-enum.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.number_enum.json"
+      ],
+      "url": "./schemas/number-backed-enum.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.string.json"
+      ],
+      "url": "./schemas/string-backed-type.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.fastid.json"
+      ],
+      "url": "./schemas/fastid-backed-type.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.guid.json"
+      ],
+      "url": "./schemas/guid-backed-type.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.dto.json",
+        "*.entity.json"
+      ],
+      "url": "./schemas/dto-entity.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.multi.json"
+      ],
+      "url": "./schemas/multi-value-backed-type.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.erp-capabilities.json"
+      ],
+      "url": "./schemas/erp-capability-definitions.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.erp-capabilities-only.json"
+      ],
+      "url": "./schemas/erp-capabilities-only.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.erp-adapter-profile.json"
+      ],
+      "url": "./schemas/erp-adapter-profile.schema.json"
+    }
+  ]
+}

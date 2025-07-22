@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entities>
+  <!-- Example DTO Entity with basic properties -->
+  <DtoEntity name="PersonDto" namespace="Bravillian.Models.Dtos" documentation="Represents a person data transfer object">
+    <Property name="Id" type="Guid" required="true" noDefault="true" documentation="The unique identifier for the person" />
+    <Property name="FirstName" type="string" required="true" max="50" min="1" documentation="The person's first name" />
+    <Property name="LastName" type="string" required="true" max="50" min="1" documentation="The person's last name" />
+    <Property name="Email" type="string" required="true" max="255" regex="^[^@\s]+@[^@\s]+\.[^@\s]+$" jsonProperty="email_address" documentation="The person's email address" />
+    <Property name="Age" type="int?" nullable="true" min="0" max="150" documentation="The person's age in years" />
+    <Property name="DateOfBirth" type="DateTime?" nullable="true" min="1900-01-01" max="2100-12-31" documentation="The person's date of birth" />
+    <Property name="IsActive" type="bool" required="true" documentation="Whether the person is active" />
+    <Property name="CreatedAt" type="DateTime" required="true" settable="false" documentation="When the record was created" />
+    
+    <!-- Computed property example -->
+    <Property name="FullName" type="string" expression="$&quot;{FirstName} {LastName}&quot;" documentation="The person's full name" />
+    
+    <!-- Nested entity example -->
+    <NestedEntity name="Address" documentation="Represents an address">
+      <Property name="Street" type="string" required="true" max="100" documentation="The street address" />
+      <Property name="City" type="string" required="true" max="50" documentation="The city" />
+      <Property name="State" type="string" required="true" max="2" min="2" documentation="The state abbreviation" />
+      <Property name="ZipCode" type="string" required="true" regex="^\d{5}(-\d{4})?$" documentation="The ZIP code" />
+    </NestedEntity>
+  </DtoEntity>
+
+  <!-- Example of an abstract base DTO -->
+  <DtoEntity name="BaseEntityDto" namespace="Bravillian.Models.Dtos" abstract="true" documentation="Base class for all entity DTOs">
+    <Property name="Id" type="Guid" required="true" noDefault="true" documentation="The unique identifier" />
+    <Property name="CreatedAt" type="DateTime" required="true" settable="false" documentation="When the record was created" />
+    <Property name="UpdatedAt" type="DateTime?" nullable="true" settable="false" documentation="When the record was last updated" />
+  </DtoEntity>
+
+  <!-- Example of inheritance -->
+  <DtoEntity name="CustomerDto" namespace="Bravillian.Models.Dtos" inherits="BaseEntityDto" documentation="Represents a customer">
+    <Property name="CustomerNumber" type="string" required="true" max="20" documentation="The customer number" />
+    <Property name="CompanyName" type="string" required="true" max="100" documentation="The company name" />
+    <Property name="ContactEmail" type="string" required="true" max="255" regex="^[^@\s]+@[^@\s]+\.[^@\s]+$" documentation="The contact email" />
+  </DtoEntity>
+
+  <!-- Example with different accessibility -->
+  <DtoEntity name="InternalDto" namespace="Bravillian.Models.Internal" accessibility="internal" documentation="Internal DTO for system use">
+    <Property name="SystemId" type="int" required="true" documentation="Internal system identifier" />
+    <Property name="ProcessingStatus" type="string" required="true" documentation="Current processing status" />
+  </DtoEntity>
+</Entities>
