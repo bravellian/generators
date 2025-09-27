@@ -11,8 +11,7 @@ on:
 jobs:
   build:
     name: Standard Commit - Build, Test, and Scan
-    runs-on:
-      group: pw-windows
+    runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
@@ -62,26 +61,26 @@ jobs:
 
     - name: Update NuGet source with credentials
       run: |
-        dotnet nuget update source PayeWaive `
+        dotnet nuget update source Bravellian `
         --username AzureDevOps `
-        --password "${{ secrets.PAYEWAIVE_FEED_PAT }}" `
+        --password "${{ secrets.BRAVELLIAN_FEED_PAT }}" `
         --store-password-in-clear-text `
         --configfile nuget.config
 
     - name: Restore dependencies
-      run: dotnet restore PayeWaive.Generators.sln
+      run: dotnet restore Bravellian.Generators.sln
 
     - name: Restore tools
       run: dotnet tool restore
           
     - name: Build solution
-      run: dotnet build PayeWaive.Generators.sln --no-restore --configuration Release -p:Version=${{ steps.git_version.outputs.semVer }}
+      run: dotnet build Bravellian.Generators.sln --no-restore --configuration Release -p:Version=${{ steps.git_version.outputs.semVer }}
 
     # - name: Run Tests
-    #   run: dotnet test PayeWaive.Generators.sln --no-build --configuration Release
+    #   run: dotnet test Bravellian.Generators.sln --no-build --configuration Release
   
     - name: Pack NuGet packages
-      run: dotnet pack PayeWaive.Generators.sln --configuration Release --output ./nupkgs -p:PackageVersion=${{ steps.git_version.outputs.semVer }}
+      run: dotnet pack Bravellian.Generators.sln --configuration Release --output ./nupkgs -p:PackageVersion=${{ steps.git_version.outputs.semVer }}
 
     - name: Publish
-      run: dotnet nuget push **\*.nupkg --source PayeWaive --api-key az --skip-duplicate
+      run: dotnet nuget push **\*.nupkg --source Bravellian --api-key az --skip-duplicate
