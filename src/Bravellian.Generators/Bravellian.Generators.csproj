@@ -4,17 +4,24 @@
         <TargetFramework>net9.0</TargetFramework>
         <LangVersion>12.0</LangVersion>
         <Nullable>enable</Nullable>
-    <Deterministic>true</Deterministic>
-
-        <!-- This ensures the generator dll is included as an analyzer -->
-        <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Deterministic>true</Deterministic>
+        
+        <!-- Package metadata -->
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <IncludeBuildOutput>false</IncludeBuildOutput>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>
         <PackageId>Bravellian.Generators</PackageId>
         <Version>1.0.0</Version>
         <Authors>Bravellian</Authors>
-        <NuspecProperties>id=$(PackageId);version=$(Version);authors=$(Authors)</NuspecProperties>-->
+        <Owners>Bravellian</Owners>
+        <Description>Source generators for C# code generation from SQL schemas and other sources</Description>
+        <PackageProjectUrl>https://github.com/bravellian/generators</PackageProjectUrl>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/bravellian/generators</RepositoryUrl>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageReleaseNotes>For support, contact oss@bravellian.com</PackageReleaseNotes>
+        <NuspecProperties>id=$(PackageId);version=$(Version);authors=$(Authors)</NuspecProperties>
     </PropertyGroup>
 
     <ItemGroup>
