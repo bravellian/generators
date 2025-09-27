@@ -19,9 +19,16 @@
     <PackageProjectUrl>https://github.com/bravellian/generators</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/bravellian/generators</RepositoryUrl>
-    <PackageIcon>..\..\assets\nuget_logo.png</PackageIcon>
+    <PackageIcon>nuget_logo.png</PackageIcon>
     <PackageReleaseNotes>For support, contact oss@bravellian.com</PackageReleaseNotes>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\assets\nuget_logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Bravellian.Generators\Bravellian.Generators.csproj" />
@@ -39,7 +46,6 @@
   <ItemGroup>
     <PackageReference Update="DotNet.ReproducibleBuilds.Isolated" Version="1.2.25" />
     <PackageReference Update="Meziantou.Analyzer" Version="2.0.221" />
-    <PackageReference Update="Microsoft.CodeAnalysis.AnalyzerUtilities" Version="4.14.0" />
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="4.14.0" />
     <PackageReference Update="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="4.14.0" />
     <PackageReference Update="Microsoft.SourceLink.GitHub" Version="8.0.0" />

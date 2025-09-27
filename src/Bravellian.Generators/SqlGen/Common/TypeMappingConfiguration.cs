@@ -66,7 +66,7 @@ public class TypeMappingConfiguration
 
             if (rule.MatchesColumnAndType(schemaName!, tableName!, columnName!, csharpType))
             {
-                return rule.GetTargetType(columnName);
+                return rule.GetTargetType(columnName!);
             }
         }
 

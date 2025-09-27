@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Bravellian.Generators.SqlGen.Pipeline.2_SchemaRefinement
+namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
 {
     using System;
     using System.Collections.Generic;

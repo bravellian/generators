@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation.Models
+namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models
 {
     using System.Collections.Generic;
 
@@ -71,18 +71,18 @@ namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation.Models
     /// <summary>
     /// Gets or sets the C# class name for the model.
     /// </summary>
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the base C# class name, without any schema prefixes.
     /// This is used for generating file names and related input model names.
     /// </summary>
-    public required string BaseName { get; set; }
+    public string BaseName { get; set; }
 
     /// <summary>
     /// Gets or sets the C# namespace for the class.
     /// </summary>
-    public required string Namespace { get; set; }
+    public string Namespace { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether this class represents a view.
@@ -113,24 +113,24 @@ namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation.Models
     /// <summary>
     /// Gets or sets the source database object name.
     /// </summary>
-    public required string SourceObjectName { get; set; }
+    public string SourceObjectName { get; set; }
 
     /// <summary>
     /// Gets or sets the source database schema name.
     /// </summary>
-    public required string SourceSchemaName { get; set; }
+    public string SourceSchemaName { get; set; }
 
     /// <summary>
     /// Gets or sets the create input model for this class.
     /// This will be null for view classes.
     /// </summary>
-    public required CreateInputModel CreateInput { get; set; }
+    public CreateInputModel CreateInput { get; set; }
 
     /// <summary>
     /// Gets or sets the update input model for this class.
     /// This will be null for view classes.
     /// </summary>
-    public required UpdateInputModel UpdateInput { get; set; }
+    public UpdateInputModel UpdateInput { get; set; }
 
     /// <summary>
     /// Gets or sets the property that corresponds to the configured scope key.
@@ -147,12 +147,12 @@ namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation.Models
     /// <summary>
     /// Gets or sets the property name.
     /// </summary>
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the property type.
     /// </summary>
-    public required string Type { get; set; }
+    public string Type { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether this property is nullable.
@@ -167,7 +167,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation.Models
     /// <summary>
     /// Gets or sets the source column name from the database.
     /// </summary>
-    public required string SourceColumnName { get; set; }
+    public string SourceColumnName { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the column's type could not be determined.
@@ -194,7 +194,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation.Models
     /// <summary>
     /// Gets or sets the name of the index.
     /// </summary>
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the index is unique.
@@ -215,7 +215,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation.Models
     /// <summary>
     /// Gets or sets the method name.
     /// </summary>
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the method type (Read, Create, Update, Delete).
@@ -235,12 +235,12 @@ namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation.Models
     /// <summary>
     /// Gets or sets the SQL statement for the method.
     /// </summary>
-    public required string SqlStatement { get; set; }
+    public string SqlStatement { get; set; }
 
     /// <summary>
     /// Gets or sets the method return type.
     /// </summary>
-    public required string ReturnType { get; set; }
+    public string ReturnType { get; set; }
 
     /// <summary>
     /// Gets additional metadata for the method. This can be used to store method-specific
@@ -257,17 +257,17 @@ namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation.Models
     /// <summary>
     /// Gets or sets the parameter name.
     /// </summary>
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the parameter type.
     /// </summary>
-    public required string Type { get; set; }
+    public string Type { get; set; }
 
     /// <summary>
     /// Gets or sets the source property name.
     /// </summary>
-    public required string SourcePropertyName { get; set; }
+    public string SourcePropertyName { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether gets or sets whether this parameter is a scope key used for multi-tenancy.
@@ -309,12 +309,12 @@ namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation.Models
     /// <summary>
     /// Gets or sets the class name.
     /// </summary>
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the namespace for the class.
     /// </summary>
-    public required string Namespace { get; set; }
+    public string Namespace { get; set; }
 
     /// <summary>
     /// Gets or sets the properties for the create input class.
@@ -324,7 +324,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation.Models
     /// <summary>
     /// Gets or sets the source table for which this input is created.
     /// </summary>
-    public required string SourceTable { get; set; }
+    public string SourceTable { get; set; }
 }
 
 /// <summary>
@@ -335,12 +335,12 @@ namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation.Models
     /// <summary>
     /// Gets or sets the class name.
     /// </summary>
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the namespace for the class.
     /// </summary>
-    public required string Namespace { get; set; }
+    public string Namespace { get; set; }
 
     /// <summary>
     /// Gets or sets the properties for the update input class
@@ -351,6 +351,6 @@ namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation.Models
     /// <summary>
     /// Gets or sets the source table for which this input is created.
     /// </summary>
-    public required string SourceTable { get; set; }
+    public string SourceTable { get; set; }
 }
 }

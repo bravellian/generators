@@ -54,7 +54,7 @@ public class ConfigurationOverrideTests
 
         return new DatabaseSchema("TestDb")
         {
-            Objects = [dbObject],
+            Objects =[dbObject],
         };
     }
 
@@ -107,7 +107,7 @@ StringComparer.Ordinal)
                 new ()
                 {
                     Priority = 100,
-                    Match = new () { SqlType = ["int"] },
+                    Match = new () { SqlType =["int"] },
                     Apply = new () { CSharpType = "int" },
                 }
 
@@ -147,7 +147,7 @@ StringComparer.Ordinal)
                 new ()
                 {
                     Priority = 100,
-                    Match = new () { SqlType = ["decimal"] },
+                    Match = new () { SqlType =["decimal"] },
                     Apply = new () { CSharpType = "PreciseDecimal" },
                 }
 
@@ -186,7 +186,7 @@ StringComparer.Ordinal)
                 new ()
                 {
                     Priority = 50,
-                    Match = new () { SqlType = ["uniqueidentifier"] },
+                    Match = new () { SqlType =["uniqueidentifier"] },
                     Apply = new () { CSharpType = "System.Guid" },
                 }
 
@@ -200,7 +200,7 @@ StringComparer.Ordinal)
 StringComparer.Ordinal)
                     {
                         // Specific override for this one column
-                        ["UserGuid"] = new () { CSharpType = "StronglyTypedGuid" }
+                        ["UserGuid"] = new () { CSharpType = "StronglyTypedGuid" },
                     },
                 },
             },
@@ -257,7 +257,7 @@ StringComparer.Ordinal)
                 ["dbo.Users"] = new ()
                 {
                     // Override the PK from 'Id' to 'UserGuid' for data access methods
-                    PrimaryKeyOverride = ["UserGuid"],
+                    PrimaryKeyOverride =["UserGuid"],
                 },
             },
         };

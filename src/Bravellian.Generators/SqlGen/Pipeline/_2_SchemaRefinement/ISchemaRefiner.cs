@@ -12,19 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Bravellian.Generators.SqlGen.Pipeline.1_Ingestion
+namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
 {
-    using System.Collections;
-    using System.Collections.Generic;
     using Bravellian.Generators.SqlGen.Pipeline._1_Ingestion.Model;
+    using Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement.Model;
 
-    public interface ISchemaIngestor
+/// <summary>
+/// Defines the contract for the schema refinement phase of the pipeline.
+/// </summary>
+    public interface ISchemaRefiner
 {
     /// <summary>
-    /// Ingests SQL statements and builds a raw database schema.
+    /// Refines the raw database model by applying configuration overrides.
     /// </summary>
-    /// <param name="sqlStatements">Array of SQL DDL statements to parse.</param>
-    /// <returns>A raw database schema representing the SQL objects.</returns>
-    RawDatabaseSchema Ingest(IEnumerable<string> sqlStatements);
+    /// <param name="rawSchema">The raw database model from the ingestion phase.</param>
+    /// <returns>A refined and completed database schema model.</returns>
+    DatabaseSchema Refine(RawDatabaseSchema rawSchema);
 }
 }

@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation.Models
+namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models
 {
+
 
     /// <summary>
     /// Represents the origin of a specific piece of information about a property (e.g., its type or name).

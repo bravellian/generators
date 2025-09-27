@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Bravellian.Generators.SqlGen.Pipeline.1_Ingestion.Model
+namespace Bravellian.Generators.SqlGen.Pipeline._1_Ingestion.Model
 {
     using System.Collections.Generic;
     using Microsoft.SqlServer.TransactSql.ScriptDom;
@@ -25,7 +25,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline.1_Ingestion.Model
     /// <summary>
     /// Gets or sets the database name.
     /// </summary>
-    public required string DatabaseName { get; set; }
+    public string DatabaseName { get; set; }
 
     /// <summary>
     /// Gets or sets the table CREATE statements from the SQL files.
@@ -66,7 +66,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline.1_Ingestion.Model
     /// <summary>
     /// Gets or sets the table name.
     /// </summary>
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the columns in the table.
@@ -97,7 +97,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline.1_Ingestion.Model
     /// <summary>
     /// Gets or sets the view name.
     /// </summary>
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the columns in the view.
@@ -113,12 +113,12 @@ namespace Bravellian.Generators.SqlGen.Pipeline.1_Ingestion.Model
     /// <summary>
     /// Gets or sets the column name.
     /// </summary>
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the SQL data type.
     /// </summary>
-    public required string SqlType { get; set; }
+    public string SqlType { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the column is nullable.
@@ -128,7 +128,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline.1_Ingestion.Model
     /// <summary>
     /// Gets or sets the C# type that this SQL type maps to.
     /// </summary>
-    public required string CSharpType { get; set; }
+    public string CSharpType { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the column is part of a primary key.
@@ -164,7 +164,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline.1_Ingestion.Model
     /// <summary>
     /// Gets or sets the index name.
     /// </summary>
-    public required string Name { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the columns in the index.

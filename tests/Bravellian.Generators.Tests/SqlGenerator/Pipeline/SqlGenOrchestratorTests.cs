@@ -192,7 +192,7 @@ StringComparer.Ordinal)
                     ReadMethods = new List<ReadMethod>
                     {
                         new ReadMethod { Name = "GetBySku", MatchColumns = new List<string> { "Sku" } },
-                        new ReadMethod { Name = "GetByName", MatchColumns = new List<string> { "Name" } }
+                        new ReadMethod { Name = "GetByName", MatchColumns = new List<string> { "Name" } },
                     },
                 },
             },

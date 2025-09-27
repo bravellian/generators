@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Bravellian.Generators.Tests.SqlGenerator.3_CSharpTransformation
+namespace Bravellian.Generators.Tests.SqlGenerator._3_CSharpTransformation
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -195,7 +195,7 @@ namespace Bravellian.Generators.Tests.SqlGenerator.3_CSharpTransformation
         config.GlobalTypeMappings.Add(new GlobalTypeMapping
         {
             Priority = 100,
-            Match = new GlobalTypeMappingMatch { SqlType = ["uniqueidentifier"] },
+            Match = new GlobalTypeMappingMatch { SqlType =["uniqueidentifier"] },
             Apply = new GlobalTypeMappingApply { CSharpType = "Guid" },
         });
 
@@ -231,7 +231,7 @@ namespace Bravellian.Generators.Tests.SqlGenerator.3_CSharpTransformation
 
         return new DatabaseSchema("TestDb")
         {
-            Objects = [dbObject],
+            Objects =[dbObject],
         };
     }
 }

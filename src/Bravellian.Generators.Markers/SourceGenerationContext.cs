@@ -27,4 +27,3 @@ namespace Bravellian;
 internal partial class SourceGenerationContext : JsonSerializerContext
 {
 }
-

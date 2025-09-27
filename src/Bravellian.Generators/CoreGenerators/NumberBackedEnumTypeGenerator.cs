@@ -258,6 +258,7 @@ public readonly partial record struct {{relatedClass.Name}} :
 
 
 
+
                 _ => null,
             };
         }

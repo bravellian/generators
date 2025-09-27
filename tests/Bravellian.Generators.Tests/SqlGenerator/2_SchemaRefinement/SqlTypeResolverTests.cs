@@ -41,7 +41,7 @@ public class SqlTypeResolverTests
                     new ColumnDefinition
                     {
                         ColumnIdentifier = new Identifier { Value = "Id" },
-                        DataType = new SqlDataTypeReference { SqlDataTypeOption = SqlDataTypeOption.Int }
+                        DataType = new SqlDataTypeReference { SqlDataTypeOption = SqlDataTypeOption.Int },
                     },
                 },
             },

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Bravellian.Generators.Tests.SqlGenerator.4_CodeGeneration
+namespace Bravellian.Generators.Tests.SqlGenerator._4_CodeGeneration
 {
     using System.Collections.Generic;
     using System.Linq;

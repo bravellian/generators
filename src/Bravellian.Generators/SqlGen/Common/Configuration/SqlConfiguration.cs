@@ -123,19 +123,19 @@ namespace Bravellian.Generators.SqlGen.Common.Configuration
         /// Gets or sets optional description for the table configuration.
         /// </summary>
         [JsonPropertyName("description")]
-        public required string Description { get; set; }
+        public string Description { get; set; }
 
         /// <summary>
         /// Gets or sets the C# class name to use for this table.
         /// </summary>
         [JsonPropertyName("csharpClassName")]
-        public required string CSharpClassName { get; set; }
+        public string CSharpClassName { get; set; }
 
         /// <summary>
         /// Gets or sets override for the primary key columns.
         /// </summary>
         [JsonPropertyName("primaryKeyOverride")]
-        public required HashSet<string> PrimaryKeyOverride { get; set; }
+        public HashSet<string> PrimaryKeyOverride { get; set; }
 
         /// <summary>
         /// Gets or sets the column name to use for multi-tenant/scoping functionality.
@@ -154,13 +154,13 @@ namespace Bravellian.Generators.SqlGen.Common.Configuration
         /// Gets or sets configuration for update operations.
         /// </summary>
         [JsonPropertyName("updateConfig")]
-        public required UpdateConfig UpdateConfig { get; set; }
+        public UpdateConfig UpdateConfig { get; set; }
 
         /// <summary>
         /// Gets or sets custom read methods.
         /// </summary>
         [JsonPropertyName("readMethods")]
-        public required List<ReadMethod> ReadMethods { get; set; }
+        public List<ReadMethod> ReadMethods { get; set; }
     }
 
     /// <summary>
@@ -172,7 +172,7 @@ namespace Bravellian.Generators.SqlGen.Common.Configuration
         /// Gets or sets optional description for the rule.
         /// </summary>
         [JsonPropertyName("description")]
-        public required string Description { get; set; }
+        public string Description { get; set; }
 
         /// <summary>
         /// Gets or sets rule priority - higher values take precedence.
@@ -184,13 +184,13 @@ namespace Bravellian.Generators.SqlGen.Common.Configuration
         /// Gets or sets match conditions.
         /// </summary>
         [JsonPropertyName("match")]
-        public required GlobalTypeMappingMatch Match { get; set; }
+        public GlobalTypeMappingMatch Match { get; set; }
 
         /// <summary>
         /// Gets or sets apply actions.
         /// </summary>
         [JsonPropertyName("apply")]
-        public required GlobalTypeMappingApply Apply { get; set; }
+        public GlobalTypeMappingApply Apply { get; set; }
     }
 
     /// <summary>
@@ -202,19 +202,19 @@ namespace Bravellian.Generators.SqlGen.Common.Configuration
         /// Gets or sets regex pattern to match column names.
         /// </summary>
         [JsonPropertyName("columnNameRegex")]
-        public required string ColumnNameRegex { get; set; }
+        public string ColumnNameRegex { get; set; }
 
         /// <summary>
         /// Gets or sets regex pattern to match table names.
         /// </summary>
         [JsonPropertyName("tableNameRegex")]
-        public required string TableNameRegex { get; set; }
+        public string TableNameRegex { get; set; }
 
         /// <summary>
         /// Gets or sets regex pattern to match schema names.
         /// </summary>
         [JsonPropertyName("schemaNameRegex")]
-        public required string SchemaNameRegex { get; set; }
+        public string SchemaNameRegex { get; set; }
 
         /// <summary>
         /// Gets or sets sQL type to match (can be string or array of strings).
@@ -233,7 +233,7 @@ namespace Bravellian.Generators.SqlGen.Common.Configuration
         /// Gets or sets c# type to apply.
         /// </summary>
         [JsonPropertyName("csharpType")]
-        public required string CSharpType { get; set; }
+        public string CSharpType { get; set; }
     }
 
     /// <summary>
@@ -245,13 +245,13 @@ namespace Bravellian.Generators.SqlGen.Common.Configuration
         /// Gets or sets optional description for the column override.
         /// </summary>
         [JsonPropertyName("description")]
-        public required string Description { get; set; }
+        public string Description { get; set; }
 
         /// <summary>
         /// Gets or sets sQL type override (for views). Used in Phase 2.
         /// </summary>
         [JsonPropertyName("sqlType")]
-        public required string SqlType { get; set; }
+        public string SqlType { get; set; }
 
         /// <summary>
         /// Gets or sets nullability override (for views). Used in Phase 2.
@@ -263,13 +263,13 @@ namespace Bravellian.Generators.SqlGen.Common.Configuration
         /// Gets or sets c# type override. Used in Phase 3. This is the ultimate override.
         /// </summary>
         [JsonPropertyName("csharpType")]
-        public required string CSharpType { get; set; }
+        public string CSharpType { get; set; }
 
         /// <summary>
         /// Gets or sets c# property name override. Used in Phase 3.
         /// </summary>
         [JsonPropertyName("csharpPropertyName")]
-        public required string CSharpPropertyName { get; set; }
+        public string CSharpPropertyName { get; set; }
     }
 
     /// <summary>
@@ -281,7 +281,7 @@ namespace Bravellian.Generators.SqlGen.Common.Configuration
         /// Gets or sets columns to exclude from update operations.
         /// </summary>
         [JsonPropertyName("ignoreColumns")]
-        public required List<string> IgnoreColumns { get; set; }
+        public List<string> IgnoreColumns { get; set; }
     }
 
     /// <summary>
@@ -293,13 +293,13 @@ namespace Bravellian.Generators.SqlGen.Common.Configuration
         /// Gets or sets method name.
         /// </summary>
         [JsonPropertyName("name")]
-        public required string Name { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets columns to match on.
         /// </summary>
         [JsonPropertyName("matchColumns")]
-        public required List<string> MatchColumns { get; set; }
+        public List<string> MatchColumns { get; set; }
     }
 
     /// <summary>

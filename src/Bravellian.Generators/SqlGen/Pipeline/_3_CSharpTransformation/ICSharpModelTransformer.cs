@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation
+namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
 {
     using Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement.Model;
     using Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models;

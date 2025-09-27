@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Bravellian.Generators.SqlGen.Pipeline.1_Ingestion
+namespace Bravellian.Generators.SqlGen.Pipeline._1_Ingestion
 {
     using System;
     using System.Collections.Generic;

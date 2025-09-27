@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Bravellian.Generators.Tests.SqlGenerator.2_SchemaRefinement
+namespace Bravellian.Generators.Tests.SqlGenerator._2_SchemaRefinement
 {
     using System;
     using System.Collections.Generic;
@@ -65,8 +65,7 @@ namespace Bravellian.Generators.Tests.SqlGenerator.2_SchemaRefinement
         var config = new SqlConfiguration();
         config.Tables["dbo.ActiveUsers"] = new TableConfiguration
         {
-            ColumnOverrides = new Dictionary<string, ColumnOverride>(
-StringComparer.Ordinal)
+            ColumnOverrides = new Dictionary<string, ColumnOverride>(StringComparer.Ordinal)
             {
                 ["UserId"] = new ColumnOverride { SqlType = "int", IsNullable = false },
                 ["UserName"] = new ColumnOverride { SqlType = "nvarchar(255)", IsNullable = true },

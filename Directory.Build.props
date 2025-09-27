@@ -7,7 +7,6 @@
 		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
 
 		<Company>Bravellian</Company>
-		<Authors>Samuel McAravey</Authors>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<IncludeSymbols>true</IncludeSymbols>
@@ -41,9 +40,6 @@
 
 		<!-- Disable Code Style enforcement during build (IDExxxx rules) -->
 		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-
-		<!-- Disable Nullable Analysis completely -->
-		<Nullable>disable</Nullable>
 
 		<!-- Disable XML Documentation file generation and associated warnings (CS1591 etc) -->
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
@@ -142,10 +138,6 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Roslynator.Analyzers" Condition="$(MSBuildProjectExtension) == '.csproj'" Version="4.13.1">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="Microsoft.CodeAnalysis.AnalyzerUtilities" Condition="$(MSBuildProjectExtension) == '.csproj'" >
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
 		</PackageReference>

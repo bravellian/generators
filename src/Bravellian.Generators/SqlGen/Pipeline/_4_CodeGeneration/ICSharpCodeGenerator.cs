@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Bravellian.Generators.SqlGen.Pipeline.4_CodeGeneration
+namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
 {
     using System.Collections.Generic;
     using Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models;
