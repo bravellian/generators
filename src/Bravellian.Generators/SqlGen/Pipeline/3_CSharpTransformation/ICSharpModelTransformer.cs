@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement.Model;
-using Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models;
-
-namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
+namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation
 {
+    using Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement.Model;
+    using Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models;
+
     public interface ICSharpModelTransformer
     {
         /// <summary>
@@ -24,8 +24,8 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
         /// This is Phase 3 of the pipeline, where SQL types are mapped to C# types
         /// and the data access methods are generated based on the schema and configuration.
         /// </summary>
-        /// <param name="databaseSchema">The refined database schema from Phase 2</param>
-        /// <returns>A C#-ready model containing all information needed for code generation</returns>
+        /// <param name="databaseSchema">The refined database schema from Phase 2.</param>
+        /// <returns>A C#-ready model containing all information needed for code generation.</returns>
         GenerationModel Transform(DatabaseSchema databaseSchema);
     }
 }

@@ -1,5 +1,16 @@
-// CONFIDENTIAL - Copyright (c) Bravellian LLC. All rights reserved.
-// See NOTICE.md for full restrictions and usage terms.
+// Copyright (c) Bravellian
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #nullable enable
 
@@ -13,7 +24,7 @@ using System.Collections.Generic;
 /// </summary>
 public class TypeMappingConfiguration
 {
-    private readonly List<TypeMappingRule> rules = [];
+    private readonly List<TypeMappingRule> rules =[];
 
     public TypeMappingConfiguration()
     {
@@ -182,14 +193,12 @@ public class TypeMappingConfiguration
     public (string? Type, bool? IsNullable) GetMappedTypeWithNullability(string? schemaName, string? tableName, string columnName, string csharpType)
     {
         // Console.WriteLine($"DEBUG: Checking {this.rules.Count} rules for column {columnName} (type {csharpType}) with nullability");
-
         var ruleIndex = 0;
         foreach (TypeMappingRule rule in this.rules)
         {
             ruleIndex++;
 
             // Console.WriteLine($"DEBUG: Checking rule #{ruleIndex}: {rule.ColumnNamePattern}:{rule.CSharpTypePattern}={rule.TargetType}");
-
             if (rule.MatchesColumnAndType(schemaName, tableName, columnName, csharpType))
             {
                 // Console.WriteLine($"DEBUG: Rule #{ruleIndex} matched for column {columnName} with nullability {rule.IsNullable}");
@@ -277,4 +286,3 @@ public class TypeMappingConfiguration
         return this.GetMappedTypeWithNullability(schemaName, tableName, columnName, csharpType);
     }
 }
-

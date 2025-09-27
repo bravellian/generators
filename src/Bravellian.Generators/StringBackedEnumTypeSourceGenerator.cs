@@ -1,4 +1,4 @@
-﻿// Copyright (c) Samuel McAravey
+﻿// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml.Linq;
 
-
 // 1. Inherit from the base class for single files
 // [Generator]
 public class StringBackedEnumTypeSourceGenerator
@@ -34,42 +33,54 @@ public class StringBackedEnumTypeSourceGenerator
     protected IEnumerable<(string fileName, string source)>? Generate(string filePath, string fileContent, CancellationToken cancellationToken)
     {
         var fileExtension = Path.GetExtension(filePath).ToLowerInvariant();
-        
-        if (fileExtension == ".json")
+
+        if (string.Equals(fileExtension, ".json", System.StringComparison.Ordinal))
         {
-            return GenerateFromJson(fileContent);
+            return this.GenerateFromJson(fileContent);
         }
         else
         {
-            return GenerateFromXml(fileContent);
+            return this.GenerateFromXml(fileContent);
         }
     }
 
     /// <summary>
-    /// Public wrapper for CLI usage
+    /// Public wrapper for CLI usage.
     /// </summary>
     public IEnumerable<(string fileName, string source)>? GenerateFromFiles(string filePath, string fileContent, CancellationToken cancellationToken = default)
     {
-        return Generate(filePath, fileContent, cancellationToken);
+        return this.Generate(filePath, fileContent, cancellationToken);
     }
 
     private IEnumerable<(string fileName, string source)>? GenerateFromXml(string fileContent)
     {
         // Your existing XML logic fits right in here.
         var xdoc = XDocument.Parse(fileContent);
-        if (xdoc.Root == null) return null;
+        if (xdoc.Root == null)
+        {
+            return null;
+        }
 
         var elements = xdoc.Root.Elements("StringEnum");
-        if (!elements.Any()) return null;
+        if (!elements.Any())
+        {
+            return null;
+        }
 
-        List<(string fileName, string source)> generated = new();
+        List<(string fileName, string source)> generated = new ();
         foreach (var element in elements)
         {
             var genParams = StringBackedEnumTypeGenerator.GetParams(element, null);
-            if (genParams == null) continue;
+            if (genParams == null)
+            {
+                continue;
+            }
 
             var generatedCode = StringBackedEnumTypeGenerator.Generate(genParams, null);
-            if (string.IsNullOrEmpty(generatedCode)) continue;
+            if (string.IsNullOrEmpty(generatedCode))
+            {
+                continue;
+            }
 
             var fileName = $"{genParams.Value.Namespace}.{genParams.Value.Name}.g.cs";
 
@@ -95,7 +106,7 @@ public class StringBackedEnumTypeSourceGenerator
 
             var name = nameElement.GetString();
             var namespaceName = namespaceElement.GetString();
-            
+
             if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(namespaceName))
             {
                 return null;
@@ -119,12 +130,12 @@ public class StringBackedEnumTypeSourceGenerator
                     continue;
                 }
 
-                var displayName = valueObj.TryGetProperty("display", out var displayElement) 
-                    ? displayElement.GetString() 
+                var displayName = valueObj.TryGetProperty("display", out var displayElement)
+                    ? displayElement.GetString()
                     : valueName;
 
-                var documentation = valueObj.TryGetProperty("documentation", out var docElement) 
-                    ? docElement.GetString() 
+                var documentation = valueObj.TryGetProperty("documentation", out var docElement)
+                    ? docElement.GetString()
                     : null;
 
                 enumValues.Add((value!, valueName, displayName, documentation));
@@ -156,12 +167,11 @@ public class StringBackedEnumTypeSourceGenerator
             }
 
             var genParams = new StringBackedEnumTypeGenerator.GeneratorParams(
-                name!, 
-                namespaceName!, 
-                true, 
-                enumValues, 
-                additionalProperties
-            );
+                name!,
+                namespaceName!,
+                true,
+                enumValues,
+                additionalProperties);
 
             var generatedCode = StringBackedEnumTypeGenerator.Generate(genParams, null);
             if (string.IsNullOrEmpty(generatedCode))

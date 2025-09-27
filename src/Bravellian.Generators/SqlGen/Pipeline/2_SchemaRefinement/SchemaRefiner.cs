@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using Bravellian.Generators.SqlGen.Pipeline._1_Ingestion.Model;
-using Bravellian.Generators.SqlGen.Common.Configuration;
-using Microsoft.SqlServer.TransactSql.ScriptDom;
-using Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement.Model;
-using Bravellian.Generators.SqlGen.Common;
-using Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models;
-
-namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
+namespace Bravellian.Generators.SqlGen.Pipeline.2_SchemaRefinement
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Bravellian.Generators.SqlGen.Common;
+    using Bravellian.Generators.SqlGen.Common.Configuration;
+    using Bravellian.Generators.SqlGen.Pipeline._1_Ingestion.Model;
+    using Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement.Model;
+    using Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models;
+    using Microsoft.SqlServer.TransactSql.ScriptDom;
+
     /// <summary>
     /// Implements Phase 2 of the pipeline. This phase is responsible for translating raw SQL statements
     /// into a structured database schema and "patching" it with information from the configuration file.
@@ -32,54 +32,53 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
     /// </summary>
     public class SchemaRefiner : ISchemaRefiner
     {
-        private readonly IBvLogger _logger;
+        private readonly IBvLogger logger;
         private readonly SqlConfiguration? configuration;
-        private readonly UsedConfigurationTracker? _usageTracker;
+        private readonly UsedConfigurationTracker? usageTracker;
 
         public SchemaRefiner(IBvLogger logger, SqlConfiguration? configuration, UsedConfigurationTracker? usageTracker = null)
         {
-            _logger = logger;
+            this.logger = logger;
             this.configuration = configuration;
-            _usageTracker = usageTracker;
+            this.usageTracker = usageTracker;
         }
 
-    /// <summary>
-    /// Refines the raw database schema into a structured schema, applying SQL type 
-    /// and nullability overrides from the configuration.
-    /// </summary>
-    /// <param name="rawDatabaseSchema">The raw database schema from the ingestion phase (Phase 1)</param>
-    /// <param name="configuration">Configuration with SQL type and nullability overrides</param>
-    /// <returns>A refined database schema with complete type information</returns>
-    public DatabaseSchema Refine(RawDatabaseSchema rawDatabaseSchema)
-    {
-        _logger.LogMessage("Phase 2: Refining schema model...");
-        
-        var databaseSchema = new DatabaseSchema(rawDatabaseSchema.DatabaseName);
-            
+        /// <summary>
+        /// Refines the raw database schema into a structured schema, applying SQL type
+        /// and nullability overrides from the configuration.
+        /// </summary>
+        /// <param name="rawDatabaseSchema">The raw database schema from the ingestion phase (Phase 1).</param>
+        /// <returns>A refined database schema with complete type information.</returns>
+        public DatabaseSchema Refine(RawDatabaseSchema rawDatabaseSchema)
+        {
+            this.logger.LogMessage("Phase 2: Refining schema model...");
+
+            var databaseSchema = new DatabaseSchema(rawDatabaseSchema.DatabaseName);
+
             // Process tables
-            _logger.LogMessage("Processing tables...");
+            this.logger.LogMessage("Processing tables...");
             foreach (var tableStatement in rawDatabaseSchema.TableStatements)
             {
-                var table = ProcessTable(tableStatement, rawDatabaseSchema, configuration);
+                var table = this.ProcessTable(tableStatement, rawDatabaseSchema, this.configuration);
                 databaseSchema.AddObject(table);
             }
-            
+
             // Process views
-            _logger.LogMessage("Processing views...");
+            this.logger.LogMessage("Processing views...");
             foreach (var viewStatement in rawDatabaseSchema.ViewStatements)
             {
-                var view = ProcessView(viewStatement, databaseSchema, configuration);
+                var view = this.ProcessView(viewStatement, databaseSchema, this.configuration);
                 databaseSchema.AddObject(view);
             }
 
             // Add indexes to tables
-            _logger.LogMessage("Processing indexes...");
+            this.logger.LogMessage("Processing indexes...");
             foreach (var indexStatement in rawDatabaseSchema.IndexStatements)
             {
-                ProcessIndex(indexStatement, databaseSchema);
+                this.ProcessIndex(indexStatement, databaseSchema);
             }
 
-            _logger.LogMessage("Phase 2: Schema refinement completed.");
+            this.logger.LogMessage("Phase 2: Schema refinement completed.");
             return databaseSchema;
         }
 
@@ -87,31 +86,31 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
         {
             var schemaName = tableStatement.SchemaObjectName.SchemaIdentifier?.Value ?? "dbo";
             var tableName = tableStatement.SchemaObjectName.BaseIdentifier.Value;
-            
-            _logger.LogMessage($"Processing table: {schemaName}.{tableName}");
-            
+
+            this.logger.LogMessage($"Processing table: {schemaName}.{tableName}");
+
             var databaseObject = new DatabaseObject(schemaName, tableName, false);
 
             // Process columns
             foreach (var column in tableStatement.Definition.ColumnDefinitions)
             {
                 var columnName = column.ColumnIdentifier.Value;
-                var dataType = ExtractDataType(column.DataType);
+                var dataType = this.ExtractDataType(column.DataType);
                 var isNullable = column.Constraints.Any(c => c is Microsoft.SqlServer.TransactSql.ScriptDom.NullableConstraintDefinition nc && nc.Nullable);
                 var isPrimaryKey = column.Constraints.Any(c => c is UniqueConstraintDefinition uc && uc.IsPrimaryKey);
 
                 // For calculated columns, the data type is not defined. We must parse it from comments.
-                var (commentSqlType, commentIsNullable) = ParseTypeAnnotationsFromComments(column, tableStatement.ScriptTokenStream);
+                var (commentSqlType, commentIsNullable) = this.ParseTypeAnnotationsFromComments(column, tableStatement.ScriptTokenStream);
 
                 // Apply column overrides before creating the column (for Phase 2 responsibilities)
-                var (finalDataType, finalIsNullable, sourceInfo) = ApplyColumnOverrides(
-                    commentSqlType ?? dataType, 
-                    commentIsNullable ?? isNullable, 
-                    schemaName, 
-                    tableName, 
-                    columnName, 
+                var (finalDataType, finalIsNullable, sourceInfo) = this.ApplyColumnOverrides(
+                    commentSqlType ?? dataType,
+                    commentIsNullable ?? isNullable,
+                    schemaName,
+                    tableName,
+                    columnName,
                     configuration);
-                
+
                 // Extract precision/scale for decimal types
                 int? maxLength = null, precision = null, scale = null;
                 if (column.DataType is SqlDataTypeReference sqlTypeRef)
@@ -123,17 +122,21 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
                         if (parameters.Count >= 2)
                         {
                             if (parameters[0] is Literal p1 && int.TryParse(p1.Value, out var precisionValue))
-                                precision = precisionValue;
-                            
-                            if (parameters[1] is Literal p2 && int.TryParse(p2.Value, out var scaleValue))
-                                scale = scaleValue;
+                        {
+                            precision = precisionValue;
                         }
+
+                        if (parameters[1] is Literal p2 && int.TryParse(p2.Value, out var scaleValue))
+                        {
+                            scale = scaleValue;
+                        }
+                    }
                     }
                     else if (sqlTypeRef.Parameters.Count > 0)
                     {
                         // Handle max length parameters
                         var param = sqlTypeRef.Parameters[0];
-                        if (param is Literal literal && 
+                        if (param is Literal literal &&
                             !string.Equals(literal.Value, "max", StringComparison.OrdinalIgnoreCase) &&
                             int.TryParse(literal.Value, out var lengthValue))
                         {
@@ -141,32 +144,37 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
                         }
                     }
                 }
-                
+
                 // Create the database column
                 var sqlTypeString = finalDataType;
                 if (maxLength.HasValue)
-                    sqlTypeString += $"({maxLength})";
-                else if (precision.HasValue && scale.HasValue)
-                    sqlTypeString += $"({precision},{scale})";
-                else if (precision.HasValue)
-                    sqlTypeString += $"({precision})";
-                
-                var databaseType = PwSqlType.Parse(finalDataType);
-                
+            {
+                sqlTypeString += $"({maxLength})";
+            }
+            else if (precision.HasValue && scale.HasValue)
+            {
+                sqlTypeString += $"({precision},{scale})";
+            }
+            else if (precision.HasValue)
+            {
+                sqlTypeString += $"({precision})";
+            }
+
+            var databaseType = PwSqlType.Parse(finalDataType);
+
                 var dbColumn = new DatabaseColumn(
                     name: columnName,
                     databaseType: databaseType,
                     isNullable: finalIsNullable,
                     isPrimaryKey: isPrimaryKey,
                     schema: schemaName,
-                    tableName: tableName
-                );
+                    tableName: tableName);
 
                 // Set the source info
                 dbColumn.SourceInfo = sourceInfo ?? new PropertySourceInfo("SQL Definition", "SQL DDL", $"Defined in CREATE TABLE statement as '{dataType}' {(isNullable ? "NULL" : "NOT NULL")}.");
-                
+
                 databaseObject.Columns.Add(dbColumn);
-                
+
                 // Track primary key columns
                 if (isPrimaryKey)
                 {
@@ -177,16 +185,16 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
             // Process table constraints to extract primary keys that aren't defined at the column level
             foreach (var constraint in tableStatement.Definition.TableConstraints)
             {
-                if (constraint is UniqueConstraintDefinition uniqueConstraint && 
+                if (constraint is UniqueConstraintDefinition uniqueConstraint &&
                     uniqueConstraint.IsPrimaryKey)
                 {
                     foreach (var column in uniqueConstraint.Columns)
                     {
                         var columnName = column.Column.MultiPartIdentifier.Identifiers.Last().Value;
                         databaseObject.PrimaryKeyColumns.Add(columnName);
-                        
+
                         // Update the column's primary key status
-                        var dbColumn = databaseObject.Columns.FirstOrDefault(c => c.Name == columnName);
+                        var dbColumn = databaseObject.Columns.FirstOrDefault(c => string.Equals(c.Name, columnName, StringComparison.Ordinal));
                         if (dbColumn != null)
                         {
                             // Since we can't modify the IsPrimaryKey property directly (it's readonly),
@@ -201,8 +209,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
                                     true, // Set primary key flag to true
                                     dbColumn.Schema,
                                     dbColumn.TableName,
-                                    dbColumn.DatabaseName
-                                );
+                                    dbColumn.DatabaseName);
                             }
                         }
                     }
@@ -216,26 +223,29 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
         {
             var schemaName = viewStatement.SchemaObjectName.SchemaIdentifier?.Value ?? "dbo";
             var viewName = viewStatement.SchemaObjectName.BaseIdentifier.Value;
-            
-            _logger.LogMessage($"Processing view: {schemaName}.{viewName}");
-            
+
+            this.logger.LogMessage($"Processing view: {schemaName}.{viewName}");
+
             var databaseObject = new DatabaseObject(schemaName, viewName, true);
 
             if (viewStatement.SelectStatement?.QueryExpression is not QuerySpecification querySpec)
             {
-                _logger.LogMessage($"WARNING: View {schemaName}.{viewName} is not a simple SELECT statement. Columns will be indeterminate.");
+                this.logger.LogMessage($"WARNING: View {schemaName}.{viewName} is not a simple SELECT statement. Columns will be indeterminate.");
                 return databaseObject; // Return an empty view object
             }
 
-            var tableAliases = ExtractTableAliases(querySpec.FromClause, databaseSchema);
+            var tableAliases = this.ExtractTableAliases(querySpec.FromClause, databaseSchema);
 
             foreach (var selectElement in querySpec.SelectElements.OfType<SelectScalarExpression>())
             {
-                var (columnName, baseColumn) = ResolveViewColumn(selectElement, tableAliases, databaseSchema);
+                var (columnName, baseColumn) = this.ResolveViewColumn(selectElement, tableAliases, databaseSchema);
 
-                if (string.IsNullOrEmpty(columnName)) continue;
+                if (string.IsNullOrEmpty(columnName))
+            {
+                continue;
+            }
 
-                var (commentSqlType, commentIsNullable) = ParseTypeAnnotationsFromComments(selectElement, viewStatement.ScriptTokenStream);
+            var (commentSqlType, commentIsNullable) = this.ParseTypeAnnotationsFromComments(selectElement, viewStatement.ScriptTokenStream);
 
                 // Determine initial source before applying overrides
                 PropertySourceInfo initialSourceInfo;
@@ -255,11 +265,11 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
                 var originalSqlType = commentSqlType ?? baseColumn?.DatabaseType.ToString() ?? "unknown";
                 var originalIsNullable = commentIsNullable ?? baseColumn?.IsNullable ?? true;
 
-                var (finalDataType, finalIsNullable, overrideSourceInfo) = ApplyColumnOverrides(
+                var (finalDataType, finalIsNullable, overrideSourceInfo) = this.ApplyColumnOverrides(
                     originalSqlType, originalIsNullable, schemaName, viewName, columnName, configuration);
 
-                var databaseType = string.IsNullOrWhiteSpace(finalDataType) || finalDataType == "unknown"
-                    ? PwSqlType.Unknown
+                var databaseType = string.IsNullOrWhiteSpace(finalDataType) || string.Equals(finalDataType, "unknown"
+, StringComparison.Ordinal) ? PwSqlType.Unknown
                     : PwSqlType.Parse(finalDataType.ToUpper());
 
                 var dbColumn = new DatabaseColumn(
@@ -268,17 +278,17 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
                     isNullable: finalIsNullable,
                     isPrimaryKey: false,
                     schema: schemaName,
-                    tableName: viewName
-                )
+                    tableName: viewName)
                 {
-                    IsIndeterminate = (baseColumn == null && commentSqlType == null),
+                    IsIndeterminate = baseColumn == null && commentSqlType == null,
+
                     // Use the override source if it exists, otherwise use the one we determined
-                    SourceInfo = overrideSourceInfo ?? initialSourceInfo
+                    SourceInfo = overrideSourceInfo ?? initialSourceInfo,
                 };
 
                 databaseObject.Columns.Add(dbColumn);
             }
-            
+
             return databaseObject;
         }
 
@@ -298,10 +308,13 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
                 }
             }
 
-            if (fragmentStartIndex == -1) return (null, null);
+            if (fragmentStartIndex == -1)
+        {
+            return (null, null);
+        }
 
-            // Look backwards from the fragment's start token for immediately preceding comments.
-            for (int i = fragmentStartIndex - 1; i >= 0; i--)
+        // Look backwards from the fragment's start token for immediately preceding comments.
+        for (int i = fragmentStartIndex - 1; i >= 0; i--)
             {
                 var token = tokens[i];
 
@@ -313,8 +326,8 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
 
                 // If we hit a comma or a keyword that starts a new definition, we've gone too far back.
                 if (token.TokenType == TSqlTokenType.Comma ||
-                    (token.TokenType == TSqlTokenType.Identifier && 
-                     (token.Text.Equals("SELECT", StringComparison.OrdinalIgnoreCase) || 
+                    (token.TokenType == TSqlTokenType.Identifier &&
+                     (token.Text.Equals("SELECT", StringComparison.OrdinalIgnoreCase) ||
                       token.Text.Equals("CREATE", StringComparison.OrdinalIgnoreCase))))
                 {
                     break;
@@ -354,12 +367,16 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
         internal Dictionary<string, DatabaseObject> ExtractTableAliases(FromClause? fromClause, DatabaseSchema databaseSchema)
         {
             var aliases = new Dictionary<string, DatabaseObject>(StringComparer.OrdinalIgnoreCase);
-            if (fromClause == null) return aliases;
+            if (fromClause == null)
+        {
+            return aliases;
+        }
 
-            foreach (var tableReference in fromClause.TableReferences)
+        foreach (var tableReference in fromClause.TableReferences)
             {
-                ProcessTableReference(tableReference, aliases, databaseSchema);
+                this.ProcessTableReference(tableReference, aliases, databaseSchema);
             }
+
             return aliases;
         }
 
@@ -379,24 +396,25 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
             }
             else if (tableReference is QualifiedJoin join)
             {
-                ProcessTableReference(join.FirstTableReference, aliases, databaseSchema);
-                ProcessTableReference(join.SecondTableReference, aliases, databaseSchema);
+                this.ProcessTableReference(join.FirstTableReference, aliases, databaseSchema);
+                this.ProcessTableReference(join.SecondTableReference, aliases, databaseSchema);
             }
             else if (tableReference is UnqualifiedJoin ujoin)
             {
-                ProcessTableReference(ujoin.FirstTableReference, aliases, databaseSchema);
-                ProcessTableReference(ujoin.SecondTableReference, aliases, databaseSchema);
+                this.ProcessTableReference(ujoin.FirstTableReference, aliases, databaseSchema);
+                this.ProcessTableReference(ujoin.SecondTableReference, aliases, databaseSchema);
             }
-            //else if (tableReference is Microsoft.SqlServer.TransactSql.ScriptDom ApplyExpression apply)
-            //{
+
+            // else if (tableReference is Microsoft.SqlServer.TransactSql.ScriptDom ApplyExpression apply)
+            // {
             //    // An APPLY clause was found. We don't need to resolve the function call itself,
             //    // but we must process its input to find the tables that came before it (e.g., the base table and its joins).
             //    ProcessTableReference(apply.Input, aliases, databaseSchema);
-            //}
+            // }
             else if (tableReference is QueryDerivedTable derivedTable)
             {
                 // This handles subqueries in the FROM clause, e.g., FROM (SELECT...) AS alias
-                var subqueryProcessor = new SubqueryProcessor(_logger, databaseSchema, this);
+                var subqueryProcessor = new SubqueryProcessor(this.logger, databaseSchema, this);
                 var virtualTable = subqueryProcessor.Process(derivedTable);
                 if (virtualTable != null)
                 {
@@ -437,6 +455,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
                     }
                 }
             }
+
             // Case 2: Function call (CONCAT, ISNULL, aggregates, etc.)
             else if (selectElement.Expression is FunctionCall funcCall)
             {
@@ -447,50 +466,51 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
                 if (functionName.Equals("ISNULL", StringComparison.OrdinalIgnoreCase) && funcCall.Parameters.FirstOrDefault() is ColumnReferenceExpression firstParam)
                 {
                     // Try to resolve the type from the first parameter of ISNULL
-                    var (_, baseColumn) = ResolveViewColumn(new SelectScalarExpression { Expression = firstParam }, tableAliases, databaseSchema);
+                    var (_, baseColumn) = this.ResolveViewColumn(new SelectScalarExpression { Expression = firstParam }, tableAliases, databaseSchema);
                     if (baseColumn != null)
                     {
                         // The result of ISNULL is the type of the first arg, but it's NOT NULL.
-                        var pseudoColumn = new DatabaseColumn(columnName, baseColumn.DatabaseType, false, false, "", "")
+                        var pseudoColumn = new DatabaseColumn(columnName, baseColumn.DatabaseType, false, false, string.Empty, string.Empty)
                         {
-                            SourceInfo = new PropertySourceInfo("SQL Definition", "Function Inference", $"Inferred from ISNULL({baseColumn.Name}). Type is based on '{baseColumn.Name}' but is non-nullable.")
+                            SourceInfo = new PropertySourceInfo("SQL Definition", "Function Inference", $"Inferred from ISNULL({baseColumn.Name}). Type is based on '{baseColumn.Name}' but is non-nullable."),
                         };
                         return (columnName, pseudoColumn);
                     }
                 }
+
                 // Handle CONCAT specifically
                 else if (functionName.Equals("CONCAT", StringComparison.OrdinalIgnoreCase))
                 {
-                    var pseudoColumn = new DatabaseColumn(columnName, PwSqlType.Parse("NVARCHAR(MAX)"), false, false, "", "")
+                    var pseudoColumn = new DatabaseColumn(columnName, PwSqlType.Parse("NVARCHAR(MAX)"), false, false, string.Empty, string.Empty)
                     {
-                        SourceInfo = new PropertySourceInfo("SQL Definition", "Function Inference", "Inferred from CONCAT function call, resulting in a non-nullable string.")
+                        SourceInfo = new PropertySourceInfo("SQL Definition", "Function Inference", "Inferred from CONCAT function call, resulting in a non-nullable string."),
                     };
                     return (columnName, pseudoColumn);
                 }
 
                 // Handle common aggregate functions
-                var aggregateType = GetAggregateSqlType(functionName);
+                var aggregateType = this.GetAggregateSqlType(functionName);
                 if (aggregateType != null)
                 {
                     // For aggregates like SUM, we might try to infer the type from the parameter, but for now, a default is robust.
-                    var pseudoColumn = new DatabaseColumn(columnName, PwSqlType.Parse(aggregateType), false, false, "", "")
+                    var pseudoColumn = new DatabaseColumn(columnName, PwSqlType.Parse(aggregateType), false, false, string.Empty, string.Empty)
                     {
-                        SourceInfo = new PropertySourceInfo("SQL Definition", "Function Inference", $"Inferred from aggregate function '{functionName.ToUpper()}', resulting in a non-nullable '{aggregateType}'.")
+                        SourceInfo = new PropertySourceInfo("SQL Definition", "Function Inference", $"Inferred from aggregate function '{functionName.ToUpper()}', resulting in a non-nullable '{aggregateType}'."),
                     };
                     return (columnName, pseudoColumn);
                 }
             }
+
             // Case 3: String literal value
             else if (selectElement.Expression is StringLiteral)
             {
                 columnName ??= $"UNKNOWN_COLUMN_{selectElement.StartOffset}";
-                var pseudoColumn = new DatabaseColumn(columnName, PwSqlType.Parse("NVARCHAR(MAX)"), false, false, "", "")
+                var pseudoColumn = new DatabaseColumn(columnName, PwSqlType.Parse("NVARCHAR(MAX)"), false, false, string.Empty, string.Empty)
                 {
-                    SourceInfo = new PropertySourceInfo("SQL Definition", "Literal Inference", "Inferred from a string literal value, resulting in a non-nullable string.")
+                    SourceInfo = new PropertySourceInfo("SQL Definition", "Literal Inference", "Inferred from a string literal value, resulting in a non-nullable string."),
                 };
                 return (columnName, pseudoColumn);
             }
-
 
             // Case 4: All other expressions (other literals, CASE statements, etc.)
             columnName ??= $"UNKNOWN_COLUMN_{selectElement.StartOffset}";
@@ -514,44 +534,44 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
             var tableName = indexStatement.OnName.BaseIdentifier.Value;
             var indexName = indexStatement.Name.Value;
             var isUnique = indexStatement.Unique;
-            
-            _logger.LogMessage($"Processing index: {indexName} on {schemaName}.{tableName}");
-            
+
+            this.logger.LogMessage($"Processing index: {indexName} on {schemaName}.{tableName}");
+
             // Find the table in the schema
             var fullTableName = $"{schemaName}.{tableName}";
             if (!databaseSchema.ObjectsByName.TryGetValue(fullTableName, out var databaseObject) || databaseObject.IsView)
             {
-                _logger.LogMessage($"WARNING: Could not find table {fullTableName} for index {indexName}");
+                this.logger.LogMessage($"WARNING: Could not find table {fullTableName} for index {indexName}");
                 return;
             }
-            
+
             // Create the index definition
             var indexDefinition = new Model.IndexDefinition(indexName, isUnique, false); // false for non-clustered by default
-            
+
             // Extract columns
             foreach (var column in indexStatement.Columns)
             {
                 var columnName = column.Column.MultiPartIdentifier.Identifiers.Last().Value;
                 indexDefinition.ColumnNames.Add(columnName);
-                
+
                 // Also track the index in the column's participating indexes
-                var dbColumn = databaseObject.Columns.FirstOrDefault(c => c.Name == columnName);
+                var dbColumn = databaseObject.Columns.FirstOrDefault(c => string.Equals(c.Name, columnName, StringComparison.Ordinal));
                 if (dbColumn != null)
                 {
                     dbColumn.IndexNames.Add(indexName);
                 }
             }
-            
+
             // Add the index to the table
             databaseObject.Indexes.Add(indexDefinition);
         }
 
         private (string dataType, bool isNullable, PropertySourceInfo? sourceInfo) ApplyColumnOverrides(
-            string originalDataType, 
-            bool originalIsNullable, 
-            string schema, 
-            string objectName, 
-            string columnName, 
+            string originalDataType,
+            bool originalIsNullable,
+            string schema,
+            string objectName,
+            string columnName,
             SqlConfiguration? configuration)
         {
             var tableKey = $"{schema}.{objectName}";
@@ -567,14 +587,14 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
                 {
                     finalDataType = columnOverride.SqlType;
                     details.Add($"SQL type set to '{finalDataType}'");
-                    _usageTracker?.MarkColumnOverrideUsed(tableKey, columnName, nameof(columnOverride.SqlType));
+                    this.usageTracker?.MarkColumnOverrideUsed(tableKey, columnName, nameof(columnOverride.SqlType));
                 }
 
                 if (columnOverride.IsNullable.HasValue)
                 {
                     finalIsNullable = columnOverride.IsNullable.Value;
                     details.Add($"nullability set to '{finalIsNullable}'");
-                    _usageTracker?.MarkColumnOverrideUsed(tableKey, columnName, nameof(columnOverride.IsNullable));
+                    this.usageTracker?.MarkColumnOverrideUsed(tableKey, columnName, nameof(columnOverride.IsNullable));
                 }
             }
 
@@ -582,10 +602,10 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
             {
                 return (originalDataType, originalIsNullable, null);
             }
-            
+
             var sourceInfo = new PropertySourceInfo(
-                "SQL Definition", 
-                "Column Override", 
+                "SQL Definition",
+                "Column Override",
                 $"{string.Join(" and ", details)} by configuration for '{schema}.{objectName}.{columnName}'.");
 
             return (finalDataType, finalIsNullable, sourceInfo);
@@ -601,25 +621,24 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
             {
                 return userType.Name.BaseIdentifier.Value;
             }
-            
+
             return "unknown";
         }
-        
+
         // Removed GetSqlCoreType method - Type mapping is the responsibility of Phase 3 (CSharpModelTransformer)
         // The SchemaRefiner (Phase 2) is only responsible for handling raw SQL type strings
-        
         private string[] ExtractViewColumnNames(CreateViewStatement viewStatement)
         {
             // Try to extract column names from the view definition
             if (viewStatement.SelectStatement == null)
             {
-                _logger.LogMessage($"WARNING: View {viewStatement.SchemaObjectName} has no select statement");
+                this.logger.LogMessage($"WARNING: View {viewStatement.SchemaObjectName} has no select statement");
                 return Array.Empty<string>();
             }
 
             // Determine if we have a direct QuerySpecification or need to extract it from SelectStatement
             QuerySpecification? querySpec = null;
-            
+
             // Try to get the QuerySpecification from various possible locations in the syntax tree
             if (viewStatement.SelectStatement.QueryExpression is QuerySpecification directQuerySpec)
             {
@@ -631,24 +650,24 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
                 if (binaryQuery.FirstQueryExpression is QuerySpecification firstQuery)
                 {
                     querySpec = firstQuery;
-                    _logger.LogMessage($"WARNING: View {viewStatement.SchemaObjectName} uses a binary operation (UNION/EXCEPT/INTERSECT). Only extracting columns from first part.");
+                    this.logger.LogMessage($"WARNING: View {viewStatement.SchemaObjectName} uses a binary operation (UNION/EXCEPT/INTERSECT). Only extracting columns from first part.");
                 }
             }
-            
+
             // Extract column names from the query specification
             if (querySpec?.SelectElements != null)
             {
                 return querySpec.SelectElements
                     .OfType<SelectScalarExpression>()
-                    .Select(e => e.ColumnName?.Value ?? 
-                                 (e.Expression is ColumnReferenceExpression colRef 
-                                    ? colRef.MultiPartIdentifier.Identifiers.Last().Value 
+                    .Select(e => e.ColumnName?.Value ??
+                                 (e.Expression is ColumnReferenceExpression colRef
+                                    ? colRef.MultiPartIdentifier.Identifiers.Last().Value
                                     : $"Column{querySpec.SelectElements.IndexOf(e) + 1}"))
                     .ToArray();
             }
-            
+
             // Fallback - if we can't extract column names, return an empty array
-            _logger.LogMessage($"WARNING: Could not extract column names from view {viewStatement.SchemaObjectName}");
+            this.logger.LogMessage($"WARNING: Could not extract column names from view {viewStatement.SchemaObjectName}");
             return Array.Empty<string>();
         }
     }

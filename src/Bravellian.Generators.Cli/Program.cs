@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,27 +16,27 @@ using System.CommandLine;
 using Bravellian.Generators.Cli;
 
 var inputOption = new Option<string[]>(
-    aliases: ["--input", "-i"],
+    aliases:["--input", "-i"],
     description: "One or more input paths (files or directories) containing definition files. Supports multiple values.")
 {
     IsRequired = true,
-    AllowMultipleArgumentsPerToken = true
+    AllowMultipleArgumentsPerToken = true,
 };
 
 var outputOption = new Option<DirectoryInfo>(
-    aliases: ["--output", "-o"],
+    aliases:["--output", "-o"],
     description: "Output directory for generated files")
 {
-    IsRequired = true
+    IsRequired = true,
 };
 
 var dryRunOption = new Option<bool>(
-    aliases: ["--dry-run", "-d"],
+    aliases:["--dry-run", "-d"],
     description: "Show what files would be generated without writing them",
     getDefaultValue: () => false);
 
 var verboseOption = new Option<bool>(
-    aliases: ["--verbose", "-v"],
+    aliases:["--verbose", "-v"],
     description: "Enable verbose logging",
     getDefaultValue: () => false);
 
@@ -45,10 +45,11 @@ var rootCommand = new RootCommand("Bravellian Code Generator - Generate C# code 
     inputOption,
     outputOption,
     dryRunOption,
-    verboseOption
+    verboseOption,
 };
 
-rootCommand.SetHandler(async (string[] inputs, DirectoryInfo output, bool dryRun, bool verbose) =>
+rootCommand.SetHandler(
+    async (string[] inputs, DirectoryInfo output, bool dryRun, bool verbose) =>
 {
     // Support a single semicolon-separated string as input
     var expandedInputs = new List<string>();
@@ -65,7 +66,7 @@ rootCommand.SetHandler(async (string[] inputs, DirectoryInfo output, bool dryRun
     }
 
     var runner = new GeneratorRunner(verbose);
-    await runner.RunAsync(expandedInputs.ToArray(), output, dryRun);
+    await runner.RunAsync(expandedInputs.ToArray(), output, dryRun).ConfigureAwait(false);
 }, inputOption, outputOption, dryRunOption, verboseOption);
 
-return await rootCommand.InvokeAsync(args);
+return await rootCommand.InvokeAsync(args).ConfigureAwait(false);

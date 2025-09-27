@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation;
-using Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement.Model;
-using Bravellian.Generators.SqlGen.Common.Configuration;
-using Bravellian.Generators;
-using Xunit;
 using System.Collections.Generic;
+using Bravellian.Generators;
+using Bravellian.Generators.SqlGen.Common.Configuration;
+using Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement.Model;
+using Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation;
 using Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models;
+using Xunit;
 
 namespace Bravellian.Generators.Tests.SqlGenerator._3_CSharpTransformation;
 
 public class CSharpTransformationTests
 {
-    private readonly TestLogger _logger = new();
+    private readonly TestLogger logger = new ();
 
     [Fact]
     public void Transform_WithBasicSchema_ShouldProduceCorrectCSharpModel()
@@ -38,11 +38,11 @@ public class CSharpTransformationTests
             [
                 new DatabaseColumn("Id", PwSqlType.Int, false, true, "dbo", "Users"),
                 new DatabaseColumn("Name", PwSqlType.NVarChar, false, false, "dbo", "Users")
-            ]
+            ],
         });
 
         var config = new SqlConfiguration();
-        var transformer = new CSharpModelTransformer(_logger, config, null);
+        var transformer = new CSharpModelTransformer(this.logger, config, null);
 
         // Act
         var csharpModel = transformer.Transform(databaseSchema);
@@ -55,4 +55,3 @@ public class CSharpTransformationTests
         Assert.Equal(2, table.Properties.Count);
     }
 }
-

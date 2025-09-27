@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models;
-using System.Collections.Generic;
-
-namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
+namespace Bravellian.Generators.SqlGen.Pipeline.4_CodeGeneration
 {
+    using System.Collections.Generic;
+    using Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models;
+
     /// <summary>
     /// Interface for Phase 4 code generators that render C# source files from the final model.
     /// </summary>

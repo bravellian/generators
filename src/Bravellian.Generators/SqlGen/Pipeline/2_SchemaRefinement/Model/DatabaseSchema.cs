@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,16 +28,17 @@ public class DatabaseSchema
     public string? DatabaseName { get; }
 
     /// <summary>
-    /// Gets the collection of database objects (tables and views).
+    /// Gets or sets the collection of database objects (tables and views).
     /// </summary>
-    public List<DatabaseObject> Objects { get; set; } = [];
+    public List<DatabaseObject> Objects { get; set; } =[];
 
     /// <summary>
     /// Gets or sets a dictionary of database objects by their fully qualified name.
     /// </summary>
-    public Dictionary<string, DatabaseObject> ObjectsByName { get; set; } = [];
+    public Dictionary<string, DatabaseObject> ObjectsByName { get; set; } =[];
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="DatabaseSchema"/> class.
     /// Creates a new database schema.
     /// </summary>
     /// <param name="databaseName">The name of the database.</param>
@@ -56,4 +57,3 @@ public class DatabaseSchema
         this.ObjectsByName[databaseObject.FullName] = databaseObject;
     }
 }
-

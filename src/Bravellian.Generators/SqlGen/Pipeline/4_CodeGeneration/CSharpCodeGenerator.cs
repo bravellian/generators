@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Bravellian.Generators.SqlGen.Common.Configuration;
-using Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-
-namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
+namespace Bravellian.Generators.SqlGen.Pipeline.4_CodeGeneration
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using Bravellian.Generators.SqlGen.Common.Configuration;
+    using Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models;
+
     /// <summary>
     /// Phase 4: Code Generation. This phase is responsible for taking the final,
     /// C#-ready model from Phase 3 and rendering it into C# source code files.
@@ -31,20 +31,19 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
     public class CSharpCodeGenerator : ICSharpCodeGenerator
     {
         private readonly SqlConfiguration configuration;
-        private readonly IBvLogger _logger;
-        private readonly string _dbContextTypeName;
+        private readonly IBvLogger logger;
+        private readonly string dbContextTypeName;
         private readonly DbContextGenerator contextGenerator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CSharpCodeGenerator"/> class.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="dbContextTypeName">The type name of the DbContext class to use in extension methods. Defaults to "DbContext".</param>
         public CSharpCodeGenerator(SqlConfiguration configuration, IBvLogger logger)
         {
             this.configuration = configuration;
-            _logger = logger;
-            _dbContextTypeName = configuration.DbContextName ?? "DbContext";
+            this.logger = logger;
+            this.dbContextTypeName = configuration.DbContextName ?? "DbContext";
             this.contextGenerator = new DbContextGenerator(configuration, logger);
         }
 
@@ -56,9 +55,9 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
         /// <returns>A dictionary where keys are file names and values are the generated C# code contents.</returns>
         public Dictionary<string, string> Generate(GenerationModel generationModel)
         {
-            _logger.LogMessage("Phase 4: Generating C# source files...");
+            this.logger.LogMessage("Phase 4: Generating C# source files...");
 
-            var results = new Dictionary<string, string>();
+            var results = new Dictionary<string, string>(StringComparer.Ordinal);
             var allKnownTypes = generationModel.GetAllGeneratedTypes();
 
             foreach (var classModel in generationModel.Classes)
@@ -67,35 +66,35 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
 
                 // Generate the entity class file (properties only)
                 var entityFileName = Path.Combine(schemaFolder, $"{classModel.Name}.g.cs");
-                var entityCode = GenerateEntityClassCode(classModel, allKnownTypes);
+                var entityCode = this.GenerateEntityClassCode(classModel, allKnownTypes);
                 results.Add(entityFileName, entityCode);
-                _logger.LogMessage($"Generated entity file: {entityFileName}");
+                this.logger.LogMessage($"Generated entity file: {entityFileName}");
 
                 // Generate the repository class file with data access methods (if any)
                 if (classModel.Methods.Any())
                 {
                     var repositoryFileName = Path.Combine(schemaFolder, $"{classModel.Name}Repository.g.cs");
-                    var repositoryCode = GenerateRepositoryClassCode(classModel, allKnownTypes);
+                    var repositoryCode = this.GenerateRepositoryClassCode(classModel, allKnownTypes);
                     results.Add(repositoryFileName, repositoryCode);
-                    _logger.LogMessage($"Generated repository file: {repositoryFileName}");
+                    this.logger.LogMessage($"Generated repository file: {repositoryFileName}");
                 }
 
                 // Generate the create input model file (if applicable)
                 if (classModel.CreateInput != null)
                 {
                     var createInputFileName = Path.Combine(schemaFolder, $"{classModel.CreateInput.Name}.g.cs");
-                    var createInputCode = GenerateCreateInputModelCode(classModel.CreateInput);
+                    var createInputCode = this.GenerateCreateInputModelCode(classModel.CreateInput);
                     results.Add(createInputFileName, createInputCode);
-                    _logger.LogMessage($"Generated create input file: {createInputFileName}");
+                    this.logger.LogMessage($"Generated create input file: {createInputFileName}");
                 }
 
                 // Generate the update input model file (if applicable)
                 if (classModel.UpdateInput != null)
                 {
                     var updateInputFileName = Path.Combine(schemaFolder, $"{classModel.UpdateInput.Name}.g.cs");
-                    var updateInputCode = GenerateUpdateInputModelCode(classModel.UpdateInput);
+                    var updateInputCode = this.GenerateUpdateInputModelCode(classModel.UpdateInput);
                     results.Add(updateInputFileName, updateInputCode);
-                    _logger.LogMessage($"Generated update input file: {updateInputFileName}");
+                    this.logger.LogMessage($"Generated update input file: {updateInputFileName}");
                 }
             }
 
@@ -103,13 +102,13 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
             {
                 // Generate the DbContext class
                 var dbContextName = this.configuration.DbContextName ?? "ApplicationDbContext";
-                var dbContextCode = contextGenerator.GenerateDbContext(generationModel.Classes, dbContextName);
+                var dbContextCode = this.contextGenerator.GenerateDbContext(generationModel.Classes, dbContextName);
                 var dbContextFileName = Path.Combine("DbContexts", $"{dbContextName}.g.cs");
                 results.Add(dbContextFileName, dbContextCode);
-                _logger.LogMessage($"Generated DbContext file: {dbContextFileName}");
+                this.logger.LogMessage($"Generated DbContext file: {dbContextFileName}");
             }
 
-            _logger.LogMessage($"Phase 4: Generated {results.Count} C# files");
+            this.logger.LogMessage($"Phase 4: Generated {results.Count} C# files");
             return results;
         }
 
@@ -120,7 +119,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
         /// <param name="outputDirectory">The root directory to write files to.</param>
         public void WriteFilesToDisk(Dictionary<string, string> generatedFiles, string outputDirectory)
         {
-            _logger.LogMessage($"Writing {generatedFiles.Count} files to {outputDirectory}...");
+            this.logger.LogMessage($"Writing {generatedFiles.Count} files to {outputDirectory}...");
 
             foreach (var kvp in generatedFiles)
             {
@@ -128,18 +127,19 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
                 try
                 {
                     var fileInfo = new FileInfo(filePath);
+
                     // Ensure the directory for the file exists.
                     fileInfo.Directory?.Create();
                     File.WriteAllText(filePath, kvp.Value);
-                    _logger.LogMessage($"Wrote {kvp.Key} to disk");
+                    this.logger.LogMessage($"Wrote {kvp.Key} to disk");
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Failed to write file {filePath}. Error: {ex.Message}");
+                    this.logger.LogError($"Failed to write file {filePath}. Error: {ex.Message}");
                 }
             }
 
-            _logger.LogMessage($"Successfully wrote {generatedFiles.Count} files to {outputDirectory}");
+            this.logger.LogMessage($"Successfully wrote {generatedFiles.Count} files to {outputDirectory}");
         }
 
         private string GenerateEntityClassCode(ClassModel classModel, IReadOnlyDictionary<string, string> allKnownTypes)
@@ -168,9 +168,10 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
                     propertyComments.AppendLine($$"""    /// </list>""");
                     propertyComments.AppendLine($$"""    /// </remarks>""");
                 }
+
                 propertiesBuilder.Append(propertyComments);
 
-                var attributes = GeneratePropertyAttributes(property);
+                var attributes = this.GeneratePropertyAttributes(property);
                 if (attributes.Any())
                 {
                     propertiesBuilder.AppendLine(string.Join(Environment.NewLine, attributes.Select(a => $"    {a}")));
@@ -182,7 +183,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
                     propertiesBuilder.AppendLine($$"""    [PwIndeterminate]""");
                 }
 
-                string propertyNullableString = (property.IsNullable && !property.Type.EndsWith("?")) ? "?" : string.Empty;
+                string propertyNullableString = (property.IsNullable && !property.Type.EndsWith("?", StringComparison.Ordinal)) ? "?" : string.Empty;
                 propertiesBuilder.AppendLine($$"""    public {{property.Type}}{{propertyNullableString}} {{property.Name}} { get; set; }""");
                 propertiesBuilder.AppendLine();
             }
@@ -193,9 +194,9 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
                 propertiesBuilder.Length -= Environment.NewLine.Length;
             }
 
-            var classAttributes = GenerateClassAttributes(classModel);
+            var classAttributes = this.GenerateClassAttributes(classModel);
 
-            var configurationClassCode = GenerateEntityTypeConfigurationClassCode(classModel);
+            var configurationClassCode = this.GenerateEntityTypeConfigurationClassCode(classModel);
 
             if (!string.IsNullOrWhiteSpace(configurationClassCode))
             {
@@ -237,7 +238,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
             var methodsBuilder = new StringBuilder();
             foreach (var method in classModel.Methods)
             {
-                methodsBuilder.AppendLine(GenerateMethodCode(method, classModel, allKnownTypes));
+                methodsBuilder.AppendLine(this.GenerateMethodCode(method, classModel, allKnownTypes));
             }
 
             // Build the list of using directives
@@ -281,21 +282,21 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
             // Helper to get fully qualified type name
             Func<string, string> getFqdn = (typeName) =>
             {
-                var cleanType = typeName.Replace("?", "").Replace("IEnumerable<", "").Replace(">", "");
-                
+                var cleanType = typeName.Replace("?", string.Empty).Replace("IEnumerable<", string.Empty).Replace(">", string.Empty);
+
                 // Prioritize the current class's own type to avoid ambiguity with same-named classes in other schemas.
-                if (cleanType == classModel.Name)
+                if (string.Equals(cleanType, classModel.Name, StringComparison.Ordinal))
                 {
                     return typeName.Replace(cleanType, $"{classModel.Namespace}.{classModel.Name}");
                 }
 
                 // Also check for associated input models within the same namespace context.
-                if (classModel.CreateInput != null && cleanType == classModel.CreateInput.Name)
+                if (classModel.CreateInput != null && string.Equals(cleanType, classModel.CreateInput.Name, StringComparison.Ordinal))
                 {
                     return typeName.Replace(cleanType, $"{classModel.Namespace}.{classModel.CreateInput.Name}");
                 }
 
-                if (classModel.UpdateInput != null && cleanType == classModel.UpdateInput.Name)
+                if (classModel.UpdateInput != null && string.Equals(cleanType, classModel.UpdateInput.Name, StringComparison.Ordinal))
                 {
                     return typeName.Replace(cleanType, $"{classModel.Namespace}.{classModel.UpdateInput.Name}");
                 }
@@ -307,17 +308,17 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
             string returnType;
             var fqdnReturnType = getFqdn(method.ReturnType);
 
-            if (method.ReturnType == classModel.Name)
+            if (string.Equals(method.ReturnType, classModel.Name, StringComparison.Ordinal))
             {
                 returnType = $"System.Threading.Tasks.Task<{fqdnReturnType}?>";
             }
             else if (method.ReturnType.Contains("IEnumerable"))
             {
-                var innerType = method.ReturnType.Replace("IEnumerable<", "").Replace(">", "");
+                var innerType = method.ReturnType.Replace("IEnumerable<", string.Empty).Replace(">", string.Empty);
                 var fqdnInnerType = getFqdn(innerType);
                 returnType = $"System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<{fqdnInnerType}>>";
             }
-            else if (method.ReturnType == "void")
+            else if (string.Equals(method.ReturnType, "void", StringComparison.Ordinal))
             {
                 returnType = "System.Threading.Tasks.Task";
             }
@@ -331,13 +332,13 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
             // Build parameter string
             var methodParams = method.Parameters.Select(p => $"{getFqdn(p.Type)} {p.Name}");
             var allParams = string.Join(", ", methodParams);
-            var fullParams = $"this {_dbContextTypeName} context{(string.IsNullOrEmpty(allParams) ? "" : $", {allParams}")}, System.Threading.CancellationToken cancellationToken = default";
+            var fullParams = $"this {this.dbContextTypeName} context{(string.IsNullOrEmpty(allParams) ? string.Empty : $", {allParams}")}, System.Threading.CancellationToken cancellationToken = default";
 
             // Generate implementation
-            var implementation = GenerateMethodImplementation(method, classModel, allKnownTypes);
+            var implementation = this.GenerateMethodImplementation(method, classModel, allKnownTypes);
 
             // Generate XML comments
-            var comments = GenerateMethodComments(method, classModel, returnType);
+            var comments = this.GenerateMethodComments(method, classModel, returnType);
 
             return $$"""
         {{comments}}
@@ -352,18 +353,18 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
         {
             var sb = new StringBuilder();
             sb.AppendLine($"    /// <summary>");
-            sb.AppendLine($"    /// Asynchronously {GetMethodActionDescription(method, classModel)}.");
+            sb.AppendLine($"    /// Asynchronously {this.GetMethodActionDescription(method, classModel)}.");
             sb.AppendLine($"    /// </summary>");
             sb.AppendLine($"    /// <param name=\"context\">The database context.</param>");
 
             foreach (var parameter in method.Parameters)
             {
                 // Special handling for Create and Update input parameters
-                if (method.Type == MethodType.Create && parameter.Name == "input")
+                if (method.Type == MethodType.Create && string.Equals(parameter.Name, "input", StringComparison.Ordinal))
                 {
                     sb.AppendLine($"    /// <param name=\"{parameter.Name}\">The input model containing values for creating a new {classModel.Name}.</param>");
                 }
-                else if (method.Type == MethodType.Update && parameter.Name == "input")
+                else if (method.Type == MethodType.Update && string.Equals(parameter.Name, "input", StringComparison.Ordinal))
                 {
                     sb.AppendLine($"    /// <param name=\"{parameter.Name}\">The input model containing values to update. Only properties with HasValue=true will be updated.</param>");
                 }
@@ -375,7 +376,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
 
             sb.AppendLine($"    /// <param name=\"cancellationToken\">The cancellation token.</param>");
 
-            if (!returnType.StartsWith("Task") || returnType.Contains("<"))
+            if (!returnType.StartsWith("Task", StringComparison.Ordinal) || returnType.Contains("<"))
             {
                 sb.AppendLine($"    /// <returns>A task that represents the asynchronous operation. The task result contains the generated data.</returns>");
             }
@@ -405,10 +406,10 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
             // Helper to get fully qualified type name
             Func<string, string> getFqdn = (typeName) =>
             {
-                var cleanType = typeName.Replace("?", "");
+                var cleanType = typeName.Replace("?", string.Empty);
 
                 // Prioritize the current class's own type to avoid ambiguity with same-named classes in other schemas.
-                if (cleanType == classModel.Name)
+                if (string.Equals(cleanType, classModel.Name, StringComparison.Ordinal))
                 {
                     return $"{classModel.Namespace}.{classModel.Name}";
                 }
@@ -430,10 +431,12 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
             foreach (var param in method.Parameters)
             {
                 // Skip the input parameter which is used for Create/Update
-                if (param.Name == "input")
-                    continue;
+                if (string.Equals(param.Name, "input", StringComparison.Ordinal))
+            {
+                continue;
+            }
 
-                whereClauses.Add($"x.{param.SourcePropertyName} == {param.Name}");
+            whereClauses.Add($"x.{param.SourcePropertyName} == {param.Name}");
             }
 
             // Build the WHERE predicate string
@@ -468,7 +471,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
                     var createAssignments = string.Join(",\n", createEntityProps.Select(prop => $"            {prop} = input.{prop}"));
 
                     // Add scope key assignment if scope key parameter exists
-                    string scopeKeyAssignment = "";
+                    string scopeKeyAssignment = string.Empty;
                     if (scopeKeyParam != null && scopeKeyProp != null)
                     {
                         // The scope key should be assigned from the parameter, not from the input
@@ -487,7 +490,6 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
                     // {
                     //     returnStatement = "return entity;";
                     // }
-
                     return $$"""
                     // Map properties from the input model to a new entity
                     var entity = new {{fqdnClassName}}
@@ -511,7 +513,6 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
 
                     // We're using the wherePredicate directly now, which is built from all parameters
                     // including the scope key if present
-
                     var updateProperties = classModel.UpdateInput.Properties.Select(p => p.Name);
                     var updateAssignments = updateProperties.Select(prop =>
                         $"        // Check if the {prop} property was included in the update request\n" +
@@ -542,7 +543,6 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
                     // For Delete, we now have two implementation options:
                     // 1. Use a direct WHERE clause when we have a scope key (more efficient)
                     // 2. Use the attach-and-remove approach when no scope key is present
-
                     if (scopeKeyParam != null)
                     {
                         // More efficient implementation that uses a WHERE clause with all parameters including scope key
@@ -572,7 +572,6 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
                 """;
                     }
 
-
                 default:
                     return "        // Custom method implementation logic would go here.\n            throw new NotImplementedException();";
             }
@@ -600,14 +599,14 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
             foreach (var index in classModel.Indexes)
             {
                 var indexCols = classModel.Properties
-                    .Where(p => index.Columns.Contains(p.SourceColumnName))
+                    .Where(p => index.Columns.Contains(p.SourceColumnName, StringComparer.Ordinal))
                     .Select(p => $"nameof({p.Name})");
 
                 if (indexCols.Any())
                 {
                     var attributeParams = new List<string>
                     {
-                        string.Join(", ", indexCols)
+                        string.Join(", ", indexCols),
                     };
 
                     if (index.IsUnique)
@@ -633,7 +632,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
             var columnParams = new List<string>();
 
             // [Column("source_column_name")]
-            if (property.Name != property.SourceColumnName)
+            if (!string.Equals(property.Name, property.SourceColumnName, StringComparison.Ordinal))
             {
                 columnParams.Add($"\"{property.SourceColumnName}\"");
             }
@@ -647,7 +646,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
             }
 
             // [Required] for non-nullable reference types
-            if (!property.IsNullable && (property.Type == "string" || property.Type == "byte[]"))
+            if (!property.IsNullable && (string.Equals(property.Type, "string", StringComparison.Ordinal) || string.Equals(property.Type, "byte[]", StringComparison.Ordinal)))
             {
                 attributes.Add("[Required]");
             }
@@ -687,7 +686,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
             sb.AppendLine("using System.Text.Json.Serialization;");
             sb.AppendLine();
             sb.AppendLine("/// <summary>");
-            sb.AppendLine($"/// Input model for creating a new {model.Name.Replace("Create", "").Replace("Input", "")}.");
+            sb.AppendLine($"/// Input model for creating a new {model.Name.Replace("Create", string.Empty).Replace("Input", string.Empty)}.");
             sb.AppendLine("/// </summary>");
             sb.AppendLine($"public sealed partial record {model.Name}");
             sb.AppendLine("{");
@@ -698,7 +697,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
                 sb.AppendLine("    /// <summary>");
                 sb.AppendLine($"    /// Gets or sets the {property.Name}.");
                 sb.AppendLine("    /// </summary>");
-                string propertyNullableString = (property.IsNullable && !property.Type.EndsWith("?")) ? "?" : string.Empty;
+                string propertyNullableString = (property.IsNullable && !property.Type.EndsWith("?", StringComparison.Ordinal)) ? "?" : string.Empty;
                 sb.AppendLine($"    public {property.Type}{propertyNullableString} {property.Name} {{ get; init; }}");
                 sb.AppendLine();
             }
@@ -735,7 +734,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
             sb.AppendLine("using Bravellian;");
             sb.AppendLine();
             sb.AppendLine("/// <summary>");
-            sb.AppendLine($"/// Input model for updating an existing {model.Name.Replace("Update", "").Replace("Input", "")}.");
+            sb.AppendLine($"/// Input model for updating an existing {model.Name.Replace("Update", string.Empty).Replace("Input", string.Empty)}.");
             sb.AppendLine("/// Properties wrapped in Maybe<T> to distinguish between null values and absence of value.");
             sb.AppendLine("/// </summary>");
             sb.AppendLine($"public sealed partial record {model.Name}");
@@ -755,7 +754,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
 
             return sb.ToString();
         }
-        
+
         /// <summary>
         /// Generates the nested IEntityTypeConfiguration class for an entity.
         /// </summary>
@@ -766,13 +765,13 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
             foreach (var property in classModel.Properties)
             {
                 // Your rule: A custom type was explicitly set, overriding the default.
-                if (PropertyNeedsValueConverter(property))
+                if (this.PropertyNeedsValueConverter(property))
                 {
-                    var providerType = GetProviderTypeFromSqlType(property.SourceSqlType);
+                    var providerType = this.GetProviderTypeFromSqlType(property.SourceSqlType);
                     if (providerType == null)
                     {
                         // If we can't map the SQL type, we can't create a converter.
-                        _logger.LogWarning($"Could not determine provider type for property '{property.Name}' with SQL type '{property.SourceSqlType}'. Skipping value converter generation.");
+                        this.logger.LogWarning($"Could not determine provider type for property '{property.Name}' with SQL type '{property.SourceSqlType}'. Skipping value converter generation.");
                         continue;
                     }
 
@@ -833,7 +832,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration
                 "DECIMAL" or "NUMERIC" or "MONEY" or "SMALLMONEY" => "decimal",
                 "FLOAT" => "double",
                 "REAL" => "float",
-                
+
                 "VARCHAR" or "NVARCHAR" or "CHAR" or "NCHAR" or "TEXT" or "NTEXT" => "string",
 
                 "DATE" or "DATETIME" or "DATETIME2" or "SMALLDATETIME" => "DateTime",

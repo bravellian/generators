@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Bravellian.Generators.SqlGen.Common.Configuration;
-using System.Collections.Generic;
-using System.Text.Json;
-using Xunit;
-
 namespace Bravellian.Generators.Tests.SqlGenerator.Configuration
 {
+    using System.Collections.Generic;
+    using System.Text.Json;
+    using Bravellian.Generators.SqlGen.Common.Configuration;
+    using Xunit;
+
     public class SqlConfigurationTests
     {
         [Fact]
@@ -78,7 +78,7 @@ namespace Bravellian.Generators.Tests.SqlGenerator.Configuration
             Assert.False(config.GenerateNavigationProperties);
             Assert.True(config.GenerateDbContext);
             Assert.Equal("CustomDbContext", config.DbContextBaseClass);
-            
+
             // Global Type Mappings
             Assert.Single(config.GlobalTypeMappings);
             var mapping = config.GlobalTypeMappings[0];
@@ -88,7 +88,7 @@ namespace Bravellian.Generators.Tests.SqlGenerator.Configuration
             Assert.Single(mapping.Match.SqlType);
             Assert.Equal("decimal", mapping.Match.SqlType[0]);
             Assert.Equal("Money", mapping.Apply.CSharpType);
-            
+
             // Table Configuration
             Assert.Single(config.Tables);
             Assert.True(config.Tables.ContainsKey("dbo.Customer"));
@@ -97,13 +97,13 @@ namespace Bravellian.Generators.Tests.SqlGenerator.Configuration
             Assert.Equal("CustomerEntity", tableConfig.CSharpClassName);
             Assert.Single(tableConfig.PrimaryKeyOverride);
             Assert.Contains("CustomerId", tableConfig.PrimaryKeyOverride);
-            
+
             // Update Config
             Assert.NotNull(tableConfig.UpdateConfig);
             Assert.Equal(2, tableConfig.UpdateConfig.IgnoreColumns.Count);
             Assert.Contains("CreatedDate", tableConfig.UpdateConfig.IgnoreColumns);
             Assert.Contains("TenantId", tableConfig.UpdateConfig.IgnoreColumns);
-            
+
             // Read Methods
             Assert.Single(tableConfig.ReadMethods);
             var readMethod = tableConfig.ReadMethods[0];
@@ -111,7 +111,7 @@ namespace Bravellian.Generators.Tests.SqlGenerator.Configuration
             Assert.Equal(2, readMethod.MatchColumns.Count);
             Assert.Contains("Email", readMethod.MatchColumns);
             Assert.Contains("Status", readMethod.MatchColumns);
-            
+
             // Column Overrides
             Assert.Single(tableConfig.ColumnOverrides);
             Assert.True(tableConfig.ColumnOverrides.ContainsKey("Status"));
@@ -120,7 +120,7 @@ namespace Bravellian.Generators.Tests.SqlGenerator.Configuration
             Assert.Equal("nvarchar(20)", columnOverride.SqlType);
             Assert.False(columnOverride.IsNullable);
             Assert.Equal("CustomerStatus", columnOverride.CSharpType);
-            
+
             // GetColumnOverride helper method
             var retrievedOverride = config.GetColumnOverride("dbo", "Customer", "Status");
             Assert.NotNull(retrievedOverride);
@@ -177,10 +177,10 @@ namespace Bravellian.Generators.Tests.SqlGenerator.Configuration
             // Assert
             Assert.NotNull(configWithString);
             Assert.NotNull(configWithArray);
-            
+
             Assert.Single(configWithString.GlobalTypeMappings[0].Match.SqlType);
             Assert.Equal("varchar", configWithString.GlobalTypeMappings[0].Match.SqlType[0]);
-            
+
             Assert.Equal(3, configWithArray.GlobalTypeMappings[0].Match.SqlType.Count);
             Assert.Equal("varchar", configWithArray.GlobalTypeMappings[0].Match.SqlType[0]);
             Assert.Equal("nvarchar", configWithArray.GlobalTypeMappings[0].Match.SqlType[1]);
@@ -194,9 +194,10 @@ namespace Bravellian.Generators.Tests.SqlGenerator.Configuration
             var config = new SqlConfiguration
             {
                 Tables = new Dictionary<string, TableConfiguration>
+(StringComparer.Ordinal)
                 {
                     { "dbo.Customer", new TableConfiguration() }
-                }
+                },
             };
 
             // Act

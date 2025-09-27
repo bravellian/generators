@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ namespace Bravellian.Generators.Tests.SqlGenerator.EndToEnd;
 
 public class EndToEndTests
 {
-    private readonly TestLogger _logger = new();
+    private readonly TestLogger logger = new ();
 
     [Fact]
     public void Generate_FromSql_ShouldProduceCorrectCSharp()
@@ -38,12 +38,12 @@ public class EndToEndTests
             );
             """;
         var orchestrator = new SqlGenOrchestrator(
-            new SqlSchemaIngestor(_logger),
-            new SchemaRefiner(_logger, null),
-            new CSharpModelTransformer(_logger, null, null),
-            new CSharpCodeGenerator(null, _logger),
+            new SqlSchemaIngestor(this.logger),
+            new SchemaRefiner(this.logger, null),
+            new CSharpModelTransformer(this.logger, null, null),
+            new CSharpCodeGenerator(null, this.logger),
             null,
-            _logger);
+            this.logger);
 
         // Act
         var generatedCode = orchestrator.Generate(new[] { sql });
@@ -51,10 +51,10 @@ public class EndToEndTests
         // Assert
         Assert.NotNull(generatedCode);
         Assert.True(generatedCode.Any());
-        var userClass = generatedCode.First(c => c.Key.EndsWith("Users.cs"));
-        Assert.Contains("public class Users", userClass.Value);
-        Assert.Contains("public int Id { get; set; }", userClass.Value);
-        Assert.Contains("public string Username { get; set; }", userClass.Value);
+        var userClass = generatedCode.First(c => c.Key.EndsWith("Users.cs", StringComparison.Ordinal));
+        Assert.Contains("public class Users", userClass.Value, StringComparison.Ordinal);
+        Assert.Contains("public int Id { get; set; }", userClass.Value, StringComparison.Ordinal);
+        Assert.Contains("public string Username { get; set; }", userClass.Value, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -115,42 +115,45 @@ public class EndToEndTests
             GenerateDbContext = true,
             Namespace = "Bravellian.Database.PwSql",
             Tables = new Dictionary<string, TableConfiguration>
+(StringComparer.Ordinal)
             {
-                ["erp.TaxCode"] = new()
+                ["erp.TaxCode"] = new ()
                 {
                     ColumnOverrides = new Dictionary<string, ColumnOverride>
+(StringComparer.Ordinal)
                     {
-                        ["ErpId"] = new()
+                        ["ErpId"] = new ()
                         {
                             CSharpType = "TaxCodeErpIdentifier",
                         },
                     },
                 },
             },
-            GlobalTypeMappings = [
-                new()
+            GlobalTypeMappings =[
+                new ()
                 {
-                    Match = new()
+                    Match = new ()
                     {
                         ColumnNameRegex = "BravellianTenantId",
                     },
-                    Apply = new()
+                    Apply = new ()
                     {
                         CSharpType = "BravellianTenantIdentifier",
                     },
                 },
-                new()
+                new ()
                 {
-                    Match = new()
+                    Match = new ()
                     {
                         ColumnNameRegex = "TaxCodeId",
-                        SqlType = ["bigint"],
+                        SqlType =["bigint"],
                     },
-                    Apply = new()
+                    Apply = new ()
                     {
                         CSharpType = "TaxCodeIdentifier",
                     },
                 }
+
             ],
         };
 
@@ -158,11 +161,11 @@ public class EndToEndTests
         {
             PropertyNameCaseInsensitive = true,
             AllowTrailingCommas = true,
-            ReadCommentHandling = JsonCommentHandling.Skip
+            ReadCommentHandling = JsonCommentHandling.Skip,
         };
-        //var json = JsonSerializer.Serialize(config, options);
-        //config = JsonSerializer.Deserialize<SqlConfiguration>(json, options);
 
+        // var json = JsonSerializer.Serialize(config, options);
+        // config = JsonSerializer.Deserialize<SqlConfiguration>(json, options);
         var json = $$"""
             {
                 "namespace": "Bravellian.Database.PwSql",
@@ -207,12 +210,12 @@ public class EndToEndTests
         config = JsonSerializer.Deserialize<SqlConfiguration>(json, options);
 
         var orchestrator = new SqlGenOrchestrator(
-            new SqlSchemaIngestor(_logger),
-            new SchemaRefiner(_logger, config),
-            new CSharpModelTransformer(_logger, config, null),
-            new CSharpCodeGenerator(config, _logger),
+            new SqlSchemaIngestor(this.logger),
+            new SchemaRefiner(this.logger, config),
+            new CSharpModelTransformer(this.logger, config, null),
+            new CSharpCodeGenerator(config, this.logger),
             config,
-            _logger);
+            this.logger);
 
         // Act
         var generatedCode = orchestrator.Generate(new[] { sql });
@@ -220,10 +223,11 @@ public class EndToEndTests
         // Assert
         Assert.NotNull(generatedCode);
         Assert.True(generatedCode.Any());
-        //var userClass = generatedCode.First(c => c.Key.EndsWith("Users.cs"));
-        //Assert.Contains("public class Users", userClass.Value);
-        //Assert.Contains("public int Id { get; set; }", userClass.Value);
-        //Assert.Contains("public string Username { get; set; }", userClass.Value);
+
+        // var userClass = generatedCode.First(c => c.Key.EndsWith("Users.cs"));
+        // Assert.Contains("public class Users", userClass.Value);
+        // Assert.Contains("public int Id { get; set; }", userClass.Value);
+        // Assert.Contains("public string Username { get; set; }", userClass.Value);
     }
 
     [Fact]
@@ -236,12 +240,12 @@ public class EndToEndTests
         var config = SqlConfiguration.FromJson(configJson);
 
         var orchestrator = new SqlGenOrchestrator(
-            new SqlSchemaIngestor(_logger),
-            new SchemaRefiner(_logger, config),
-            new CSharpModelTransformer(_logger, config, null),
-            new CSharpCodeGenerator(config, _logger),
+            new SqlSchemaIngestor(this.logger),
+            new SchemaRefiner(this.logger, config),
+            new CSharpModelTransformer(this.logger, config, null),
+            new CSharpCodeGenerator(config, this.logger),
             config,
-            _logger);
+            this.logger);
 
         // Act
         var generatedCode = orchestrator.Generate(sqlFiles);
@@ -249,31 +253,33 @@ public class EndToEndTests
         // Assert
         Assert.NotNull(generatedCode);
         Assert.True(generatedCode.Any());
-        //var userClass = generatedCode.First(c => c.Key.EndsWith("Users.cs"));
-        //Assert.Contains("public class Users", userClass.Value);
-        //Assert.Contains("public int Id { get; set; }", userClass.Value);
-        //Assert.Contains("public string Username { get; set; }", userClass.Value);
+
+        // var userClass = generatedCode.First(c => c.Key.EndsWith("Users.cs"));
+        // Assert.Contains("public class Users", userClass.Value);
+        // Assert.Contains("public int Id { get; set; }", userClass.Value);
+        // Assert.Contains("public string Username { get; set; }", userClass.Value);
     }
 
     [Fact]
     public void GenerateFull_FromSingleSql_ShouldProduceCorrectCSharp()
     {
         var configJson = File.ReadAllText(@"C:\src\internal\src\modules\Database\Bravellian.Database.PwSql.Model\sql.generator.config.json");
-        string[] sqlFiles = [
+        string[] sqlFiles =[
             File.ReadAllText(@"C:\src\internal\src\modules\Database\Bravellian.Database.Audit\events\Tables\AuditEntry.sql"),
-            //File.ReadAllText(@"C:\src\internal\src\modules\Database\Bravellian.Database.PwSql\erp\Tables\ApInvoice.sql"),
-            //File.ReadAllText(@"C:\src\internal\src\modules\Database\Bravellian.Database.PwSql\erp\Views\ApInvoiceDetail.sql"),
+
+            // File.ReadAllText(@"C:\src\internal\src\modules\Database\Bravellian.Database.PwSql\erp\Tables\ApInvoice.sql"),
+            // File.ReadAllText(@"C:\src\internal\src\modules\Database\Bravellian.Database.PwSql\erp\Views\ApInvoiceDetail.sql"),
         ];
 
         var config = SqlConfiguration.FromJson(configJson);
 
         var orchestrator = new SqlGenOrchestrator(
-            new SqlSchemaIngestor(_logger),
-            new SchemaRefiner(_logger, config),
-            new CSharpModelTransformer(_logger, config, null),
-            new CSharpCodeGenerator(config, _logger),
+            new SqlSchemaIngestor(this.logger),
+            new SchemaRefiner(this.logger, config),
+            new CSharpModelTransformer(this.logger, config, null),
+            new CSharpCodeGenerator(config, this.logger),
             config,
-            _logger);
+            this.logger);
 
         // Act
         var generatedCode = orchestrator.Generate(sqlFiles);
@@ -281,10 +287,10 @@ public class EndToEndTests
         // Assert
         Assert.NotNull(generatedCode);
         Assert.True(generatedCode.Any());
-        //var userClass = generatedCode.First(c => c.Key.EndsWith("Users.cs"));
-        //Assert.Contains("public class Users", userClass.Value);
-        //Assert.Contains("public int Id { get; set; }", userClass.Value);
-        //Assert.Contains("public string Username { get; set; }", userClass.Value);
+
+        // var userClass = generatedCode.First(c => c.Key.EndsWith("Users.cs"));
+        // Assert.Contains("public class Users", userClass.Value);
+        // Assert.Contains("public int Id { get; set; }", userClass.Value);
+        // Assert.Contains("public string Username { get; set; }", userClass.Value);
     }
 }
-

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Samuel McAravey
+﻿// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml.Linq;
 
-
 // 1. Inherit from the base class for single files
 // [Generator]
 public class GuidBackedTypeSourceGenerator
@@ -34,40 +33,52 @@ public class GuidBackedTypeSourceGenerator
     protected IEnumerable<(string fileName, string source)>? Generate(string filePath, string fileContent, CancellationToken cancellationToken)
     {
         var fileExtension = Path.GetExtension(filePath).ToLowerInvariant();
-        if (fileExtension == ".json")
+        if (string.Equals(fileExtension, ".json", System.StringComparison.Ordinal))
         {
-            return GenerateFromJson(fileContent);
+            return this.GenerateFromJson(fileContent);
         }
         else
         {
-            return GenerateFromXml(fileContent);
+            return this.GenerateFromXml(fileContent);
         }
     }
 
     /// <summary>
-    /// Public wrapper for CLI usage
+    /// Public wrapper for CLI usage.
     /// </summary>
     public IEnumerable<(string fileName, string source)>? GenerateFromFiles(string filePath, string fileContent, CancellationToken cancellationToken = default)
     {
-        return Generate(filePath, fileContent, cancellationToken);
+        return this.Generate(filePath, fileContent, cancellationToken);
     }
 
     private IEnumerable<(string fileName, string source)>? GenerateFromXml(string fileContent)
     {
         var xdoc = XDocument.Parse(fileContent);
-        if (xdoc.Root == null) return null;
+        if (xdoc.Root == null)
+        {
+            return null;
+        }
 
         var elements = xdoc.Root.Elements("GuidBacked");
-        if (!elements.Any()) return null;
+        if (!elements.Any())
+        {
+            return null;
+        }
 
-        List<(string fileName, string source)> generated = new();
+        List<(string fileName, string source)> generated = new ();
         foreach (var element in elements)
         {
             var genParams = GuidBackedTypeGenerator.GetParams(element, null);
-            if (genParams == null) continue;
+            if (genParams == null)
+            {
+                continue;
+            }
 
             var generatedCode = GuidBackedTypeGenerator.Generate(genParams, null);
-            if (string.IsNullOrEmpty(generatedCode)) continue;
+            if (string.IsNullOrEmpty(generatedCode))
+            {
+                continue;
+            }
 
             var fileName = $"{genParams.Value.Namespace}.{genParams.Value.Name}.g.cs";
 
@@ -103,17 +114,21 @@ public class GuidBackedTypeSourceGenerator
             {
                 useDefaultFormat = defaultFormatElement.ValueKind == JsonValueKind.True;
                 if (defaultFormatElement.ValueKind == JsonValueKind.False)
+                {
                     useDefaultFormat = false;
+                }
+
                 if (defaultFormatElement.ValueKind == JsonValueKind.String && bool.TryParse(defaultFormatElement.GetString(), out var parsed))
+                {
                     useDefaultFormat = parsed;
+                }
             }
 
             var genParams = new GuidBackedTypeGenerator.GeneratorParams(
                 name!,
                 namespaceName!,
                 true,
-                useDefaultFormat
-            );
+                useDefaultFormat);
 
             var generatedCode = GuidBackedTypeGenerator.Generate(genParams, null);
             if (string.IsNullOrEmpty(generatedCode))

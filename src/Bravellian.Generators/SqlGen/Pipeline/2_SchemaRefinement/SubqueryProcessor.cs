@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,29 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Microsoft.SqlServer.TransactSql.ScriptDom;
-using Bravellian.Generators.SqlGen.Common;
-using Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement.Model;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
+namespace Bravellian.Generators.SqlGen.Pipeline.2_SchemaRefinement
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using Bravellian.Generators.SqlGen.Common;
+    using Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement.Model;
+    using Microsoft.SqlServer.TransactSql.ScriptDom;
+
     /// <summary>
     /// Helper class to process a QueryDerivedTable (a subquery in a FROM clause)
     /// and create a virtual DatabaseObject representing its output.
     /// </summary>
     internal class SubqueryProcessor
     {
-        private readonly IBvLogger _logger;
-        private readonly DatabaseSchema _databaseSchema;
-        private readonly SchemaRefiner _schemaRefiner;
+        private readonly IBvLogger logger;
+        private readonly DatabaseSchema databaseSchema;
+        private readonly SchemaRefiner schemaRefiner;
 
         public SubqueryProcessor(IBvLogger logger, DatabaseSchema databaseSchema, SchemaRefiner schemaRefiner)
         {
-            _logger = logger;
-            _databaseSchema = databaseSchema;
-            _schemaRefiner = schemaRefiner;
+            this.logger = logger;
+            this.databaseSchema = databaseSchema;
+            this.schemaRefiner = schemaRefiner;
         }
 
         /// <summary>
@@ -47,35 +47,37 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
             var alias = derivedTable.Alias?.Value;
             if (string.IsNullOrEmpty(alias))
             {
-                _logger.LogMessage("WARNING: Found a subquery with no alias. Cannot process it.");
+                this.logger.LogMessage("WARNING: Found a subquery with no alias. Cannot process it.");
                 return null;
             }
 
             if (derivedTable.QueryExpression is not QuerySpecification querySpec)
             {
-                _logger.LogMessage($"WARNING: Subquery '{alias}' is not a simple SELECT statement. Columns will be indeterminate.");
+                this.logger.LogMessage($"WARNING: Subquery '{alias}' is not a simple SELECT statement. Columns will be indeterminate.");
                 return new DatabaseObject("virtual", alias, true);
             }
 
             var virtualTable = new DatabaseObject("virtual", alias, true);
-            var subqueryAliases = _schemaRefiner.ExtractTableAliases(querySpec.FromClause, _databaseSchema);
+            var subqueryAliases = this.schemaRefiner.ExtractTableAliases(querySpec.FromClause, this.databaseSchema);
 
             foreach (var selectElement in querySpec.SelectElements.OfType<SelectScalarExpression>())
             {
-                var (columnName, baseColumn) = _schemaRefiner.ResolveViewColumn(selectElement, subqueryAliases, _databaseSchema);
+                var (columnName, baseColumn) = this.schemaRefiner.ResolveViewColumn(selectElement, subqueryAliases, this.databaseSchema);
 
-                if (string.IsNullOrEmpty(columnName)) continue;
+                if (string.IsNullOrEmpty(columnName))
+            {
+                continue;
+            }
 
-                var dbColumn = new DatabaseColumn(
+            var dbColumn = new DatabaseColumn(
                     name: columnName,
                     databaseType: baseColumn?.DatabaseType ?? PwSqlType.Unknown,
                     isNullable: baseColumn?.IsNullable ?? true,
                     isPrimaryKey: false,
                     schema: "virtual",
-                    tableName: alias
-                )
+                    tableName: alias)
                 {
-                    IsIndeterminate = (baseColumn == null)
+                    IsIndeterminate = baseColumn == null,
                 };
 
                 virtualTable.Columns.Add(dbColumn);

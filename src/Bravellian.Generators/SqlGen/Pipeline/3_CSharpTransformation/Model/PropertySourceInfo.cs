@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,25 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models
+namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation.Models
 {
+
     /// <summary>
     /// Represents the origin of a specific piece of information about a property (e.g., its type or name).
     /// </summary>
     public class PropertySourceInfo
     {
         /// <summary>
-        /// The aspect of the property this information pertains to (e.g., "SQL Type", "C# Type", "Property Name").
+        /// Gets the aspect of the property this information pertains to (e.g., "SQL Type", "C# Type", "Property Name").
         /// </summary>
         public string Aspect { get; }
 
         /// <summary>
-        /// The source of the information (e.g., "SQL DDL", "Global Type Mapping", "Column Override").
+        /// Gets the source of the information (e.g., "SQL DDL", "Global Type Mapping", "Column Override").
         /// </summary>
         public string Source { get; }
 
         /// <summary>
-        /// A detailed description of the source (e.g., "Rule with priority 100", "CREATE TABLE statement").
+        /// Gets a detailed description of the source (e.g., "Rule with priority 100", "CREATE TABLE statement").
         /// </summary>
         public string Details { get; }
 
@@ -39,9 +40,9 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models
         /// </summary>
         public PropertySourceInfo(string aspect, string source, string details)
         {
-            Aspect = aspect;
-            Source = source;
-            Details = details;
+            this.Aspect = aspect;
+            this.Source = source;
+            this.Details = details;
         }
     }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,10 +20,15 @@ using Microsoft.SqlServer.TransactSql.ScriptDom;
 internal interface ISqlColumnTypeResolver
 {
     string DeriveCSharpTypeFromDbType(string dbType);
+
     string DeriveDatabaseTypeFromCSharpType(string csharpType);
+
     string GetCSharpType(SqlDataTypeOption sqlDataType);
+
     string GetFunctionReturnType(string functionName, FunctionCall functionCall, Dictionary<string, PwTableDefinition> tableDefinitions, Dictionary<string, string> tableAliases, IBvLogger? logger = null);
+
     string GetSpecializedType(string? databaseName, string tableName, string columnName, string csharpType, string? schemaName = null);
+
     (string Type, bool? IsNullable) GetSpecializedTypeWithNullability(string? databaseName, string tableName, string columnName, string csharpType, string? schemaName = null);
 
     List<PwColumnDefinition> ResolveViewColumnTypes(
@@ -33,4 +38,3 @@ internal interface ISqlColumnTypeResolver
         Dictionary<string, (string Type, bool? IsNullable)>? dbTypeMappings = null,
         List<CreateViewStatement>? allViewStatements = null);
 }
-

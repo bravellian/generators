@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,21 +18,22 @@ using Bravellian.Generators;
 namespace Bravellian.Generators.Cli;
 
 /// <summary>
-/// Wrapper for source generators to run as CLI generators
+/// Wrapper for source generators to run as CLI generators.
 /// </summary>
 public abstract class CliGenerator
 {
     public abstract string Name { get; }
+
     public abstract Regex FileExtensionRegex { get; }
-    
+
     public abstract Task<IEnumerable<(string fileName, string source)>> GenerateAsync(
-        IEnumerable<string> inputPaths, 
+        IEnumerable<string> inputPaths,
         CancellationToken cancellationToken = default);
-    
+
     protected static IEnumerable<string> FindFiles(IEnumerable<string> paths, Regex pattern)
     {
         var allFiles = new List<string>();
-        
+
         foreach (var path in paths)
         {
             if (File.Exists(path))
@@ -51,344 +52,354 @@ public abstract class CliGenerator
                 allFiles.AddRange(directoryFiles);
             }
         }
-        
+
         return allFiles;
     }
 }
 
 /// <summary>
-/// CLI wrapper for StringBackedEnumTypeSourceGenerator
+/// CLI wrapper for StringBackedEnumTypeSourceGenerator.
 /// </summary>
 public class StringBackedEnumCliGenerator : CliGenerator
 {
     public override string Name => "StringBackedEnum";
-    public override Regex FileExtensionRegex => new(@"(?:.*\.types\.xml|.*\.sbt\.xml|_generate\.xml|.*\.enum\.json|.*\.string_enum\.json)$");
+
+    public override Regex FileExtensionRegex => new (@"(?:.*\.types\.xml|.*\.sbt\.xml|_generate\.xml|.*\.enum\.json|.*\.string_enum\.json)$");
 
     public override async Task<IEnumerable<(string fileName, string source)>> GenerateAsync(
-        IEnumerable<string> inputPaths, 
+        IEnumerable<string> inputPaths,
         CancellationToken cancellationToken = default)
     {
         var generator = new StringBackedEnumTypeSourceGenerator();
         var results = new List<(string fileName, string source)>();
-        
-        var files = FindFiles(inputPaths, FileExtensionRegex);
-        
+
+        var files = FindFiles(inputPaths, this.FileExtensionRegex);
+
         foreach (var filePath in files)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
-            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken);
+
+            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
             var generated = generator.GenerateFromFiles(filePath, fileContent, cancellationToken);
-            
+
             if (generated != null)
             {
                 results.AddRange(generated);
             }
         }
-        
+
         return results;
     }
 }
 
 /// <summary>
-/// CLI wrapper for DtoEntitySourceGenerator
+/// CLI wrapper for DtoEntitySourceGenerator.
 /// </summary>
 public class DtoEntityCliGenerator : CliGenerator
 {
     public override string Name => "DtoEntity";
-    public override Regex FileExtensionRegex => new(@"(?:.*\.dto\.xml|.*\.entities\.xml|.*\.viewmodels\.xml|_generate\.xml|.*\.dto\.json|.*\.entity\.json)$");
+
+    public override Regex FileExtensionRegex => new (@"(?:.*\.dto\.xml|.*\.entities\.xml|.*\.viewmodels\.xml|_generate\.xml|.*\.dto\.json|.*\.entity\.json)$");
 
     public override async Task<IEnumerable<(string fileName, string source)>> GenerateAsync(
-        IEnumerable<string> inputPaths, 
+        IEnumerable<string> inputPaths,
         CancellationToken cancellationToken = default)
     {
         var generator = new DtoEntitySourceGenerator();
         var results = new List<(string fileName, string source)>();
-        
-        var files = FindFiles(inputPaths, FileExtensionRegex);
-        
+
+        var files = FindFiles(inputPaths, this.FileExtensionRegex);
+
         foreach (var filePath in files)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
-            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken);
+
+            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
             var generated = generator.GenerateFromFiles(filePath, fileContent, cancellationToken);
-            
+
             if (generated != null)
             {
                 results.AddRange(generated);
             }
         }
-        
+
         return results;
     }
 }
 
 /// <summary>
-/// CLI wrapper for FastIdBackedTypeSourceGenerator
+/// CLI wrapper for FastIdBackedTypeSourceGenerator.
 /// </summary>
 public class FastIdBackedTypeCliGenerator : CliGenerator
 {
     public override string Name => "FastIdBackedType";
-    public override Regex FileExtensionRegex => new(@"(?:.*\.types\.xml|.*\.sbt\.xml|_generate\.xml|.*\.fastid\.json)$");
+
+    public override Regex FileExtensionRegex => new (@"(?:.*\.types\.xml|.*\.sbt\.xml|_generate\.xml|.*\.fastid\.json)$");
 
     public override async Task<IEnumerable<(string fileName, string source)>> GenerateAsync(
-        IEnumerable<string> inputPaths, 
+        IEnumerable<string> inputPaths,
         CancellationToken cancellationToken = default)
     {
         var generator = new FastIdBackedTypeSourceGenerator();
         var results = new List<(string fileName, string source)>();
-        
-        var files = FindFiles(inputPaths, FileExtensionRegex);
-        
+
+        var files = FindFiles(inputPaths, this.FileExtensionRegex);
+
         foreach (var filePath in files)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
-            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken);
+
+            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
             var generated = generator.GenerateFromFiles(filePath, fileContent, cancellationToken);
-            
+
             if (generated != null)
             {
                 results.AddRange(generated);
             }
         }
-        
+
         return results;
     }
 }
 
 /// <summary>
-/// CLI wrapper for GuidBackedTypeSourceGenerator
+/// CLI wrapper for GuidBackedTypeSourceGenerator.
 /// </summary>
 public class GuidBackedTypeCliGenerator : CliGenerator
 {
     public override string Name => "GuidBackedType";
-    public override Regex FileExtensionRegex => new(@"(?:.*\.types\.xml|.*\.sbt\.xml|_generate\.xml|.*\.guid\.json)$");
+
+    public override Regex FileExtensionRegex => new (@"(?:.*\.types\.xml|.*\.sbt\.xml|_generate\.xml|.*\.guid\.json)$");
 
     public override async Task<IEnumerable<(string fileName, string source)>> GenerateAsync(
-        IEnumerable<string> inputPaths, 
+        IEnumerable<string> inputPaths,
         CancellationToken cancellationToken = default)
     {
         var generator = new GuidBackedTypeSourceGenerator();
         var results = new List<(string fileName, string source)>();
-        
-        var files = FindFiles(inputPaths, FileExtensionRegex);
-        
+
+        var files = FindFiles(inputPaths, this.FileExtensionRegex);
+
         foreach (var filePath in files)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
-            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken);
+
+            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
             var generated = generator.GenerateFromFiles(filePath, fileContent, cancellationToken);
-            
+
             if (generated != null)
             {
                 results.AddRange(generated);
             }
         }
-        
+
         return results;
     }
 }
 
 /// <summary>
-/// CLI wrapper for GenericBackedTypeSourceGenerator
+/// CLI wrapper for GenericBackedTypeSourceGenerator.
 /// </summary>
 public class GenericBackedTypeCliGenerator : CliGenerator
 {
     public override string Name => "GenericBackedType";
-    public override Regex FileExtensionRegex => new(@"(?:.*\.types\.xml|.*\.sbt\.xml|_generate\.xml)$");
+
+    public override Regex FileExtensionRegex => new (@"(?:.*\.types\.xml|.*\.sbt\.xml|_generate\.xml)$");
 
     public override async Task<IEnumerable<(string fileName, string source)>> GenerateAsync(
-        IEnumerable<string> inputPaths, 
+        IEnumerable<string> inputPaths,
         CancellationToken cancellationToken = default)
     {
         var generator = new GenericBackedTypeSourceGenerator();
         var results = new List<(string fileName, string source)>();
-        
-        var files = FindFiles(inputPaths, FileExtensionRegex);
-        
+
+        var files = FindFiles(inputPaths, this.FileExtensionRegex);
+
         foreach (var filePath in files)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
-            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken);
+
+            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
             var generated = generator.GenerateFromFiles(filePath, fileContent, cancellationToken);
-            
+
             if (generated != null)
             {
                 results.AddRange(generated);
             }
         }
-        
+
         return results;
     }
 }
 
 /// <summary>
-/// CLI wrapper for MultiValueBackedTypeSourceGenerator
+/// CLI wrapper for MultiValueBackedTypeSourceGenerator.
 /// </summary>
 public class MultiValueBackedTypeCliGenerator : CliGenerator
 {
     public override string Name => "MultiValueBackedType";
-    public override Regex FileExtensionRegex => new(@"(?:.*\.types\.xml|.*\.sbt\.xml|_generate\.xml|.*\.multi\.json)$");
+
+    public override Regex FileExtensionRegex => new (@"(?:.*\.types\.xml|.*\.sbt\.xml|_generate\.xml|.*\.multi\.json)$");
 
     public override async Task<IEnumerable<(string fileName, string source)>> GenerateAsync(
-        IEnumerable<string> inputPaths, 
+        IEnumerable<string> inputPaths,
         CancellationToken cancellationToken = default)
     {
         var generator = new MultiValueBackedTypeSourceGenerator();
         var results = new List<(string fileName, string source)>();
-        
-        var files = FindFiles(inputPaths, FileExtensionRegex);
-        
+
+        var files = FindFiles(inputPaths, this.FileExtensionRegex);
+
         foreach (var filePath in files)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
-            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken);
+
+            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
             var generated = generator.GenerateFromFiles(filePath, fileContent, cancellationToken);
-            
+
             if (generated != null)
             {
                 results.AddRange(generated);
             }
         }
-        
+
         return results;
     }
 }
 
 /// <summary>
-/// CLI wrapper for NumberBackedEnumTypeSourceGenerator
+/// CLI wrapper for NumberBackedEnumTypeSourceGenerator.
 /// </summary>
 public class NumberBackedEnumTypeCliGenerator : CliGenerator
 {
     public override string Name => "NumberBackedEnumType";
-    public override Regex FileExtensionRegex => new(@"(?:.*\.types\.xml|.*\.sbt\.xml|_generate\.xml|.*\.number_enum\.json)$");
+
+    public override Regex FileExtensionRegex => new (@"(?:.*\.types\.xml|.*\.sbt\.xml|_generate\.xml|.*\.number_enum\.json)$");
 
     public override async Task<IEnumerable<(string fileName, string source)>> GenerateAsync(
-        IEnumerable<string> inputPaths, 
+        IEnumerable<string> inputPaths,
         CancellationToken cancellationToken = default)
     {
         var generator = new NumberBackedEnumTypeSourceGenerator();
         var results = new List<(string fileName, string source)>();
-        
-        var files = FindFiles(inputPaths, FileExtensionRegex);
-        
+
+        var files = FindFiles(inputPaths, this.FileExtensionRegex);
+
         foreach (var filePath in files)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
-            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken);
+
+            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
             var generated = generator.GenerateFromFiles(filePath, fileContent, cancellationToken);
-            
+
             if (generated != null)
             {
                 results.AddRange(generated);
             }
         }
-        
+
         return results;
     }
 }
 
 /// <summary>
-/// CLI wrapper for StringBackedTypeSourceGenerator
+/// CLI wrapper for StringBackedTypeSourceGenerator.
 /// </summary>
 public class StringBackedTypeCliGenerator : CliGenerator
 {
     public override string Name => "StringBackedType";
-    public override Regex FileExtensionRegex => new(@"(?:.*\.types\.xml|.*\.sbt\.xml|_generate\.xml|.*\.string\.json)$");
+
+    public override Regex FileExtensionRegex => new (@"(?:.*\.types\.xml|.*\.sbt\.xml|_generate\.xml|.*\.string\.json)$");
 
     public override async Task<IEnumerable<(string fileName, string source)>> GenerateAsync(
-        IEnumerable<string> inputPaths, 
+        IEnumerable<string> inputPaths,
         CancellationToken cancellationToken = default)
     {
         var generator = new StringBackedTypeSourceGenerator();
         var results = new List<(string fileName, string source)>();
-        
-        var files = FindFiles(inputPaths, FileExtensionRegex);
-        
+
+        var files = FindFiles(inputPaths, this.FileExtensionRegex);
+
         foreach (var filePath in files)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
-            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken);
+
+            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
             var generated = generator.GenerateFromFiles(filePath, fileContent, cancellationToken);
-            
+
             if (generated != null)
             {
                 results.AddRange(generated);
             }
         }
-        
+
         return results;
     }
 }
 
 /// <summary>
-/// CLI wrapper for CapabilitySourceGenerator
+/// CLI wrapper for CapabilitySourceGenerator.
 /// </summary>
 public class CapabilityCliGenerator : CliGenerator
 {
     public override string Name => "Capability";
-    public override Regex FileExtensionRegex => new(@"(?:.*\.capabilities\.xml|.*\.capabilities\.json|.*\.capabilities-only\.json|.*\.adapter-profile\.json|.*\.erp-capabilities\.xml|.*\.erp-capabilities\.json|.*\.erp-capabilities-only\.json|.*\.erp-adapter-profile\.json|_generate\.xml)$");
+
+    public override Regex FileExtensionRegex => new (@"(?:.*\.capabilities\.xml|.*\.capabilities\.json|.*\.capabilities-only\.json|.*\.adapter-profile\.json|.*\.erp-capabilities\.xml|.*\.erp-capabilities\.json|.*\.erp-capabilities-only\.json|.*\.erp-adapter-profile\.json|_generate\.xml)$");
 
     public override async Task<IEnumerable<(string fileName, string source)>> GenerateAsync(
-        IEnumerable<string> inputPaths, 
+        IEnumerable<string> inputPaths,
         CancellationToken cancellationToken = default)
     {
         var generator = new CapabilitySourceGenerator();
         var results = new List<(string fileName, string source)>();
-        
-        var files = FindFiles(inputPaths, FileExtensionRegex);
-        
+
+        var files = FindFiles(inputPaths, this.FileExtensionRegex);
+
         foreach (var filePath in files)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
-            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken);
+
+            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
             var generated = generator.GenerateFromFiles(filePath, fileContent, cancellationToken);
-            
+
             if (generated != null)
             {
                 results.AddRange(generated);
             }
         }
-        
+
         return results;
     }
 }
 
 /// <summary>
-/// CLI wrapper for SqlEntitySourceGenerator
+/// CLI wrapper for SqlEntitySourceGenerator.
 /// </summary>
 public class SqlEntityCliGenerator : CliGenerator
 {
     public override string Name => "SqlEntity";
-    public override Regex FileExtensionRegex => new(@"(?i)\.(sql|generator\.config\.json)$");
+
+    public override Regex FileExtensionRegex => new (@"(?i)\.(sql|generator\.config\.json)$");
 
     public override async Task<IEnumerable<(string fileName, string source)>> GenerateAsync(
-        IEnumerable<string> inputPaths, 
+        IEnumerable<string> inputPaths,
         CancellationToken cancellationToken = default)
     {
         var generator = new Bravellian.Generators.SqlGen.Pipeline.SqlEntityCliGenerator();
         var results = new List<(string fileName, string source)>();
-        
+
         // Find all relevant files first
-        var allFiles = FindFiles(inputPaths, FileExtensionRegex).ToList();
-        
-        var sqlFiles = new Dictionary<string, string>();
-        var sqlConfigFiles = new Dictionary<string, string>();
-        
+        var allFiles = FindFiles(inputPaths, this.FileExtensionRegex).ToList();
+
+        var sqlFiles = new Dictionary<string, string>(StringComparer.Ordinal);
+        var sqlConfigFiles = new Dictionary<string, string>(StringComparer.Ordinal);
+
         foreach (var filePath in allFiles)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
-            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken);
-            
+
+            var fileContent = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
+
             if (filePath.EndsWith(".sql", StringComparison.OrdinalIgnoreCase))
             {
                 sqlFiles[filePath] = fileContent;
@@ -398,14 +409,14 @@ public class SqlEntityCliGenerator : CliGenerator
                 sqlConfigFiles[filePath] = fileContent;
             }
         }
-        
+
         if (sqlFiles.Any())
         {
             // Use the simplified method that only takes SQL files and JSON config files
             var generated = generator.GenerateFromFiles(sqlFiles, sqlConfigFiles, cancellationToken);
             results.AddRange(generated);
         }
-        
+
         return results;
     }
 }

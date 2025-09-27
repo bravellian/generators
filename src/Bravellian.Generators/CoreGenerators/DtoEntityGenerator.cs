@@ -1,5 +1,16 @@
-// CONFIDENTIAL - Copyright (c) Bravellian LLC. All rights reserved.
-// See NOTICE.md for full restrictions and usage terms.
+// Copyright (c) Bravellian
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #nullable enable
 
@@ -26,7 +37,7 @@ public static class DtoEntityGenerator
     {
         isNested = entity.ClassOnly;
         var indentation = isNested ? "        " : "    ";
-        var classIndentation = isNested ? "    " : "";
+        var classIndentation = isNested ? "    " : string.Empty;
 
         IEnumerable<string> propertyStrings = entity.Properties.Select(p =>
         {
@@ -191,19 +202,44 @@ using FluentValidation;
 #pragma warning disable MA0127 // Use String.Equals instead of is pattern
                 if (string.Equals(p.Type, "string", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (!string.IsNullOrEmpty(p.Max)) rules.Add($"{ruleBuilder}.MaximumLength({p.Max}).WithMessage(\"'{p.Name}' must not exceed {p.Max} characters.\");");
-                    if (!string.IsNullOrEmpty(p.Min)) rules.Add($"{ruleBuilder}.MinimumLength({p.Min}).WithMessage(\"'{p.Name}' must be at least {p.Min} characters.\");");
-                    if (!string.IsNullOrEmpty(p.Regex)) rules.Add($"{ruleBuilder}.Matches(@\"{p.Regex}\").WithMessage(\"'{p.Name}' has an invalid format.\");");
+                    if (!string.IsNullOrEmpty(p.Max))
+                    {
+                        rules.Add($"{ruleBuilder}.MaximumLength({p.Max}).WithMessage(\"'{p.Name}' must not exceed {p.Max} characters.\");");
+                    }
+
+                    if (!string.IsNullOrEmpty(p.Min))
+                    {
+                        rules.Add($"{ruleBuilder}.MinimumLength({p.Min}).WithMessage(\"'{p.Name}' must be at least {p.Min} characters.\");");
+                    }
+
+                    if (!string.IsNullOrEmpty(p.Regex))
+                    {
+                        rules.Add($"{ruleBuilder}.Matches(@\"{p.Regex}\").WithMessage(\"'{p.Name}' has an invalid format.\");");
+                    }
                 }
                 else if (p.Type is "int" or "long" or "decimal" or "float" or "double")
                 {
-                    if (!string.IsNullOrEmpty(p.Min)) rules.Add($"{ruleBuilder}.GreaterThanOrEqualTo({p.Min}).WithMessage(\"'{p.Name}' must be at least {p.Min}.\");");
-                    if (!string.IsNullOrEmpty(p.Max)) rules.Add($"{ruleBuilder}.LessThanOrEqualTo({p.Max}).WithMessage(\"'{p.Name}' must be no more than {p.Max}.\");");
+                    if (!string.IsNullOrEmpty(p.Min))
+                    {
+                        rules.Add($"{ruleBuilder}.GreaterThanOrEqualTo({p.Min}).WithMessage(\"'{p.Name}' must be at least {p.Min}.\");");
+                    }
+
+                    if (!string.IsNullOrEmpty(p.Max))
+                    {
+                        rules.Add($"{ruleBuilder}.LessThanOrEqualTo({p.Max}).WithMessage(\"'{p.Name}' must be no more than {p.Max}.\");");
+                    }
                 }
                 else if (string.Equals(p.Type, "DateTime", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (!string.IsNullOrEmpty(p.Min)) rules.Add($"{ruleBuilder}.GreaterThanOrEqualTo(DateTime.Parse(\"{p.Min}\")).WithMessage(\"'{p.Name}' must be after {p.Min}.\");");
-                    if (!string.IsNullOrEmpty(p.Max)) rules.Add($"{ruleBuilder}.LessThanOrEqualTo(DateTime.Parse(\"{p.Max}\")).WithMessage(\"'{p.Name}' must be before {p.Max}.\");");
+                    if (!string.IsNullOrEmpty(p.Min))
+                    {
+                        rules.Add($"{ruleBuilder}.GreaterThanOrEqualTo(DateTime.Parse(\"{p.Min}\")).WithMessage(\"'{p.Name}' must be after {p.Min}.\");");
+                    }
+
+                    if (!string.IsNullOrEmpty(p.Max))
+                    {
+                        rules.Add($"{ruleBuilder}.LessThanOrEqualTo(DateTime.Parse(\"{p.Max}\")).WithMessage(\"'{p.Name}' must be before {p.Max}.\");");
+                    }
                 }
                 else if (string.Equals(p.Type, "Guid", StringComparison.OrdinalIgnoreCase) && p.NoDefault)
                 {
@@ -244,13 +280,13 @@ using FluentValidation;
         public string? Inherits { get; set; }
         public string? Abstract { get; set; }
         public string Accessibility { get; set; } = "public";
-        public List<PropertyDescriptor> Properties { get; set; } = new();
-        public List<GeneratorParams> NestedEntities { get; set; } = new(); // Use init
+        public List<PropertyDescriptor> Properties { get; set; } = new ();
+        public List<GeneratorParams> NestedEntities { get; set; } = new (); // Use init
         public string? Documentation { get; set; }
         public bool ClassOnly { get; set; } // Indicates if it should only generate the class content
 
         /// <summary>
-        /// Indicates if this DTO definition originated from a <ViewModelOwnedType>
+        /// Gets or sets a value indicating whether indicates if this DTO definition originated from a. <ViewModelOwnedType>
         /// in the XML definition, signifying it should be treated as a nested type
         /// within its containing ViewModel for reflection/typeof purposes (Namespace.Outer+Inner).
         /// </summary>
@@ -275,7 +311,8 @@ using FluentValidation;
             this.Abstract = isAbstract ? " abstract" : string.Empty;
             this.Accessibility = string.IsNullOrEmpty(accessibility) ? "public" : accessibility!;
             this.Properties = properties;
-            this.NestedEntities = nestedEntities ?? []; // Initialize if null
+            this.NestedEntities = nestedEntities ??[]; // Initialize if null
+
             // Update FullyQualifiedName calculation
             this.FullyQualifiedName = string.IsNullOrEmpty(parentName)
                 ? string.Join(".", ns, name)

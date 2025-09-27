@@ -1,4 +1,4 @@
-﻿// Copyright (c) Samuel McAravey
+﻿// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,13 +22,19 @@ namespace Bravellian.Generators.Tests;
 
 internal class TestLogger : IBvLogger
 {
-    public List<string> InfoMessages { get; } = new();
-    public List<string> WarningMessages { get; } = new();
-    public List<string> ErrorMessages { get; } = new();
+    public List<string> InfoMessages { get; } = new ();
 
-    public void LogMessage(string message) => InfoMessages.Add(message);
-    public void LogWarning(string message) => WarningMessages.Add(message);
-    public void LogError(string message) => ErrorMessages.Add(message);
-    public void LogError(string message, Exception ex) => ErrorMessages.Add($"{message}: {ex.Message}");
-    public void LogErrorFromException(Exception ex) => ErrorMessages.Add(ex.Message);
+    public List<string> WarningMessages { get; } = new ();
+
+    public List<string> ErrorMessages { get; } = new ();
+
+    public void LogMessage(string message) => this.InfoMessages.Add(message);
+
+    public void LogWarning(string message) => this.WarningMessages.Add(message);
+
+    public void LogError(string message) => this.ErrorMessages.Add(message);
+
+    public void LogError(string message, Exception ex) => this.ErrorMessages.Add($"{message}: {ex.Message}");
+
+    public void LogErrorFromException(Exception ex) => this.ErrorMessages.Add(ex.Message);
 }

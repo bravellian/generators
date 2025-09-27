@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,23 +26,27 @@ namespace Bravellian.Generators.Tests.SqlGenerator._3_CSharpTransformation;
 
 public class ConfigurationOverrideTests
 {
-    private readonly TestLogger _logger = new();
+    private readonly TestLogger logger = new ();
 
     private DatabaseSchema CreateBasicSchema()
     {
         var dbObject = new DatabaseObject("dbo", "Users", false)
         {
-            Columns = 
+            Columns =
             [
+
                 // This column is NOT nullable
                 new DatabaseColumn("Id", PwSqlType.Int, false, true, "dbo", "Users"),
+
                 // This column is NOT nullable
                 new DatabaseColumn("UserGuid", PwSqlType.UniqueIdentifier, false, false, "dbo", "Users"),
+
                 // This column IS nullable
                 new DatabaseColumn("Amount", PwSqlType.Decimal, true, false, "dbo", "Users"),
+
                 // This column is NOT nullable
                 new DatabaseColumn("TaxAmount", PwSqlType.Decimal, false, false, "dbo", "Users"),
-            ]
+            ],
         };
 
         // Set the primary key, which is separate from the column definition
@@ -50,7 +54,7 @@ public class ConfigurationOverrideTests
 
         return new DatabaseSchema("TestDb")
         {
-            Objects = [ dbObject ]
+            Objects =[dbObject],
         };
     }
 
@@ -58,15 +62,16 @@ public class ConfigurationOverrideTests
     public void Transform_WithTableClassNameOverride_ShouldChangeClassName()
     {
         // Arrange
-        var schema = CreateBasicSchema();
+        var schema = this.CreateBasicSchema();
         var config = new SqlConfiguration
         {
             Tables = new Dictionary<string, TableConfiguration>
+(StringComparer.Ordinal)
             {
-                ["dbo.Users"] = new() { CSharpClassName = "AppUser" }
-            }
+                ["dbo.Users"] = new () { CSharpClassName = "AppUser" }
+            },
         };
-        var transformer = new CSharpModelTransformer(_logger, config, null);
+        var transformer = new CSharpModelTransformer(this.logger, config, null);
 
         // Act
         var csharpModel = transformer.Transform(schema);
@@ -80,37 +85,42 @@ public class ConfigurationOverrideTests
     public void Transform_WithColumnOverrideCSharpType_ShouldTakeHighestPrecedence()
     {
         // Arrange
-        var schema = CreateBasicSchema();
+        var schema = this.CreateBasicSchema();
         var config = new SqlConfiguration
         {
             Tables = new Dictionary<string, TableConfiguration>
+(StringComparer.Ordinal)
             {
-                ["dbo.Users"] = new()
+                ["dbo.Users"] = new ()
                 {
                     ColumnOverrides = new Dictionary<string, ColumnOverride>
+(StringComparer.Ordinal)
                     {
-                        ["Id"] = new() { CSharpType = "CustomId" } // Ultimate override
+                        ["Id"] = new () { CSharpType = "CustomId" } // Ultimate override
                     }
-                }
+                },
             },
             GlobalTypeMappings =
             [
+
                 // This should be ignored for the Id column due to the column-specific override
-                new() {
+                new ()
+                {
                     Priority = 100,
-                    Match = new() { SqlType = ["int"] },
-                    Apply = new() { CSharpType = "int" }
+                    Match = new () { SqlType =["int"] },
+                    Apply = new () { CSharpType = "int" }
                 }
-            ]
+
+            ],
         };
-        var transformer = new CSharpModelTransformer(_logger, config, null);
+        var transformer = new CSharpModelTransformer(this.logger, config, null);
 
         // Act
         var csharpModel = transformer.Transform(schema);
 
         // Assert
         var userClass = csharpModel.Classes[0];
-        var idProperty = userClass.Properties.Find(p => p.Name == "Id");
+        var idProperty = userClass.Properties.Find(p => string.Equals(p.Name, "Id", StringComparison.Ordinal));
         Assert.NotNull(idProperty);
         Assert.Equal("CustomId", idProperty.Type);
     }
@@ -119,34 +129,39 @@ public class ConfigurationOverrideTests
     public void Transform_WithGlobalTypeMapping_ShouldApplyWithPriority()
     {
         // Arrange
-        var schema = CreateBasicSchema();
+        var schema = this.CreateBasicSchema();
         var config = new SqlConfiguration
         {
             GlobalTypeMappings =
             [
+
                 // Low priority rule for any column ending in 'Amount'
-                new() {
+                new ()
+                {
                     Priority = 10,
-                    Match = new() { ColumnNameRegex = "Amount$" },
-                    Apply = new() { CSharpType = "Money" }
+                    Match = new () { ColumnNameRegex = "Amount$" },
+                    Apply = new () { CSharpType = "Money" }
                 },
+
                 // High priority rule for a specific SQL type
-                new() {
+                new ()
+                {
                     Priority = 100,
-                    Match = new() { SqlType = ["decimal"] },
-                    Apply = new() { CSharpType = "PreciseDecimal" }
+                    Match = new () { SqlType =["decimal"] },
+                    Apply = new () { CSharpType = "PreciseDecimal" }
                 }
-            ]
+
+            ],
         };
-        var transformer = new CSharpModelTransformer(_logger, config, null);
+        var transformer = new CSharpModelTransformer(this.logger, config, null);
 
         // Act
         var csharpModel = transformer.Transform(schema);
 
         // Assert
         var userClass = csharpModel.Classes[0];
-        var amountProperty = userClass.Properties.Find(p => p.Name == "Amount");
-        var taxAmountProperty = userClass.Properties.Find(p => p.Name == "TaxAmount");
+        var amountProperty = userClass.Properties.Find(p => string.Equals(p.Name, "Amount", StringComparison.Ordinal));
+        var taxAmountProperty = userClass.Properties.Find(p => string.Equals(p.Name, "TaxAmount", StringComparison.Ordinal));
 
         // Both decimal columns should be mapped to 'PreciseDecimal' because that rule has higher priority
         Assert.NotNull(amountProperty);
@@ -161,38 +176,43 @@ public class ConfigurationOverrideTests
     public void Transform_WithConflictingOverrides_ColumnOverrideShouldWin()
     {
         // Arrange
-        var schema = CreateBasicSchema();
+        var schema = this.CreateBasicSchema();
         var config = new SqlConfiguration
         {
             GlobalTypeMappings =
             [
+
                 // Global rule for all uniqueidentifiers
-                new() {
+                new ()
+                {
                     Priority = 50,
-                    Match = new() { SqlType = ["uniqueidentifier"] },
-                    Apply = new() { CSharpType = "System.Guid" }
+                    Match = new () { SqlType =["uniqueidentifier"] },
+                    Apply = new () { CSharpType = "System.Guid" },
                 }
+
             ],
             Tables = new Dictionary<string, TableConfiguration>
+(StringComparer.Ordinal)
             {
-                ["dbo.Users"] = new()
+                ["dbo.Users"] = new ()
                 {
                     ColumnOverrides = new Dictionary<string, ColumnOverride>
+(StringComparer.Ordinal)
                     {
                         // Specific override for this one column
-                        ["UserGuid"] = new() { CSharpType = "StronglyTypedGuid" }
+                        ["UserGuid"] = new () { CSharpType = "StronglyTypedGuid" }
                     }
                 }
-            }
+            },
         };
-        var transformer = new CSharpModelTransformer(_logger, config, null);
+        var transformer = new CSharpModelTransformer(this.logger, config, null);
 
         // Act
         var csharpModel = transformer.Transform(schema);
 
         // Assert
         var userClass = csharpModel.Classes[0];
-        var guidProperty = userClass.Properties.Find(p => p.Name == "UserGuid");
+        var guidProperty = userClass.Properties.Find(p => string.Equals(p.Name, "UserGuid", StringComparison.Ordinal));
 
         // The column-specific override should win over the global mapping
         Assert.NotNull(guidProperty);
@@ -203,17 +223,17 @@ public class ConfigurationOverrideTests
     public void Transform_WithNoOverrides_ShouldUseDefaultConventions()
     {
         // Arrange
-        var schema = CreateBasicSchema();
+        var schema = this.CreateBasicSchema();
         var config = new SqlConfiguration(); // Empty config
-        var transformer = new CSharpModelTransformer(_logger, config, null);
+        var transformer = new CSharpModelTransformer(this.logger, config, null);
 
         // Act
         var csharpModel = transformer.Transform(schema);
 
         // Assert
         var userClass = csharpModel.Classes[0];
-        var idProperty = userClass.Properties.Find(p => p.Name == "Id");
-        var amountProperty = userClass.Properties.Find(p => p.Name == "Amount");
+        var idProperty = userClass.Properties.Find(p => string.Equals(p.Name, "Id", StringComparison.Ordinal));
+        var amountProperty = userClass.Properties.Find(p => string.Equals(p.Name, "Amount", StringComparison.Ordinal));
 
         Assert.NotNull(idProperty);
         Assert.Equal("int", idProperty.Type);
@@ -228,31 +248,32 @@ public class ConfigurationOverrideTests
     public void Transform_WithPrimaryKeyOverride_ShouldGenerateCorrectMethods()
     {
         // Arrange
-        var schema = CreateBasicSchema();
+        var schema = this.CreateBasicSchema();
         var config = new SqlConfiguration
         {
             Tables = new Dictionary<string, TableConfiguration>
+(StringComparer.Ordinal)
             {
-                ["dbo.Users"] = new()
+                ["dbo.Users"] = new ()
                 {
                     // Override the PK from 'Id' to 'UserGuid' for data access methods
-                    PrimaryKeyOverride = ["UserGuid"]
+                    PrimaryKeyOverride =["UserGuid"]
                 }
-            }
+            },
         };
-        var transformer = new CSharpModelTransformer(_logger, config, null);
+        var transformer = new CSharpModelTransformer(this.logger, config, null);
 
         // Act
         var csharpModel = transformer.Transform(schema);
 
         // Assert
         var userClass = csharpModel.Classes[0];
-        var getMethod = userClass.Methods.Find(m => m.Name == "Get");
-        var deleteMethod = userClass.Methods.Find(m => m.Name == "Delete");
+        var getMethod = userClass.Methods.Find(m => string.Equals(m.Name, "Get", StringComparison.Ordinal));
+        var deleteMethod = userClass.Methods.Find(m => string.Equals(m.Name, "Delete", StringComparison.Ordinal));
 
         // The 'Id' property should still be marked as the PK on the model itself
-        Assert.False(userClass.Properties.Find(p => p.Name == "Id")?.IsPrimaryKey);
-        Assert.True(userClass.Properties.Find(p => p.Name == "UserGuid")?.IsPrimaryKey);
+        Assert.False(userClass.Properties.Find(p => string.Equals(p.Name, "Id", StringComparison.Ordinal))?.IsPrimaryKey);
+        Assert.True(userClass.Properties.Find(p => string.Equals(p.Name, "UserGuid", StringComparison.Ordinal))?.IsPrimaryKey);
 
         // But the Get and Delete methods should use the overridden key
         Assert.NotNull(getMethod);
@@ -265,4 +286,3 @@ public class ConfigurationOverrideTests
         Assert.Equal("userGuid", deleteMethod.Parameters[0].Name);
     }
 }
-

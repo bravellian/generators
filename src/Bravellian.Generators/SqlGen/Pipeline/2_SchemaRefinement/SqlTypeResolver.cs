@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Bravellian.Generators.SqlGen.Pipeline._1_Ingestion.Model;
-using Bravellian.Generators.SqlGen.Common.Configuration;
-
-namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
+namespace Bravellian.Generators.SqlGen.Pipeline.2_SchemaRefinement
 {
+    using Bravellian.Generators.SqlGen.Common.Configuration;
+    using Bravellian.Generators.SqlGen.Pipeline._1_Ingestion.Model;
+
     /// <summary>
     /// Implements Phase 2 of the pipeline. This phase is responsible for "patching" the raw schema model
     /// with information from the configuration file. Its primary purpose is to fix missing type or
@@ -24,11 +24,11 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
     /// </summary>
     public class SqlTypeResolver : ITypeResolver
     {
-        private readonly IBvLogger _logger;
+        private readonly IBvLogger logger;
 
         public SqlTypeResolver(IBvLogger logger)
         {
-            _logger = logger;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -38,49 +38,49 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
         /// <param name="databaseModel">The raw database model from Phase 1.</param>
         /// <param name="configuration">Configuration containing columnOverrides for schema refinement.</param>
         /// <returns>The refined database model with patched SQL types and nullability.</returns>
-        public RawDatabaseSchema Resolve(RawDatabaseSchema databaseModel, SqlConfiguration configuration = null)
+        public RawDatabaseSchema Resolve(RawDatabaseSchema databaseModel, SqlConfiguration? configuration = null)
         {
-            _logger.LogMessage("Phase 2: Refining schema model with configuration overrides...");
-            
+            this.logger.LogMessage("Phase 2: Refining schema model with configuration overrides...");
+
             if (configuration == null)
             {
-                _logger.LogMessage("No configuration provided - skipping schema refinement.");
+                this.logger.LogMessage("No configuration provided - skipping schema refinement.");
                 return databaseModel;
             }
 
             // Process tables
             foreach (var table in databaseModel.Tables)
             {
-                RefineTableSchema(table, configuration);
+                this.RefineTableSchema(table, configuration);
             }
 
             // Process views
             foreach (var view in databaseModel.Views)
             {
-                RefineViewSchema(view, configuration);
+                this.RefineViewSchema(view, configuration);
             }
 
-            _logger.LogMessage("Phase 2: Schema refinement completed.");
+            this.logger.LogMessage("Phase 2: Schema refinement completed.");
             return databaseModel;
         }
 
         private void RefineTableSchema(Table table, SqlConfiguration configuration)
         {
-            _logger.LogMessage($"Refining schema for table {table.Schema}.{table.Name}");
-            
+            this.logger.LogMessage($"Refining schema for table {table.Schema}.{table.Name}");
+
             foreach (var column in table.Columns)
             {
-                ApplySchemaRefinements(column, table.Schema, table.Name, configuration);
+                this.ApplySchemaRefinements(column, table.Schema, table.Name, configuration);
             }
         }
 
         private void RefineViewSchema(View view, SqlConfiguration configuration)
         {
-            _logger.LogMessage($"Refining schema for view {view.Schema}.{view.Name}");
-            
+            this.logger.LogMessage($"Refining schema for view {view.Schema}.{view.Name}");
+
             foreach (var column in view.Columns)
             {
-                ApplySchemaRefinements(column, view.Schema, view.Name, configuration);
+                this.ApplySchemaRefinements(column, view.Schema, view.Name, configuration);
             }
         }
 
@@ -91,7 +91,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
         private void ApplySchemaRefinements(Column column, string schema, string objectName, SqlConfiguration configuration)
         {
             var columnOverride = configuration.GetColumnOverride(schema, objectName, column.Name);
-            
+
             if (columnOverride == null)
             {
                 return;
@@ -103,7 +103,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
             {
                 var originalSqlType = column.SqlType;
                 column.SqlType = columnOverride.SqlType;
-                _logger.LogMessage($"Applied SQL type override for {schema}.{objectName}.{column.Name}: {originalSqlType} -> {column.SqlType}");
+                this.logger.LogMessage($"Applied SQL type override for {schema}.{objectName}.{column.Name}: {originalSqlType} -> {column.SqlType}");
             }
 
             // If the config provides a nullability override, use it. This is also for views.
@@ -111,7 +111,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
             {
                 var originalNullability = column.IsNullable;
                 column.IsNullable = columnOverride.IsNullable.Value;
-                _logger.LogMessage($"Applied nullability override for {schema}.{objectName}.{column.Name}: {originalNullability} -> {column.IsNullable}");
+                this.logger.LogMessage($"Applied nullability override for {schema}.{objectName}.{column.Name}: {originalNullability} -> {column.IsNullable}");
             }
 
             // NOTE: We explicitly do NOT touch columnOverride.CSharpType here.

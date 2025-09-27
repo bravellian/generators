@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Bravellian.Generators.SqlGen.Common.Configuration;
 using System.Text.Json;
+using Bravellian.Generators.SqlGen.Common.Configuration;
 using Xunit;
 
 namespace Bravellian.Generators.Tests.SqlGenerator;
@@ -167,20 +167,20 @@ public class WorkingSqlConfigurationTests
         Assert.NotNull(config);
         Assert.NotNull(config.GlobalTypeMappings);
         Assert.Equal(3, config.GlobalTypeMappings.Count);
-        
-        var varcharMapping = config.GlobalTypeMappings.First(tm => tm.Description == "Map varchar columns to string");
+
+        var varcharMapping = config.GlobalTypeMappings.First(tm => string.Equals(tm.Description, "Map varchar columns to string", StringComparison.Ordinal));
         Assert.Contains("varchar", varcharMapping.Match.SqlType);
         Assert.Contains("nvarchar", varcharMapping.Match.SqlType);
         Assert.Equal("string", varcharMapping.Apply.CSharpType);
         Assert.Equal(10, varcharMapping.Priority);
-        
-        var decimalMapping = config.GlobalTypeMappings.First(tm => tm.Description == "Map decimal columns to decimal");
+
+        var decimalMapping = config.GlobalTypeMappings.First(tm => string.Equals(tm.Description, "Map decimal columns to decimal", StringComparison.Ordinal));
         Assert.Contains("decimal", decimalMapping.Match.SqlType);
         Assert.Contains("numeric", decimalMapping.Match.SqlType);
         Assert.Equal("decimal", decimalMapping.Apply.CSharpType);
         Assert.Equal(20, decimalMapping.Priority);
-        
-        var guidMapping = config.GlobalTypeMappings.First(tm => tm.Description == "Map uniqueidentifier to Guid");
+
+        var guidMapping = config.GlobalTypeMappings.First(tm => string.Equals(tm.Description, "Map uniqueidentifier to Guid", StringComparison.Ordinal));
         Assert.Contains("uniqueidentifier", guidMapping.Match.SqlType);
         Assert.Equal("Guid", guidMapping.Apply.CSharpType);
         Assert.Equal(30, guidMapping.Priority);
@@ -234,7 +234,7 @@ public class WorkingSqlConfigurationTests
         Assert.NotNull(config);
         Assert.NotNull(config.Tables);
         Assert.Equal(2, config.Tables.Count);
-        
+
         // Check Users table config
         Assert.True(config.Tables.ContainsKey("dbo.Users"));
         var usersTable = config.Tables["dbo.Users"];
@@ -243,33 +243,33 @@ public class WorkingSqlConfigurationTests
         Assert.NotNull(usersTable.PrimaryKeyOverride);
         Assert.Single(usersTable.PrimaryKeyOverride);
         Assert.Equal("Id", usersTable.PrimaryKeyOverride.First());
-        
+
         Assert.NotNull(usersTable.UpdateConfig);
         Assert.NotNull(usersTable.UpdateConfig.IgnoreColumns);
         Assert.Equal(2, usersTable.UpdateConfig.IgnoreColumns!.Count);
         Assert.Contains("CreatedDate", usersTable.UpdateConfig.IgnoreColumns!);
         Assert.Contains("CreatedBy", usersTable.UpdateConfig.IgnoreColumns!);
-        
+
         Assert.NotNull(usersTable.ColumnOverrides);
         Assert.Equal(2, usersTable.ColumnOverrides.Count);
-        
+
         Assert.True(usersTable.ColumnOverrides.ContainsKey("Email"));
         var emailColumn = usersTable.ColumnOverrides["Email"];
         Assert.Equal("User's email address", emailColumn.Description);
         Assert.Equal("EmailAddress", emailColumn.CSharpType);
         Assert.Equal("nvarchar(255)", emailColumn.SqlType);
         Assert.False(emailColumn.IsNullable);
-        
+
         Assert.True(usersTable.ColumnOverrides.ContainsKey("UserType"));
         var userTypeColumn = usersTable.ColumnOverrides["UserType"];
         Assert.Equal("UserTypes", userTypeColumn.CSharpType);
         Assert.False(userTypeColumn.IsNullable);
-        
+
         // Check Orders table config
         Assert.True(config.Tables.ContainsKey("dbo.Orders"));
         var ordersTable = config.Tables["dbo.Orders"];
         Assert.Equal("CustomerOrder", ordersTable.CSharpClassName);
-        
+
         Assert.NotNull(ordersTable.ReadMethods);
         Assert.Single(ordersTable.ReadMethods);
         var readMethod = ordersTable.ReadMethods[0];
@@ -281,4 +281,3 @@ public class WorkingSqlConfigurationTests
         Assert.Contains("CustomerId", readMethod.MatchColumns);
     }
 }
-

@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,21 +42,22 @@ public class DatabaseObject
     public bool IsView { get; }
 
     /// <summary>
-    /// Gets the collection of columns in this database object.
+    /// Gets or sets the collection of columns in this database object.
     /// </summary>
-    public List<DatabaseColumn> Columns { get; set; } = [];
+    public List<DatabaseColumn> Columns { get; set; } =[];
 
     /// <summary>
-    /// Gets the collection of primary key column names.
+    /// Gets or sets the collection of primary key column names.
     /// </summary>
-    public HashSet<string> PrimaryKeyColumns { get; set; } = [];
-    
-    /// <summary>
-    /// Gets the collection of indexes defined on this database object.
-    /// </summary>
-    public List<IndexDefinition> Indexes { get; set; } = [];
+    public HashSet<string> PrimaryKeyColumns { get; set; } =[];
 
     /// <summary>
+    /// Gets or sets the collection of indexes defined on this database object.
+    /// </summary>
+    public List<IndexDefinition> Indexes { get; set; } =[];
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DatabaseObject"/> class.
     /// Creates a new database object.
     /// </summary>
     /// <param name="schema">The schema name.</param>
@@ -82,4 +83,3 @@ public class DatabaseObject
         }
     }
 }
-

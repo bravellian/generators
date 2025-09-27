@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,44 +27,47 @@ public class CapabilitySourceGenerator
 
     /// <summary>
     /// Derives a standardized interface name from a capability name.
-    /// Example: "Vendor.CanRead" becomes "IVendorCanRead"
+    /// Example: "Vendor.CanRead" becomes "IVendorCanRead".
     /// </summary>
     private static string DeriveInterfaceName(string capabilityName)
     {
         // Remove dots and other special characters, then prefix with 'I'
-        var cleanName = capabilityName.Replace(".", "").Replace("-", "").Replace("_", "");
+        var cleanName = capabilityName.Replace(".", string.Empty).Replace("-", string.Empty).Replace("_", string.Empty);
         return $"I{cleanName}";
     }
 
     protected IEnumerable<(string fileName, string source)>? Generate(string filePath, string fileContent, CancellationToken cancellationToken)
     {
         var fileExtension = System.IO.Path.GetExtension(filePath).ToLowerInvariant();
-        if (fileExtension == ".json")
+        if (string.Equals(fileExtension, ".json", System.StringComparison.Ordinal))
         {
-            return GenerateFromJson(fileContent);
+            return this.GenerateFromJson(fileContent);
         }
         else
         {
-            return GenerateFromXml(fileContent);
+            return this.GenerateFromXml(fileContent);
         }
     }
 
     /// <summary>
-    /// Public wrapper for CLI usage
+    /// Public wrapper for CLI usage.
     /// </summary>
     public IEnumerable<(string fileName, string source)>? GenerateFromFiles(string filePath, string fileContent, CancellationToken cancellationToken = default)
     {
-        return Generate(filePath, fileContent, cancellationToken);
+        return this.Generate(filePath, fileContent, cancellationToken);
     }
 
     private IEnumerable<(string fileName, string source)>? GenerateFromXml(string fileContent)
     {
         var xdoc = XDocument.Parse(fileContent);
-        if (xdoc.Root == null) return null;
+        if (xdoc.Root == null)
+        {
+            return null;
+        }
 
         // Look for ErpCapabilityDefinitions elements
         var elements = xdoc.Root.Elements()
-            .Where(e => e.Name.LocalName == "ErpCapabilityDefinitions")
+            .Where(e => string.Equals(e.Name.LocalName, "ErpCapabilityDefinitions", System.StringComparison.Ordinal))
             .ToList();
 
         // If no direct ErpCapabilityDefinitions, check if the root is one
@@ -73,14 +76,20 @@ public class CapabilitySourceGenerator
             elements.Add(xdoc.Root);
         }
 
-        if (!elements.Any()) return null;
+        if (!elements.Any())
+        {
+            return null;
+        }
 
-        List<(string fileName, string source)> generated = new();
+        List<(string fileName, string source)> generated = new ();
 
         foreach (var element in elements)
         {
             var genParams = ErpCapabilityGenerator.GetParams(element, null);
-            if (genParams == null) continue;
+            if (genParams == null)
+            {
+                continue;
+            }
 
             // Generate all the individual files that the ERP capability generator creates
             var generatedFiles = GenerateAllFiles(genParams.Value);
@@ -102,7 +111,10 @@ public class CapabilitySourceGenerator
             {
                 // Combined format (original)
                 var genParams = ParseGeneratorParamsFromJson(root);
-                if (genParams == null) return null;
+                if (genParams == null)
+                {
+                    return null;
+                }
 
                 var generated = new List<(string fileName, string source)>();
                 var generatedFiles = GenerateAllFiles(genParams.Value);
@@ -113,7 +125,10 @@ public class CapabilitySourceGenerator
             {
                 // Capabilities-only format
                 var genParams = ParseCapabilitiesOnlyFromJson(root);
-                if (genParams == null) return null;
+                if (genParams == null)
+                {
+                    return null;
+                }
 
                 var generated = new List<(string fileName, string source)>();
                 var generatedFiles = GenerateCapabilitiesOnlyFiles(genParams.Value);
@@ -124,7 +139,10 @@ public class CapabilitySourceGenerator
             {
                 // Adapter profile format
                 var genParams = ParseAdapterProfileFromJson(root);
-                if (genParams == null) return null;
+                if (genParams == null)
+                {
+                    return null;
+                }
 
                 var generated = new List<(string fileName, string source)>();
                 var generatedFiles = GenerateAdapterProfileFiles(genParams.Value);
@@ -325,7 +343,7 @@ public class CapabilitySourceGenerator
         }
 
         // For adapter profile files, we create capability descriptors based on the references using derived interface names
-        var capabilities = supportedCapabilities.Select(name => 
+        var capabilities = supportedCapabilities.Select(name =>
             new ErpCapabilityGenerator.CapabilityDescriptor(name, DeriveInterfaceName(name), $"Capability for {name}")).ToList();
 
         var adapterProfile = new ErpCapabilityGenerator.AdapterProfileDescriptor(
@@ -344,7 +362,7 @@ public class CapabilitySourceGenerator
     private static List<ErpCapabilityGenerator.CapabilityDescriptor> ParseCapabilitiesArray(JsonElement capabilitiesElement)
     {
         var capabilities = new List<ErpCapabilityGenerator.CapabilityDescriptor>();
-        
+
         if (capabilitiesElement.ValueKind == JsonValueKind.Array)
         {
             foreach (var capabilityElement in capabilitiesElement.EnumerateArray())
@@ -362,8 +380,8 @@ public class CapabilitySourceGenerator
 
                 // Derive interface name from capability name
                 var interfaceName = DeriveInterfaceName(name);
-                
-                var description = capabilityElement.TryGetProperty("description", out var descElement) 
+
+                var description = capabilityElement.TryGetProperty("description", out var descElement)
                     ? descElement.GetString() ?? string.Empty
                     : string.Empty;
 

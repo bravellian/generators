@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
-
-namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models
+namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation.Models
 {
+    using System.Collections.Generic;
+
     /// <summary>
-    /// Represents the final C# model ready for code generation
+    /// Represents the final C# model ready for code generation.
     /// </summary>
     public class GenerationModel
     {
         /// <summary>
-        /// Gets or sets the C# classes to generate
+        /// Gets or sets the C# classes to generate.
         /// </summary>
-        public List<ClassModel> Classes { get; set; } = new();
+        public List<ClassModel> Classes { get; set; } = new ();
 
         /// <summary>
         /// Scans all class and input models to build a dictionary mapping simple type names
@@ -34,9 +34,9 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models
         /// <returns>A read-only dictionary of all generated types.</returns>
         public IReadOnlyDictionary<string, string> GetAllGeneratedTypes()
         {
-            var allTypes = new Dictionary<string, string>();
+            var allTypes = new Dictionary<string, string>(System.StringComparer.Ordinal);
 
-            foreach (var classModel in Classes)
+            foreach (var classModel in this.Classes)
             {
                 // Add the main entity class
                 if (!allTypes.ContainsKey(classModel.Name))
@@ -64,38 +64,38 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models
     }
 
     /// <summary>
-    /// Represents a C# class to generate
+    /// Represents a C# class to generate.
     /// </summary>
     public class ClassModel
     {
         /// <summary>
         /// Gets or sets the C# class name for the model.
         /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the base C# class name, without any schema prefixes.
         /// This is used for generating file names and related input model names.
         /// </summary>
-        public string BaseName { get; set; }
+        public required string BaseName { get; set; }
 
         /// <summary>
         /// Gets or sets the C# namespace for the class.
         /// </summary>
-        public string Namespace { get; set; }
+        public required string Namespace { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this class represents a view
+        /// Gets or sets a value indicating whether this class represents a view.
         /// </summary>
         public bool IsView { get; set; }
 
         /// <summary>
-        /// Gets or sets the properties for the class
+        /// Gets or sets the properties for the class.
         /// </summary>
         public List<PropertyModel> Properties { get; set; } = new List<PropertyModel>();
 
         /// <summary>
-        /// Gets or sets the data access methods for the class
+        /// Gets or sets the data access methods for the class.
         /// </summary>
         public List<MethodModel> Methods { get; set; } = new List<MethodModel>();
 
@@ -111,27 +111,27 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models
         public List<IndexModel> Indexes { get; set; } = new List<IndexModel>();
 
         /// <summary>
-        /// Gets or sets the source database object name
+        /// Gets or sets the source database object name.
         /// </summary>
-        public string SourceObjectName { get; set; }
+        public required string SourceObjectName { get; set; }
 
         /// <summary>
-        /// Gets or sets the source database schema name
+        /// Gets or sets the source database schema name.
         /// </summary>
-        public string SourceSchemaName { get; set; }
+        public required string SourceSchemaName { get; set; }
 
         /// <summary>
         /// Gets or sets the create input model for this class.
         /// This will be null for view classes.
         /// </summary>
-        public CreateInputModel CreateInput { get; set; }
+        public required CreateInputModel CreateInput { get; set; }
 
         /// <summary>
         /// Gets or sets the update input model for this class.
         /// This will be null for view classes.
         /// </summary>
-        public UpdateInputModel UpdateInput { get; set; }
-        
+        public required UpdateInputModel UpdateInput { get; set; }
+
         /// <summary>
         /// Gets or sets the property that corresponds to the configured scope key.
         /// This property is used for multi-tenant/scoping functionality.
@@ -140,34 +140,34 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models
     }
 
     /// <summary>
-    /// Represents a C# property to generate
+    /// Represents a C# property to generate.
     /// </summary>
     public class PropertyModel
     {
         /// <summary>
-        /// Gets or sets the property name
+        /// Gets or sets the property name.
         /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the property type
+        /// Gets or sets the property type.
         /// </summary>
-        public string Type { get; set; }
+        public required string Type { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this property is nullable
+        /// Gets or sets a value indicating whether this property is nullable.
         /// </summary>
         public bool IsNullable { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this property is part of the primary key
+        /// Gets or sets a value indicating whether this property is part of the primary key.
         /// </summary>
         public bool IsPrimaryKey { get; set; }
 
         /// <summary>
         /// Gets or sets the source column name from the database.
         /// </summary>
-        public string SourceColumnName { get; set; }
+        public required string SourceColumnName { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the column's type could not be determined.
@@ -178,11 +178,13 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models
         /// Gets the audit trail for how this property's characteristics were determined.
         /// </summary>
         public List<PropertySourceInfo> SourceAuditTrail { get; } = new List<PropertySourceInfo>();
+
         public bool IsTypeOverridden { get; set; }
+
         public bool IsComputed { get; internal set; }
+
         public PwSqlType SourceSqlType { get; internal set; }
     }
-
 
     /// <summary>
     /// Represents a database index in the C# transformation model.
@@ -192,7 +194,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models
         /// <summary>
         /// Gets or sets the name of the index.
         /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the index is unique.
@@ -206,75 +208,75 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models
     }
 
     /// <summary>
-    /// Represents a data access method to generate
+    /// Represents a data access method to generate.
     /// </summary>
     public class MethodModel
     {
         /// <summary>
-        /// Gets or sets the method name
+        /// Gets or sets the method name.
         /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the method type (Read, Create, Update, Delete)
+        /// Gets or sets the method type (Read, Create, Update, Delete).
         /// </summary>
         public MethodType Type { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this method operates on the primary key
+        /// Gets or sets a value indicating whether this method operates on the primary key.
         /// </summary>
         public bool IsPrimaryKeyMethod { get; set; }
 
         /// <summary>
-        /// Gets or sets the method parameters
+        /// Gets or sets the method parameters.
         /// </summary>
         public List<ParameterModel> Parameters { get; set; } = new List<ParameterModel>();
 
         /// <summary>
-        /// Gets or sets the SQL statement for the method
+        /// Gets or sets the SQL statement for the method.
         /// </summary>
-        public string SqlStatement { get; set; }
+        public required string SqlStatement { get; set; }
 
         /// <summary>
-        /// Gets or sets the method return type
+        /// Gets or sets the method return type.
         /// </summary>
-        public string ReturnType { get; set; }
-        
+        public required string ReturnType { get; set; }
+
         /// <summary>
         /// Gets additional metadata for the method. This can be used to store method-specific
         /// information that will be used during code generation, such as ignored columns for updates.
         /// </summary>
-        public Dictionary<string, object> Metadata { get; } = new Dictionary<string, object>();
+        public Dictionary<string, object> Metadata { get; } = new Dictionary<string, object>(System.StringComparer.Ordinal);
     }
 
     /// <summary>
-    /// Represents a method parameter
+    /// Represents a method parameter.
     /// </summary>
     public class ParameterModel
     {
         /// <summary>
-        /// Gets or sets the parameter name
+        /// Gets or sets the parameter name.
         /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the parameter type
+        /// Gets or sets the parameter type.
         /// </summary>
-        public string Type { get; set; }
+        public required string Type { get; set; }
 
         /// <summary>
-        /// Gets or sets the source property name
+        /// Gets or sets the source property name.
         /// </summary>
-        public string SourcePropertyName { get; set; }
+        public required string SourcePropertyName { get; set; }
 
         /// <summary>
-        /// Gets or sets whether this parameter is a scope key used for multi-tenancy
+        /// Gets or sets a value indicating whether gets or sets whether this parameter is a scope key used for multi-tenancy.
         /// </summary>
         public bool IsScopeKey { get; set; }
     }
 
     /// <summary>
-    /// Method types
+    /// Method types.
     /// </summary>
     public enum MethodType
     {
@@ -296,59 +298,59 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models
         /// <summary>
         /// Delete operation
         /// </summary>
-        Delete
+        Delete,
     }
 
     /// <summary>
-    /// Represents a create input model class to generate
+    /// Represents a create input model class to generate.
     /// </summary>
     public class CreateInputModel
     {
         /// <summary>
-        /// Gets or sets the class name
+        /// Gets or sets the class name.
         /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the namespace for the class
+        /// Gets or sets the namespace for the class.
         /// </summary>
-        public string Namespace { get; set; }
+        public required string Namespace { get; set; }
 
         /// <summary>
-        /// Gets or sets the properties for the create input class
+        /// Gets or sets the properties for the create input class.
         /// </summary>
         public List<PropertyModel> Properties { get; set; } = new List<PropertyModel>();
 
         /// <summary>
-        /// Gets or sets the source table for which this input is created
+        /// Gets or sets the source table for which this input is created.
         /// </summary>
-        public string SourceTable { get; set; }
+        public required string SourceTable { get; set; }
     }
 
     /// <summary>
-    /// Represents an update input model class to generate
+    /// Represents an update input model class to generate.
     /// </summary>
     public class UpdateInputModel
     {
         /// <summary>
-        /// Gets or sets the class name
+        /// Gets or sets the class name.
         /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the namespace for the class
+        /// Gets or sets the namespace for the class.
         /// </summary>
-        public string Namespace { get; set; }
+        public required string Namespace { get; set; }
 
         /// <summary>
         /// Gets or sets the properties for the update input class
-        /// The Type for each property will be wrapped (e.g., Maybe<string>)
+        /// The Type for each property will be wrapped (e.g., Maybe.<string>)
         /// </summary>
         public List<PropertyModel> Properties { get; set; } = new List<PropertyModel>();
 
         /// <summary>
-        /// Gets or sets the source table for which this input is created
+        /// Gets or sets the source table for which this input is created.
         /// </summary>
-        public string SourceTable { get; set; }
+        public required string SourceTable { get; set; }
     }
 }

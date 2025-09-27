@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Bravellian.Generators.SqlGen.Pipeline._1_Ingestion;
 using System.Collections.Generic;
 using System.Linq;
+using Bravellian.Generators.SqlGen.Pipeline._1_Ingestion;
 using Xunit;
 
 namespace Bravellian.Generators.Tests.SqlGenerator._1_Ingestion;
 
 public class SqlSchemaIngestorTests
 {
-    private readonly TestLogger _logger = new();
+    private readonly TestLogger logger = new ();
 
     [Fact]
     public void IngestSchema_WithCreateTable_ShouldParseCorrectly()
@@ -34,7 +34,7 @@ public class SqlSchemaIngestorTests
             );
             """;
 
-        var ingestor = new SqlSchemaIngestor(_logger);
+        var ingestor = new SqlSchemaIngestor(this.logger);
 
         // Act
         var schema = ingestor.Ingest(new[] { sqlText });
@@ -43,18 +43,18 @@ public class SqlSchemaIngestorTests
         Assert.NotNull(schema);
         Assert.Single(schema.TableStatements);
         Assert.Empty(schema.ViewStatements);
-        
+
         // Detailed assertions on the parsed table statement
         var tableStatement = schema.TableStatements[0];
         Assert.Equal("MyTable", tableStatement.SchemaObjectName.BaseIdentifier.Value);
         Assert.Null(tableStatement.SchemaObjectName.SchemaIdentifier); // No schema specified = null
         Assert.Equal(2, tableStatement.Definition.ColumnDefinitions.Count);
-        
+
         // Check first column (Id)
         var idColumn = tableStatement.Definition.ColumnDefinitions[0];
         Assert.Equal("Id", idColumn.ColumnIdentifier.Value);
         Assert.Equal("int", idColumn.DataType.Name.BaseIdentifier.Value.ToLower());
-        
+
         // Check second column (Name)
         var nameColumn = tableStatement.Definition.ColumnDefinitions[1];
         Assert.Equal("Name", nameColumn.ColumnIdentifier.Value);
@@ -70,7 +70,7 @@ public class SqlSchemaIngestorTests
             SELECT Id, Name FROM MyTable;
             """;
 
-        var ingestor = new SqlSchemaIngestor(_logger);
+        var ingestor = new SqlSchemaIngestor(this.logger);
 
         // Act
         var schema = ingestor.Ingest(new[] { sqlText });
@@ -79,7 +79,7 @@ public class SqlSchemaIngestorTests
         Assert.NotNull(schema);
         Assert.Empty(schema.TableStatements);
         Assert.Single(schema.ViewStatements);
-        
+
         // Detailed assertions on the parsed view statement
         var viewStatement = schema.ViewStatements[0];
         Assert.Equal("MyView", viewStatement.SchemaObjectName.BaseIdentifier.Value);
@@ -95,7 +95,7 @@ public class SqlSchemaIngestorTests
             CREATE INDEX IX_MyTable_Name ON MyTable (Name);
             """;
 
-        var ingestor = new SqlSchemaIngestor(_logger);
+        var ingestor = new SqlSchemaIngestor(this.logger);
 
         // Act
         var schema = ingestor.Ingest(new[] { sqlText });
@@ -103,7 +103,7 @@ public class SqlSchemaIngestorTests
         // Assert
         Assert.NotNull(schema);
         Assert.Single(schema.IndexStatements);
-        
+
         // Detailed assertions on the parsed index statement
         var indexStatement = schema.IndexStatements[0];
         Assert.Equal("IX_MyTable_Name", indexStatement.Name.Value);
@@ -125,7 +125,7 @@ public class SqlSchemaIngestorTests
             GO
             """;
 
-        var ingestor = new SqlSchemaIngestor(_logger);
+        var ingestor = new SqlSchemaIngestor(this.logger);
 
         // Act
         var schema = ingestor.Ingest(new[] { sqlText });
@@ -142,14 +142,14 @@ public class SqlSchemaIngestorTests
     {
         // Arrange
         var sqlText = "CREATE TABLE;";
-        var ingestor = new SqlSchemaIngestor(_logger);
+        var ingestor = new SqlSchemaIngestor(this.logger);
 
         // Act
         var schema = ingestor.Ingest(new[] { sqlText });
 
         // Assert
         Assert.NotNull(schema);
-        Assert.True(_logger.ErrorMessages.Count > 0);
+        Assert.True(this.logger.ErrorMessages.Count > 0);
     }
 
     [Fact]
@@ -163,7 +163,7 @@ public class SqlSchemaIngestorTests
             );
             GO
             """;
-        
+
         var script2 = """
             CREATE TABLE Table2 (
                 Id INT PRIMARY KEY,
@@ -174,7 +174,7 @@ public class SqlSchemaIngestorTests
             GO
             """;
 
-        var ingestor = new SqlSchemaIngestor(_logger);
+        var ingestor = new SqlSchemaIngestor(this.logger);
 
         // Act
         var schema = ingestor.Ingest(new[] { script1, script2 });
@@ -183,12 +183,12 @@ public class SqlSchemaIngestorTests
         Assert.NotNull(schema);
         Assert.Equal(2, schema.TableStatements.Count); // Two tables from both scripts
         Assert.Single(schema.ViewStatements); // One view from script2
-        
+
         // Verify objects from different scripts are all present
         var tableNames = schema.TableStatements.Select(t => t.SchemaObjectName.BaseIdentifier.Value).ToArray();
         Assert.Contains("Table1", tableNames);
         Assert.Contains("Table2", tableNames);
-        
+
         var viewNames = schema.ViewStatements.Select(v => v.SchemaObjectName.BaseIdentifier.Value).ToArray();
         Assert.Contains("View1", viewNames);
     }
@@ -197,8 +197,8 @@ public class SqlSchemaIngestorTests
     public void IngestSchema_WithEmptyScripts_ShouldReturnEmptySchema()
     {
         // Arrange
-        var emptyScripts = new[] { "", "   ", "\n\t" };
-        var ingestor = new SqlSchemaIngestor(_logger);
+        var emptyScripts = new[] { string.Empty, "   ", "\n\t" };
+        var ingestor = new SqlSchemaIngestor(this.logger);
 
         // Act
         var schema = ingestor.Ingest(emptyScripts);
@@ -208,24 +208,24 @@ public class SqlSchemaIngestorTests
         Assert.Empty(schema.TableStatements);
         Assert.Empty(schema.ViewStatements);
         Assert.Empty(schema.IndexStatements);
-        Assert.Empty(_logger.ErrorMessages); // Should not generate errors
+        Assert.Empty(this.logger.ErrorMessages); // Should not generate errors
     }
 
     [Fact]
     public void IngestSchema_WithNoScripts_ShouldReturnEmptySchema()
     {
         // Arrange
-        var ingestor = new SqlSchemaIngestor(_logger);
+        var ingestor = new SqlSchemaIngestor(this.logger);
 
         // Act
-        var schema = ingestor.Ingest(new string[0]);
+        var schema = ingestor.Ingest(Array.Empty<string>());
 
         // Assert
         Assert.NotNull(schema);
         Assert.Empty(schema.TableStatements);
         Assert.Empty(schema.ViewStatements);
         Assert.Empty(schema.IndexStatements);
-        Assert.Empty(_logger.ErrorMessages); // Should not generate errors
+        Assert.Empty(this.logger.ErrorMessages); // Should not generate errors
     }
 
     [Fact]
@@ -240,7 +240,7 @@ public class SqlSchemaIngestorTests
             CREATE VIEW View1 AS SELECT * FROM Table1;
             """;
 
-        var ingestor = new SqlSchemaIngestor(_logger);
+        var ingestor = new SqlSchemaIngestor(this.logger);
 
         // Act
         var schema = ingestor.Ingest(new[] { sqlText });
@@ -249,7 +249,7 @@ public class SqlSchemaIngestorTests
         Assert.NotNull(schema);
         Assert.Equal(2, schema.TableStatements.Count); // Both tables should be parsed
         Assert.Single(schema.ViewStatements); // View should be parsed
-        
+
         var tableNames = schema.TableStatements.Select(t => t.SchemaObjectName.BaseIdentifier.Value).ToArray();
         Assert.Contains("Table1", tableNames);
         Assert.Contains("Table2", tableNames);
@@ -272,7 +272,7 @@ public class SqlSchemaIngestorTests
             GO
             """;
 
-        var ingestor = new SqlSchemaIngestor(_logger);
+        var ingestor = new SqlSchemaIngestor(this.logger);
 
         // Act
         var schema = ingestor.Ingest(new[] { sqlText });
@@ -282,10 +282,10 @@ public class SqlSchemaIngestorTests
         Assert.Single(schema.TableStatements); // Only the CREATE TABLE should be captured
         Assert.Single(schema.ViewStatements);  // Only the CREATE VIEW should be captured
         Assert.Empty(schema.IndexStatements);
-        
+
         // Should not have crashed or generated errors for unsupported statements
-        Assert.Empty(_logger.ErrorMessages);
-        
+        Assert.Empty(this.logger.ErrorMessages);
+
         // Verify the captured objects are correct
         Assert.Equal("MyTable", schema.TableStatements[0].SchemaObjectName.BaseIdentifier.Value);
         Assert.Equal("MyView", schema.ViewStatements[0].SchemaObjectName.BaseIdentifier.Value);
@@ -305,7 +305,7 @@ public class SqlSchemaIngestorTests
             GO
             """;
 
-        var ingestor = new SqlSchemaIngestor(_logger);
+        var ingestor = new SqlSchemaIngestor(this.logger);
 
         // Act
         var schema = ingestor.Ingest(new[] { sqlText });
@@ -314,12 +314,12 @@ public class SqlSchemaIngestorTests
         Assert.NotNull(schema);
         Assert.Single(schema.TableStatements);
         Assert.Single(schema.ViewStatements);
-        
+
         // Check table schema qualification
         var tableStatement = schema.TableStatements[0];
         Assert.Equal("MyTable", tableStatement.SchemaObjectName.BaseIdentifier.Value);
         Assert.Equal("dbo", tableStatement.SchemaObjectName.SchemaIdentifier.Value);
-        
+
         // Check view schema qualification
         var viewStatement = schema.ViewStatements[0];
         Assert.Equal("MyView", viewStatement.SchemaObjectName.BaseIdentifier.Value);
@@ -340,7 +340,7 @@ public class SqlSchemaIngestorTests
             );
             """;
 
-        var ingestor = new SqlSchemaIngestor(_logger);
+        var ingestor = new SqlSchemaIngestor(this.logger);
 
         // Act
         var schema = ingestor.Ingest(new[] { sqlText });
@@ -348,17 +348,17 @@ public class SqlSchemaIngestorTests
         // Assert
         Assert.NotNull(schema);
         Assert.Single(schema.TableStatements);
-        
+
         var tableStatement = schema.TableStatements[0];
         Assert.Equal("Orders", tableStatement.SchemaObjectName.BaseIdentifier.Value);
         Assert.Equal("dbo", tableStatement.SchemaObjectName.SchemaIdentifier.Value);
         Assert.Equal(5, tableStatement.Definition.ColumnDefinitions.Count);
-        
+
         // Verify specific column details
         var orderIdColumn = tableStatement.Definition.ColumnDefinitions[0];
         Assert.Equal("OrderId", orderIdColumn.ColumnIdentifier.Value);
         Assert.Equal("int", orderIdColumn.DataType.Name.BaseIdentifier.Value.ToLower());
-        
+
         var totalAmountColumn = tableStatement.Definition.ColumnDefinitions[3];
         Assert.Equal("TotalAmount", totalAmountColumn.ColumnIdentifier.Value);
         Assert.Equal("decimal", totalAmountColumn.DataType.Name.BaseIdentifier.Value.ToLower());

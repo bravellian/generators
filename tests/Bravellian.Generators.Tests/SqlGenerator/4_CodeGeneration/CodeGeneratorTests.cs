@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,24 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Xunit;
-using Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models;
-using Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Bravellian.Generators.Tests.SqlGenerator._4_CodeGeneration
+namespace Bravellian.Generators.Tests.SqlGenerator.4_CodeGeneration
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models;
+    using Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration;
+    using Xunit;
+
     public class CodeGeneratorTests
     {
-        private readonly TestLogger _logger = new();
+        private readonly TestLogger logger = new ();
 
         [Fact]
         public void Generate_WithSimpleModel_ShouldGenerateCorrectCode()
         {
             // Arrange
-            var generator = new CSharpCodeGenerator(null, _logger);
-            var model = CreateSimpleGenerationModel();
+            var generator = new CSharpCodeGenerator(null, this.logger);
+            var model = this.CreateSimpleGenerationModel();
 
             // Act
             var generatedCode = generator.Generate(model);
@@ -37,77 +37,77 @@ namespace Bravellian.Generators.Tests.SqlGenerator._4_CodeGeneration
             // Assert
             Assert.Contains("Products.cs", generatedCode.Keys);
             Assert.Contains("ProductsRepository.cs", generatedCode.Keys);
-            
+
             var entityCode = generatedCode["Products.cs"];
             var repositoryCode = generatedCode["ProductsRepository.cs"];
-            
+
             // Verify entity file
-            Assert.Contains("namespace Generated.dbo", entityCode);
-            Assert.Contains("public class Products", entityCode);
-            Assert.Contains("public int Id { get; set; }", entityCode);
-            Assert.Contains("public string Name { get; set; }", entityCode);
-            Assert.Contains("public decimal? Price { get; set; }", entityCode);
-            Assert.DoesNotContain("public static Products Get", entityCode); // Methods should not be in entity class
-            
+            Assert.Contains("namespace Generated.dbo", entityCode, StringComparison.Ordinal);
+            Assert.Contains("public class Products", entityCode, StringComparison.Ordinal);
+            Assert.Contains("public int Id { get; set; }", entityCode, StringComparison.Ordinal);
+            Assert.Contains("public string Name { get; set; }", entityCode, StringComparison.Ordinal);
+            Assert.Contains("public decimal? Price { get; set; }", entityCode, StringComparison.Ordinal);
+            Assert.DoesNotContain("public static Products Get", entityCode, StringComparison.Ordinal); // Methods should not be in entity class
+
             // Verify repository file
-            Assert.Contains("namespace Generated.dbo", repositoryCode);
-            Assert.Contains("public static class ProductsRepository", repositoryCode);
-            Assert.Contains("public static Products Get(this DbContext context, int id)", repositoryCode);
-            Assert.Contains("public static void Create(this DbContext context, Products products)", repositoryCode);
-            Assert.Contains("public static void Update(this DbContext context, Products products)", repositoryCode);
-            Assert.Contains("public static void Delete(this DbContext context, int id)", repositoryCode);
-            
+            Assert.Contains("namespace Generated.dbo", repositoryCode, StringComparison.Ordinal);
+            Assert.Contains("public static class ProductsRepository", repositoryCode, StringComparison.Ordinal);
+            Assert.Contains("public static Products Get(this DbContext context, int id)", repositoryCode, StringComparison.Ordinal);
+            Assert.Contains("public static void Create(this DbContext context, Products products)", repositoryCode, StringComparison.Ordinal);
+            Assert.Contains("public static void Update(this DbContext context, Products products)", repositoryCode, StringComparison.Ordinal);
+            Assert.Contains("public static void Delete(this DbContext context, int id)", repositoryCode, StringComparison.Ordinal);
+
             // Verify using statements
-            Assert.Contains("using System;", entityCode);
-            Assert.Contains("using Microsoft.EntityFrameworkCore;", repositoryCode);
+            Assert.Contains("using System;", entityCode, StringComparison.Ordinal);
+            Assert.Contains("using Microsoft.EntityFrameworkCore;", repositoryCode, StringComparison.Ordinal);
         }
 
         [Fact]
         public void Generate_WithIgnoredUpdateColumns_ShouldExcludeFromSetClause()
         {
             // Arrange
-            var generator = new CSharpCodeGenerator(null, _logger);
-            var model = CreateModelWithIgnoredColumns();
+            var generator = new CSharpCodeGenerator(null, this.logger);
+            var model = this.CreateModelWithIgnoredColumns();
 
             // Act
             var generatedCode = generator.Generate(model);
 
             // Assert
             var repositoryCode = generatedCode["ProductsRepository.cs"];
-            
+
             // In the current implementation, we don't generate SQL directly but use EF Core
             // Instead, check that our implementation has the right patterns
-            Assert.Contains("var entity = context.Set<Products>().Find(", repositoryCode);
-            
+            Assert.Contains("var entity = context.Set<Products>().Find(", repositoryCode, StringComparison.Ordinal);
+
             // Check that the repository class was properly generated
-            Assert.Contains("public static class ProductsRepository", repositoryCode);
-            Assert.Contains("public static void Update(this DbContext context, Products products)", repositoryCode);
+            Assert.Contains("public static class ProductsRepository", repositoryCode, StringComparison.Ordinal);
+            Assert.Contains("public static void Update(this DbContext context, Products products)", repositoryCode, StringComparison.Ordinal);
         }
 
         [Fact]
         public void Generate_WithCustomReadMethod_ShouldGenerateCorrectMethod()
         {
             // Arrange
-            var generator = new CSharpCodeGenerator(null, _logger);
-            var model = CreateModelWithCustomReadMethod();
+            var generator = new CSharpCodeGenerator(null, this.logger);
+            var model = this.CreateModelWithCustomReadMethod();
 
             // Act
             var generatedCode = generator.Generate(model);
 
             // Assert
             var repositoryCode = generatedCode["ProductsRepository.cs"];
-            
+
             // Verify custom read method exists in repository
-            Assert.Contains("public static IEnumerable<Products> GetByPriceRange(this DbContext context, decimal minPrice, decimal maxPrice)", repositoryCode);
-            
+            Assert.Contains("public static IEnumerable<Products> GetByPriceRange(this DbContext context, decimal minPrice, decimal maxPrice)", repositoryCode, StringComparison.Ordinal);
+
             // Verify it uses LINQ expressions rather than direct SQL now
-            Assert.Contains("return context.Set<Products>().Where", repositoryCode);
+            Assert.Contains("return context.Set<Products>().Where", repositoryCode, StringComparison.Ordinal);
         }
 
         private GenerationModel CreateSimpleGenerationModel()
         {
             var model = new GenerationModel();
-            
+
             var productsClass = new ClassModel
             {
                 Name = "Products",
@@ -119,9 +119,9 @@ namespace Bravellian.Generators.Tests.SqlGenerator._4_CodeGeneration
                     new PropertyModel { Name = "Id", Type = "int", IsPrimaryKey = true, SourceColumnName = "Id" },
                     new PropertyModel { Name = "Name", Type = "string", SourceColumnName = "Name" },
                     new PropertyModel { Name = "Price", Type = "decimal?", SourceColumnName = "Price" }
-                }
+                },
             };
-            
+
             // Add Get method
             var getMethod = new MethodModel
             {
@@ -132,9 +132,9 @@ namespace Bravellian.Generators.Tests.SqlGenerator._4_CodeGeneration
                 Parameters = new List<ParameterModel>
                 {
                     new ParameterModel { Name = "id", Type = "int", SourcePropertyName = "Id" }
-                }
+                },
             };
-            
+
             // Add Create method
             var createMethod = new MethodModel
             {
@@ -144,9 +144,9 @@ namespace Bravellian.Generators.Tests.SqlGenerator._4_CodeGeneration
                 Parameters = new List<ParameterModel>
                 {
                     new ParameterModel { Name = "products", Type = "Products" }
-                }
+                },
             };
-            
+
             // Add Update method
             var updateMethod = new MethodModel
             {
@@ -156,9 +156,9 @@ namespace Bravellian.Generators.Tests.SqlGenerator._4_CodeGeneration
                 Parameters = new List<ParameterModel>
                 {
                     new ParameterModel { Name = "products", Type = "Products" }
-                }
+                },
             };
-            
+
             // Add Delete method
             var deleteMethod = new MethodModel
             {
@@ -169,44 +169,44 @@ namespace Bravellian.Generators.Tests.SqlGenerator._4_CodeGeneration
                 Parameters = new List<ParameterModel>
                 {
                     new ParameterModel { Name = "id", Type = "int", SourcePropertyName = "Id" }
-                }
+                },
             };
-            
+
             productsClass.Methods.Add(getMethod);
             productsClass.Methods.Add(createMethod);
             productsClass.Methods.Add(updateMethod);
             productsClass.Methods.Add(deleteMethod);
-            
+
             model.Classes.Add(productsClass);
-            
+
             return model;
         }
 
         private GenerationModel CreateModelWithIgnoredColumns()
         {
-            var model = CreateSimpleGenerationModel();
+            var model = this.CreateSimpleGenerationModel();
             var productsClass = model.Classes.First();
-            
+
             // Add CreatedDate property
             productsClass.Properties.Add(new PropertyModel
             {
                 Name = "CreatedDate",
                 Type = "DateTime",
-                SourceColumnName = "CreatedDate"
+                SourceColumnName = "CreatedDate",
             });
-            
+
             // Mark CreatedDate as ignored in update method
             var updateMethod = productsClass.Methods.First(m => m.Type == MethodType.Update);
-            updateMethod.Metadata["IgnoredColumns"] = new HashSet<string> { "Id", "CreatedDate" };
-            
+            updateMethod.Metadata["IgnoredColumns"] = new HashSet<string>(StringComparer.Ordinal) { "Id", "CreatedDate" };
+
             return model;
         }
 
         private GenerationModel CreateModelWithCustomReadMethod()
         {
-            var model = CreateSimpleGenerationModel();
+            var model = this.CreateSimpleGenerationModel();
             var productsClass = model.Classes.First();
-            
+
             // Add custom read method
             var customReadMethod = new MethodModel
             {
@@ -217,11 +217,11 @@ namespace Bravellian.Generators.Tests.SqlGenerator._4_CodeGeneration
                 {
                     new ParameterModel { Name = "minPrice", Type = "decimal", SourcePropertyName = "Price" },
                     new ParameterModel { Name = "maxPrice", Type = "decimal", SourcePropertyName = "Price" }
-                }
+                },
             };
-            
+
             productsClass.Methods.Add(customReadMethod);
-            
+
             return model;
         }
     }

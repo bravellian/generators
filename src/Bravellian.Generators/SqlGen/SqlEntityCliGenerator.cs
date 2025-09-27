@@ -1,5 +1,16 @@
-// CONFIDENTIAL - Copyright (c) Bravellian LLC. All rights reserved.
-// See NOTICE.md for full restrictions and usage terms.
+// Copyright (c) Bravellian
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #nullable enable
 
@@ -36,13 +47,13 @@ public class SqlEntityCliGenerator
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A collection of generated file names and their source code.</returns>
     public IEnumerable<(string fileName, string source)> GenerateFromFiles(
-        IDictionary<string, string> sqlFiles, 
+        IDictionary<string, string> sqlFiles,
         IDictionary<string, string> sqlConfigFiles,
         CancellationToken cancellationToken = default)
     {
         var logger = new CliSqlGenLogger();
         var results = new List<(string fileName, string source)>();
-        
+
         try
         {
             // Load SQL configuration (generator.config.json) if provided
@@ -65,13 +76,13 @@ public class SqlEntityCliGenerator
                     }
                 }
             }
-            
+
             if (sqlConfig == null)
             {
                 logger.LogMessage("No valid SQL configuration found. Using default conventions.");
                 sqlConfig = new SqlConfiguration(); // Use empty configuration for pure convention-based generation
             }
-            
+
             // Set up the usage tracker
             var usageTracker = new UsedConfigurationTracker(originalConfigJson);
 
@@ -80,7 +91,7 @@ public class SqlEntityCliGenerator
             var schemaRefiner = new SchemaRefiner(logger, sqlConfig, usageTracker);
             var cSharpModelTransformer = new CSharpModelTransformer(logger, sqlConfig, usageTracker);
             var cSharpCodeGenerator = new CSharpCodeGenerator(sqlConfig, logger);
-            
+
             // Create the orchestrator and run the pipeline
             var orchestrator = new SqlGenOrchestrator(
                 schemaIngestor,
@@ -89,13 +100,13 @@ public class SqlEntityCliGenerator
                 cSharpCodeGenerator,
                 sqlConfig,
                 logger);
-            
+
             // Convert SQL files dictionary to array of SQL content
             var sqlContents = sqlFiles.Values.ToArray();
-            
+
             // Run the generation pipeline
             var generatedCode = orchestrator.Generate(sqlContents);
-            
+
             // Convert results to the expected format
             foreach (var kvp in generatedCode)
             {
@@ -109,7 +120,7 @@ public class SqlEntityCliGenerator
                 results.Add(("generator.config.used.json", usedConfigJson));
                 logger.LogMessage("Generated used configuration file.");
             }
-            
+
             logger.LogMessage($"Successfully generated {results.Count} files.");
         }
         catch (Exception ex)
@@ -119,7 +130,7 @@ public class SqlEntityCliGenerator
             var errorSource = $"// Code generation failed\n// Error: {ex.Message}\n// Stack trace:\n// {ex.StackTrace}";
             results.Add((errorFileName, errorSource));
         }
-        
+
         return results;
     }
 
@@ -133,30 +144,30 @@ public class SqlEntityCliGenerator
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A collection of generated file names and their source code.</returns>
     public IEnumerable<(string fileName, string source)> GenerateFromFiles(
-        IDictionary<string, string> sqlFiles, 
+        IDictionary<string, string> sqlFiles,
         IDictionary<string, string> sqlConfigFiles,
         IDictionary<string, string> typeMappingFiles,
-        IDictionary<string, string> propertyFiles, 
+        IDictionary<string, string> propertyFiles,
         CancellationToken cancellationToken = default)
     {
         // For now, just delegate to the primary method, ignoring legacy XML files
         // TODO: Add legacy XML support if needed
-        return GenerateFromFiles(sqlFiles, sqlConfigFiles, cancellationToken);
+        return this.GenerateFromFiles(sqlFiles, sqlConfigFiles, cancellationToken);
     }
 
     /// <summary>
     /// Legacy method for backward compatibility.
     /// </summary>
     public IEnumerable<(string fileName, string source)> GenerateFromFiles(
-        IDictionary<string, string> sqlFiles, 
-        IDictionary<string, string> typeMappingFiles, 
+        IDictionary<string, string> sqlFiles,
+        IDictionary<string, string> typeMappingFiles,
         string baseNamespace = "Generated.Entities",
         CancellationToken cancellationToken = default)
     {
         // Delegate to the primary method with empty config files
-        return GenerateFromFiles(
-            sqlFiles, 
-            new Dictionary<string, string>(), // No JSON config files
+        return this.GenerateFromFiles(
+            sqlFiles,
+            new Dictionary<string, string>(StringComparer.Ordinal), // No JSON config files
             cancellationToken);
     }
 
@@ -164,15 +175,15 @@ public class SqlEntityCliGenerator
     /// Legacy method for backward compatibility.
     /// </summary>
     public IEnumerable<(string fileName, string source)> GenerateFromFiles(
-        IDictionary<string, string> sqlFiles, 
+        IDictionary<string, string> sqlFiles,
         IDictionary<string, string> typeMappingFiles,
-        IDictionary<string, string> propertyFiles, 
+        IDictionary<string, string> propertyFiles,
         CancellationToken cancellationToken = default)
     {
         // Delegate to the primary method with empty config files
-        return GenerateFromFiles(
-            sqlFiles, 
-            new Dictionary<string, string>(), // No JSON config files
+        return this.GenerateFromFiles(
+            sqlFiles,
+            new Dictionary<string, string>(StringComparer.Ordinal), // No JSON config files
             cancellationToken);
     }
 
@@ -185,13 +196,13 @@ public class SqlEntityCliGenerator
     /// <returns>A collection of generated file names and their source code.</returns>
     public IEnumerable<(string fileName, string source)>? GenerateFromFiles(string filePath, string fileContent, CancellationToken cancellationToken = default)
     {
-        var sqlFiles = new Dictionary<string, string> { { filePath, fileContent } };
-        return GenerateFromFiles(
-            sqlFiles, 
-            new Dictionary<string, string>(), // No JSON config files
+        var sqlFiles = new Dictionary<string, string>(StringComparer.Ordinal) { { filePath, fileContent } };
+        return this.GenerateFromFiles(
+            sqlFiles,
+            new Dictionary<string, string>(StringComparer.Ordinal), // No JSON config files
             cancellationToken);
     }
-    
+
     /// <summary>
     /// Generates C# entity source files from the collected SQL schema files and type mapping configuration.
     /// </summary>
@@ -199,7 +210,7 @@ public class SqlEntityCliGenerator
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A collection of generated file names and their source code.</returns>
     public IEnumerable<(string fileName, string source)> Generate(
-        ImmutableArray<(string Path, string Content, string FileType, string? Namespace)> files, 
+        ImmutableArray<(string Path, string Content, string FileType, string? Namespace)> files,
         CancellationToken cancellationToken)
     {
         if (files.IsEmpty)
@@ -209,14 +220,14 @@ public class SqlEntityCliGenerator
 
         // Separate files by type
         var sqlFiles = files
-            .Where(f => f.FileType == "SqlSchema")
-            .ToDictionary(f => f.Path, f => f.Content);
-            
+            .Where(f => string.Equals(f.FileType, "SqlSchema", StringComparison.Ordinal))
+            .ToDictionary(f => f.Path, f => f.Content, StringComparer.Ordinal);
+
         var sqlConfigFiles = files
-            .Where(f => f.FileType == "SqlConfig")
-            .ToDictionary(f => f.Path, f => f.Content);
-        
-        return GenerateFromFiles(sqlFiles, sqlConfigFiles, cancellationToken);
+            .Where(f => string.Equals(f.FileType, "SqlConfig", StringComparison.Ordinal))
+            .ToDictionary(f => f.Path, f => f.Content, StringComparer.Ordinal);
+
+        return this.GenerateFromFiles(sqlFiles, sqlConfigFiles, cancellationToken);
     }
 }
 
@@ -246,7 +257,6 @@ internal class CliSqlGenLogger : IBvLogger
         [ERROR] {{message}}
         [EXCEPTION] {{ex.Message}}
         """);
-            
     }
 
     public void LogErrorFromException(Exception ex)
@@ -256,4 +266,3 @@ internal class CliSqlGenLogger : IBvLogger
         """);
     }
 }
-

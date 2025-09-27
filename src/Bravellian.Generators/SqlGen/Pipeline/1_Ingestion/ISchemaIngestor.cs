@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections;
-using System.Collections.Generic;
-using Bravellian.Generators.SqlGen.Pipeline._1_Ingestion.Model;
-
-namespace Bravellian.Generators.SqlGen.Pipeline._1_Ingestion
+namespace Bravellian.Generators.SqlGen.Pipeline.1_Ingestion
 {
+    using System.Collections;
+    using System.Collections.Generic;
+    using Bravellian.Generators.SqlGen.Pipeline._1_Ingestion.Model;
+
     public interface ISchemaIngestor
     {
         /// <summary>
-        /// Ingests SQL statements and builds a raw database schema
+        /// Ingests SQL statements and builds a raw database schema.
         /// </summary>
-        /// <param name="sqlStatements">Array of SQL DDL statements to parse</param>
-        /// <returns>A raw database schema representing the SQL objects</returns>
+        /// <param name="sqlStatements">Array of SQL DDL statements to parse.</param>
+        /// <returns>A raw database schema representing the SQL objects.</returns>
         RawDatabaseSchema Ingest(IEnumerable<string> sqlStatements);
     }
 }

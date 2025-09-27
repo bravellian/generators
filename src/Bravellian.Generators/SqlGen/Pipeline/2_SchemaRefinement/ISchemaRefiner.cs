@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Bravellian.Generators.SqlGen.Pipeline._1_Ingestion.Model;
-using Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement.Model;
-
-namespace Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement
+namespace Bravellian.Generators.SqlGen.Pipeline.2_SchemaRefinement
 {
+    using Bravellian.Generators.SqlGen.Pipeline._1_Ingestion.Model;
+    using Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement.Model;
+
     /// <summary>
     /// Defines the contract for the schema refinement phase of the pipeline.
     /// </summary>

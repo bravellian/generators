@@ -1,5 +1,16 @@
-// CONFIDENTIAL - Copyright (c) Bravellian LLC. All rights reserved.
-// See NOTICE.md for full restrictions and usage terms.
+// Copyright (c) Bravellian
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #nullable enable
 
@@ -11,7 +22,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-
 
 public static class MultiValueBackedTypeGenerator
 {
@@ -34,7 +44,7 @@ public static class MultiValueBackedTypeGenerator
                         bool.TryParse(a.TryGetValue("isNullable"), out bool isNullable) && isNullable,
                         a.TryGetValue("nullIdentifier"));
                 }
-                else //TypeProperty
+                else // TypeProperty
                 {
                     return new FieldInfo(
                         a["name"].ToString(),
@@ -47,7 +57,7 @@ public static class MultiValueBackedTypeGenerator
                 }
             })
             .ToList();
-        return new(attributes.TryGetValue("name") ?? string.Empty, attributes.TryGetValue("namespace") ?? string.Empty, true, attributes.TryGetValue("separator") ?? "|", attributes.TryGetValue("format") ?? string.Empty, attributes.TryGetValue("regex") ?? string.Empty, attributes.TryGetValue("bookend") ?? string.Empty, fields);
+        return new (attributes.TryGetValue("name") ?? string.Empty, attributes.TryGetValue("namespace") ?? string.Empty, true, attributes.TryGetValue("separator") ?? "|", attributes.TryGetValue("format") ?? string.Empty, attributes.TryGetValue("regex") ?? string.Empty, attributes.TryGetValue("bookend") ?? string.Empty, fields);
     }
 
     public static string? Generate(GeneratorParams? structToGenerate, IBvLogger? logger)
@@ -70,7 +80,7 @@ public static class MultiValueBackedTypeGenerator
         bool hasBookend = !string.IsNullOrWhiteSpace(relatedClass.Bookend);
 
         var nonConstantFields = relatedClass.Fields.Where(f => f.ConstantValue == null && f.ConstantTypeValue == null).ToList();
-        var ctorParameters = string.Join(", ", nonConstantFields.Select(f => $"{f.FieldType}{(f.IsNullable ? "?" : "")} {f.FieldName.ToLower()}"));
+        var ctorParameters = string.Join(", ", nonConstantFields.Select(f => $"{f.FieldType}{(f.IsNullable ? "?" : string.Empty)} {f.FieldName.ToLower()}"));
         var ctorPropertyAssignments = string.Join("\r\n", relatedClass.Fields.Select(f =>
         {
             if (f.ConstantValue != null)
@@ -79,36 +89,42 @@ public static class MultiValueBackedTypeGenerator
                 {
                     return $"        this.{f.FieldName} = \"{f.ConstantValue}\";";
                 }
+
                 return $"        this.{f.FieldName} = {f.FieldType}.Parse(\"{f.ConstantValue}\");";
             }
+
             if (f.ConstantTypeValue != null)
             {
                 return $"        this.{f.FieldName} = {f.ConstantTypeValue};";
             }
+
             return $"        this.{f.FieldName} = {f.FieldName.ToLower()};";
         }));
 
         if (useSeparator && !hasSerializedNames)
         {
-            var ctorValue = "$\"" 
-                + (hasBookend ? "{Bookend}" : "") 
+            var ctorValue = "$\""
+                + (hasBookend ? "{Bookend}" : string.Empty)
                 + string.Join("{Separator}", relatedClass.Fields.Select(f =>
                 {
                     if (f.ConstantValue != null)
                     {
                         return f.ConstantValue;
                     }
+
                     if (f.ConstantTypeValue != null)
                     {
                         return f.ConstantTypeValue;
                     }
+
                     if (f.IsNullable)
                     {
                         return $"{{{f.FieldName.ToLower()}?.ToString() ?? \"{f.NullIdentifier}\"}}";
                     }
+
                     return $"{{{f.FieldName.ToLower()}}}";
-                })) 
-                + (hasBookend ? "{Bookend}" : "") 
+                }))
+                + (hasBookend ? "{Bookend}" : string.Empty)
                 + "\"";
 
             var bookendConst = hasBookend ? $"\r\n    public const string Bookend = \"{relatedClass.Bookend}\";" : string.Empty;
@@ -162,10 +178,10 @@ public static class MultiValueBackedTypeGenerator
 
             var formatPattern = string.Join(relatedClass.Separator ?? "|", formatParts);
             var regexTempPattern = string.Join(relatedClass.Separator ?? "|", regexParts);
-            var ctorValue = "$\"" 
-                + (hasBookend ? "{Bookend}" : "") 
-                + formatPattern 
-                + (hasBookend ? "{Bookend}" : "") 
+            var ctorValue = "$\""
+                + (hasBookend ? "{Bookend}" : string.Empty)
+                + formatPattern
+                + (hasBookend ? "{Bookend}" : string.Empty)
                 + "\"";
 
             string regexPattern = relatedClass.Regex;
@@ -192,10 +208,10 @@ public static class MultiValueBackedTypeGenerator
                                 regexPattern = Regex.Replace(regexPattern, $"\\\\{{{field.FieldName}}}", $"(?<{field.FieldName.ToLower()}>.*)", RegexOptions.Compiled, TimeSpan.FromSeconds(2));
                             }
                         }
-                            else
-                            {
-                                regexPattern = Regex.Replace(regexPattern, $"\\\\{{{field.FieldName}}}", $"(?<{field.FieldName.ToLower()}>[^{relatedClass.Separator ?? "|"}]*)", RegexOptions.Compiled, TimeSpan.FromSeconds(2));
-                            }
+                        else
+                        {
+                            regexPattern = Regex.Replace(regexPattern, $"\\\\{{{field.FieldName}}}", $"(?<{field.FieldName.ToLower()}>[^{relatedClass.Separator ?? "|"}]*)", RegexOptions.Compiled, TimeSpan.FromSeconds(2));
+                        }
                     }
                 }
             }
@@ -244,6 +260,7 @@ public static class MultiValueBackedTypeGenerator
                     {
                         return $"NullableString(split[{nonConstantFields.IndexOf(f)}], \"{f.NullIdentifier}\")";
                     }
+
                     return $"split[{nonConstantFields.IndexOf(f)}]";
                 }
                 else
@@ -379,7 +396,7 @@ public static class MultiValueBackedTypeGenerator
 
     private static string GenerateWithPattern(in GeneratorParams relatedClass)
     {
-        var properties = string.Join("\r\n\r\n", relatedClass.Fields.Select(f => $"    public {f.FieldType}{(f.IsNullable ? "?" : "")} {f.FieldName} {{ get; }}"));
+        var properties = string.Join("\r\n\r\n", relatedClass.Fields.Select(f => $"    public {f.FieldType}{(f.IsNullable ? "?" : string.Empty)} {f.FieldName} {{ get; }}"));
 
         var fieldTypes = string.Join(", ", relatedClass.Fields.Select(f => f.FieldType));
 

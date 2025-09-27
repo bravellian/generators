@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,17 +15,17 @@
 namespace Bravellian.Generators.Cli;
 
 /// <summary>
-/// Main runner that orchestrates all generators
+/// Main runner that orchestrates all generators.
 /// </summary>
 public class GeneratorRunner
 {
-    private readonly bool _verbose;
-    private readonly List<CliGenerator> _generators;
+    private readonly bool verbose;
+    private readonly List<CliGenerator> generators;
 
     public GeneratorRunner(bool verbose = false)
     {
-        _verbose = verbose;
-        _generators = new List<CliGenerator>
+        this.verbose = verbose;
+        this.generators = new List<CliGenerator>
         {
             new StringBackedEnumCliGenerator(),
             new StringBackedTypeCliGenerator(),
@@ -36,7 +36,7 @@ public class GeneratorRunner
             new MultiValueBackedTypeCliGenerator(),
             new NumberBackedEnumTypeCliGenerator(),
             new CapabilityCliGenerator(),
-            new SqlEntityCliGenerator()
+            new SqlEntityCliGenerator(),
         };
     }
 
@@ -44,11 +44,11 @@ public class GeneratorRunner
     {
         try
         {
-            LogInfo($"Starting Bravellian code generation...");
-            LogInfo($"Input paths: {string.Join(", ", inputPaths)}");
-            LogInfo($"Output directory: {outputDir.FullName}");
-            LogInfo($"Dry run: {dryRun}");
-            LogInfo($"Generators: {_generators.Count}");
+            this.LogInfo($"Starting Bravellian code generation...");
+            this.LogInfo($"Input paths: {string.Join(", ", inputPaths)}");
+            this.LogInfo($"Output directory: {outputDir.FullName}");
+            this.LogInfo($"Dry run: {dryRun}");
+            this.LogInfo($"Generators: {this.generators.Count}");
 
             // Validate all input paths exist
             var validatedPaths = new List<string>();
@@ -56,24 +56,24 @@ public class GeneratorRunner
             {
                 if (File.Exists(inputPath))
                 {
-                    LogInfo($"Input file: {inputPath}");
+                    this.LogInfo($"Input file: {inputPath}");
                     validatedPaths.Add(inputPath);
                 }
                 else if (Directory.Exists(inputPath))
                 {
-                    LogInfo($"Input directory: {inputPath}");
+                    this.LogInfo($"Input directory: {inputPath}");
                     validatedPaths.Add(inputPath);
                 }
                 else
                 {
-                    LogError($"Input path does not exist: {inputPath}");
+                    this.LogError($"Input path does not exist: {inputPath}");
                     return;
                 }
             }
 
             if (!validatedPaths.Any())
             {
-                LogError("No valid input paths provided");
+                this.LogError("No valid input paths provided");
                 return;
             }
 
@@ -82,64 +82,66 @@ public class GeneratorRunner
             {
                 if (outputDir.Exists)
                 {
-                    LogInfo("Clearing existing output directory...");
+                    this.LogInfo("Clearing existing output directory...");
                     outputDir.Delete(true);
                 }
+
                 outputDir.Create();
-                LogInfo("Output directory prepared.");
+                this.LogInfo("Output directory prepared.");
             }
 
             var totalFilesGenerated = 0;
             var totalErrors = 0;
 
             // Run each generator
-            foreach (var generator in _generators)
+            foreach (var generator in this.generators)
             {
-                LogInfo($"Running generator: {generator.Name}");
-                
+                this.LogInfo($"Running generator: {generator.Name}");
+
                 try
                 {
-                    var results = await generator.GenerateAsync(validatedPaths);
+                    var results = await generator.GenerateAsync(validatedPaths).ConfigureAwait(false);
                     var generatedFiles = results.ToList();
-                    
-                    LogInfo($"  {generator.Name}: Generated {generatedFiles.Count} files");
+
+                    this.LogInfo($"  {generator.Name}: Generated {generatedFiles.Count} files");
 
                     foreach (var (fileName, source) in generatedFiles)
                     {
                         if (dryRun)
                         {
-                            LogInfo($"  [DRY RUN] Would generate: {fileName}");
+                            this.LogInfo($"  [DRY RUN] Would generate: {fileName}");
                         }
                         else
                         {
                             var outputPath = Path.Combine(outputDir.FullName, fileName);
                             var fileDir = Path.GetDirectoryName(outputPath);
-                            
+
                             if (!string.IsNullOrEmpty(fileDir) && !Directory.Exists(fileDir))
                             {
                                 Directory.CreateDirectory(fileDir);
                             }
-                            
-                            await File.WriteAllTextAsync(outputPath, source);
-                            LogVerbose($"  Generated: {fileName}");
+
+                            await File.WriteAllTextAsync(outputPath, source).ConfigureAwait(false);
+                            this.LogVerbose($"  Generated: {fileName}");
                         }
-                        
+
                         totalFilesGenerated++;
                     }
                 }
                 catch (Exception ex)
                 {
-                    LogError($"  Error in {generator.Name}: {ex.Message}");
-                    if (_verbose)
+                    this.LogError($"  Error in {generator.Name}: {ex.Message}");
+                    if (this.verbose)
                     {
-                        LogError($"  Stack trace: {ex.StackTrace}");
+                        this.LogError($"  Stack trace: {ex.StackTrace}");
                     }
+
                     totalErrors++;
                 }
             }
 
-            LogInfo($"Generation complete. Total files: {totalFilesGenerated}, Errors: {totalErrors}");
-            
+            this.LogInfo($"Generation complete. Total files: {totalFilesGenerated}, Errors: {totalErrors}");
+
             if (totalErrors > 0)
             {
                 Environment.ExitCode = 1;
@@ -147,11 +149,12 @@ public class GeneratorRunner
         }
         catch (Exception ex)
         {
-            LogError($"Fatal error: {ex.Message}");
-            if (_verbose)
+            this.LogError($"Fatal error: {ex.Message}");
+            if (this.verbose)
             {
-                LogError($"Stack trace: {ex.StackTrace}");
+                this.LogError($"Stack trace: {ex.StackTrace}");
             }
+
             Environment.ExitCode = 1;
         }
     }
@@ -168,7 +171,7 @@ public class GeneratorRunner
 
     private void LogVerbose(string message)
     {
-        if (_verbose)
+        if (this.verbose)
         {
             Console.WriteLine($"[VERBOSE] {message}");
         }

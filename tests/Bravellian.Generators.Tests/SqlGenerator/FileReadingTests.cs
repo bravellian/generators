@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,7 +45,9 @@ public class FileReadingTests
         finally
         {
             if (File.Exists(tempFile))
+            {
                 File.Delete(tempFile);
+            }
         }
     }
 
@@ -67,18 +69,20 @@ public class FileReadingTests
 
         try
         {
-            File.WriteAllText(tempFile, "");
+            File.WriteAllText(tempFile, string.Empty);
 
             // Act
             var content = File.ReadAllText(tempFile);
 
             // Assert
-            Assert.Equal("", content);
+            Assert.Equal(string.Empty, content);
         }
         finally
         {
             if (File.Exists(tempFile))
+            {
                 File.Delete(tempFile);
+            }
         }
     }
 
@@ -98,13 +102,15 @@ public class FileReadingTests
 
             // Assert
             Assert.Equal(largeContent, content);
-            Assert.Contains("-- Comment line 1", content);
-            Assert.Contains("-- Comment line 1000", content);
+            Assert.Contains("-- Comment line 1", content, StringComparison.Ordinal);
+            Assert.Contains("-- Comment line 1000", content, StringComparison.Ordinal);
         }
         finally
         {
             if (File.Exists(tempFile))
+            {
                 File.Delete(tempFile);
+            }
         }
     }
 
@@ -125,12 +131,14 @@ public class FileReadingTests
 
             // Assert
             Assert.Equal(contentWithUnicode, content);
-            Assert.Contains("éñ中文", content);
+            Assert.Contains("éñ中文", content, StringComparison.Ordinal);
         }
         finally
         {
             if (File.Exists(tempFile))
+            {
                 File.Delete(tempFile);
+            }
         }
     }
 
@@ -157,7 +165,9 @@ public class FileReadingTests
         finally
         {
             if (File.Exists(tempFile))
+            {
                 File.Delete(tempFile);
+            }
         }
     }
 
@@ -179,7 +189,9 @@ public class FileReadingTests
         finally
         {
             if (File.Exists(tempFile))
+            {
                 File.Delete(tempFile);
+            }
         }
     }
 
@@ -211,11 +223,11 @@ public class FileReadingTests
             // Assert
             Assert.Equal(2, sqlFiles.Length);
             Assert.Single(jsonFiles);
-            
+
             var allSqlContent = string.Join(Environment.NewLine, sqlFiles.Select(File.ReadAllText));
-            Assert.Contains("CREATE TABLE [Table1]", allSqlContent);
-            Assert.Contains("CREATE TABLE [Table2]", allSqlContent);
-            
+            Assert.Contains("CREATE TABLE [Table1]", allSqlContent, StringComparison.Ordinal);
+            Assert.Contains("CREATE TABLE [Table2]", allSqlContent, StringComparison.Ordinal);
+
             var configContent = File.ReadAllText(jsonFiles.First());
             var config = JsonSerializer.Deserialize<Dictionary<string, object>>(configContent);
             Assert.Equal("Test", config!["namespace"].ToString());
@@ -223,7 +235,9 @@ public class FileReadingTests
         finally
         {
             if (Directory.Exists(tempDir))
+            {
                 Directory.Delete(tempDir, true);
+            }
         }
     }
 
@@ -243,13 +257,15 @@ public class FileReadingTests
 
             // Assert
             Assert.Equal(contentWithDifferentLineEndings, content);
-            Assert.Contains("\r\n", content);
-            Assert.Contains("\n", content);
+            Assert.Contains("\r\n", content, StringComparison.Ordinal);
+            Assert.Contains("\n", content, StringComparison.Ordinal);
         }
         finally
         {
             if (File.Exists(tempFile))
+            {
                 File.Delete(tempFile);
+            }
         }
     }
 
@@ -275,8 +291,9 @@ public class FileReadingTests
         finally
         {
             if (File.Exists(tempFile))
+            {
                 File.Delete(tempFile);
+            }
         }
     }
 }
-

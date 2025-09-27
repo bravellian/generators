@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,29 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Text.RegularExpressions;
-using Humanizer;
-using Bravellian.Generators.SqlGen.Common.Configuration;
-using Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement.Model;
-using Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models;
-
-namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
+namespace Bravellian.Generators.SqlGen.Pipeline.3_CSharpTransformation
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Security.AccessControl;
+    using System.Text.RegularExpressions;
+    using Bravellian.Generators.SqlGen.Common.Configuration;
+    using Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement.Model;
+    using Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation.Models;
+    using Humanizer;
+
     /// <summary>
     /// Phase 3: Transforms the refined database model into a C# model ready for code generation.
     /// This is where all C# type resolution logic lives, following the strict precedence rules.
     /// </summary>
     public class CSharpModelTransformer : ICSharpModelTransformer
     {
-        private readonly IBvLogger _logger;
-        private readonly SqlConfiguration _configuration;
-        private readonly UsedConfigurationTracker? _usageTracker;
+        private readonly IBvLogger logger;
+        private readonly SqlConfiguration configuration;
+        private readonly UsedConfigurationTracker? usageTracker;
 
-        public SqlConfiguration Configuration => _configuration;
+        public SqlConfiguration Configuration => this.configuration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CSharpModelTransformer"/> class.
@@ -43,42 +43,42 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
         /// <param name="configuration">The SQL configuration.</param>
         public CSharpModelTransformer(IBvLogger logger, SqlConfiguration configuration, UsedConfigurationTracker? usageTracker)
         {
-            _logger = logger;
-            _configuration = configuration ?? new SqlConfiguration();
-            this._usageTracker = usageTracker;
+            this.logger = logger;
+            this.configuration = configuration ?? new SqlConfiguration();
+            this.usageTracker = usageTracker;
         }
 
         /// <inheritdoc/>
         public GenerationModel Transform(DatabaseSchema databaseSchema)
         {
-            _logger.LogMessage("Phase 3: Transforming refined database model to C# model...");
+            this.logger.LogMessage("Phase 3: Transforming refined database model to C# model...");
 
             var model = new GenerationModel();
 
-            var ignoredSchemas = new HashSet<string>(_configuration.IgnoreSchemas ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
+            var ignoredSchemas = new HashSet<string>(this.configuration.IgnoreSchemas ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
             var objectsToProcess = databaseSchema.Objects;
 
             if (ignoredSchemas.Any())
             {
-                _logger.LogMessage($"Ignoring schemas: {string.Join(", ", ignoredSchemas)}");
+                this.logger.LogMessage($"Ignoring schemas: {string.Join(", ", ignoredSchemas)}");
                 objectsToProcess = objectsToProcess.Where(o => !ignoredSchemas.Contains(o.Schema)).ToList();
             }
 
             // Transform database objects to classes
             foreach (var dbObject in objectsToProcess)
             {
-                var classModel = TransformDatabaseObject(dbObject);
+                var classModel = this.TransformDatabaseObject(dbObject);
                 model.Classes.Add(classModel);
             }
 
-            _logger.LogMessage("Phase 3: C# model transformation completed.");
+            this.logger.LogMessage("Phase 3: C# model transformation completed.");
             return model;
         }
 
         private ClassModel TransformDatabaseObject(DatabaseObject dbObject)
         {
             string qualifiedName = $"{dbObject.Schema}.{dbObject.Name}";
-            var tableConfig = _configuration.Tables.ContainsKey(qualifiedName) ? _configuration.Tables[qualifiedName] : null;
+            var tableConfig = this.configuration.Tables.ContainsKey(qualifiedName) ? this.configuration.Tables[qualifiedName] : null;
             var className = tableConfig?.CSharpClassName ?? dbObject.Name.Pascalize();
 
             // Determine the definitive primary key columns, respecting the override.
@@ -88,8 +88,8 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
 
             // Construct the final namespace using the base from the configuration and the schema name.
             var schemaNamespacePart = dbObject.Schema.Pascalize();
-            var finalNamespace = !string.IsNullOrEmpty(_configuration.Namespace)
-                ? $"{_configuration.Namespace}.{schemaNamespacePart}"
+            var finalNamespace = !string.IsNullOrEmpty(this.configuration.Namespace)
+                ? $"{this.configuration.Namespace}.{schemaNamespacePart}"
                 : schemaNamespacePart;
 
             var classModel = new ClassModel
@@ -104,7 +104,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                     Name = i.Name,
                     IsUnique = i.IsUnique,
                     Columns = i.ColumnNames,
-                }).ToList()
+                }).ToList(),
             };
 
             // Transform columns to properties
@@ -118,7 +118,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                 var propertyName = columnOverride?.CSharpPropertyName ?? column.Name;
 
                 // Resolve C# type with proper precedence rules
-                var (csharpType, isOverridden) = ResolveCSharpType(column, dbObject.Schema, dbObject.Name, out var typeSourceInfo);
+                var (csharpType, isOverridden) = this.ResolveCSharpType(column, dbObject.Schema, dbObject.Name, out var typeSourceInfo);
 
                 var property = new PropertyModel
                 {
@@ -128,7 +128,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                     SourceColumnName = column.Name,
                     SourceSqlType = column.DatabaseType,
                     IsNullable = column.IsNullable,
-                    IsComputed = false, //column.IsComputed,
+                    IsComputed = false, // column.IsComputed,
                     IsIndeterminate = column.IsIndeterminate,
                     IsTypeOverridden = isOverridden,
                 };
@@ -138,6 +138,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                 {
                     property.SourceAuditTrail.Add(colSource);
                 }
+
                 property.SourceAuditTrail.Add(typeSourceInfo);
 
                 if (columnOverride?.CSharpPropertyName != null)
@@ -149,7 +150,6 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                 {
                     property.SourceAuditTrail.Add(new PropertySourceInfo("Property Name", "Default Convention", $"Derived directly from source column '{column.Name}'."));
                 }
-
 
                 classModel.Properties.Add(property);
             }
@@ -167,11 +167,11 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
 
                 if (classModel.ScopeKeyProperty == null)
                 {
-                    _logger.LogWarning($"Scope key '{tableConfig.ScopeKey}' was configured for {dbObject.FullName}, but no matching column was found.");
+                    this.logger.LogWarning($"Scope key '{tableConfig.ScopeKey}' was configured for {dbObject.FullName}, but no matching column was found.");
                 }
                 else
                 {
-                    _logger.LogMessage($"Using '{classModel.ScopeKeyProperty.Name}' as scope key for {dbObject.FullName}");
+                    this.logger.LogMessage($"Using '{classModel.ScopeKeyProperty.Name}' as scope key for {dbObject.FullName}");
                 }
             }
 
@@ -179,15 +179,15 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
             if (!dbObject.IsView)
             {
                 // Generate input models first, as data access methods depend on them.
-                classModel.CreateInput = GenerateCreateInputModel(classModel, dbObject, tableConfig);
-                classModel.UpdateInput = GenerateUpdateInputModel(classModel, dbObject, tableConfig);
+                classModel.CreateInput = this.GenerateCreateInputModel(classModel, dbObject, tableConfig);
+                classModel.UpdateInput = this.GenerateUpdateInputModel(classModel, dbObject, tableConfig);
 
                 // Now that input models exist, generate the methods that use them.
-                GenerateDataAccessMethods(classModel, dbObject, tableConfig);
+                this.GenerateDataAccessMethods(classModel, dbObject, tableConfig);
             }
             else
             {
-                GenerateViewAccessMethods(classModel, dbObject, tableConfig);
+                this.GenerateViewAccessMethods(classModel, dbObject, tableConfig);
             }
 
             return classModel;
@@ -197,11 +197,9 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
         /// Generates data access methods for a database object.
         /// The method generation is driven by configuration, with the physical schema as a fallback.
         /// </summary>
-        /// <param name="classModel">The class model to generate methods for</param>
-        /// <param name="dbObject">The database object (table)</param>
-        /// <param name="tableConfig">Optional configuration overrides for the table</param>
-
-
+        /// <param name="classModel">The class model to generate methods for.</param>
+        /// <param name="dbObject">The database object (table).</param>
+        /// <param name="tableConfig">Optional configuration overrides for the table.</param>
         private void GenerateDataAccessMethods(ClassModel classModel, DatabaseObject dbObject, TableConfiguration? tableConfig)
         {
             // 1. Primary Key Methods (Read, Update, Delete)
@@ -215,7 +213,9 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
             Action<MethodModel> addScopeKeyIfNeeded = (method) =>
             {
                 if (scopeKeyProperty == null)
+                {
                     return;
+                }
 
                 // Check if any existing parameter uses the same source property
                 bool alreadyHasScopeKey = method.Parameters.Any(p =>
@@ -229,7 +229,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                         Name = scopeKeyProperty.Name.Camelize(),
                         Type = scopeKeyProperty.Type,
                         SourcePropertyName = scopeKeyProperty.Name,
-                        IsScopeKey = true
+                        IsScopeKey = true,
                     });
                 }
             };
@@ -237,11 +237,10 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
             // Helper function to check for duplicate methods before adding
             Action<MethodModel> addMethodIfNotDuplicate = (newMethod) =>
             {
-                bool isDuplicate = classModel.Methods.Any(existingMethod =>
-                    existingMethod.Name == newMethod.Name &&
+                bool isDuplicate = classModel.Methods.Any(existingMethod => string.Equals(existingMethod.Name, newMethod.Name, StringComparison.Ordinal) &&
                     existingMethod.Parameters.Count == newMethod.Parameters.Count &&
                     existingMethod.Parameters.Select(p => p.Type)
-                        .SequenceEqual(newMethod.Parameters.Select(p => p.Type)));
+                        .SequenceEqual(newMethod.Parameters.Select(p => p.Type), StringComparer.Ordinal));
 
                 if (!isDuplicate)
                 {
@@ -249,7 +248,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                 }
                 else
                 {
-                    _logger.LogWarning($"Skipping duplicate method generation for '{newMethod.Name}' on class '{classModel.Name}'.");
+                    this.logger.LogWarning($"Skipping duplicate method generation for '{newMethod.Name}' on class '{classModel.Name}'.");
                 }
             };
 
@@ -261,7 +260,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                     Name = $"Get{classModel.Name}",
                     Type = MethodType.Read,
                     ReturnType = classModel.Name,
-                    IsPrimaryKeyMethod = true
+                    IsPrimaryKeyMethod = true,
                 };
 
                 foreach (var pkProperty in primaryKeyProperties)
@@ -270,7 +269,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                     {
                         Name = pkProperty.Name.Camelize(),
                         Type = pkProperty.Type,
-                        SourcePropertyName = pkProperty.Name
+                        SourcePropertyName = pkProperty.Name,
                     });
                 }
 
@@ -284,14 +283,15 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
             // First check if readMethods are specified in configuration
             if (tableConfig?.ReadMethods != null && tableConfig.ReadMethods.Any())
             {
-                _logger.LogMessage($"Using configured read methods for {dbObject.FullName}");
-                GenerateCustomReadMethods(classModel, tableConfig);
+                this.logger.LogMessage($"Using configured read methods for {dbObject.FullName}");
+                this.GenerateCustomReadMethods(classModel, tableConfig);
             }
+
             // If not, fall back to convention of creating a read method for each INDEX
             else
             {
-                _logger.LogMessage($"Falling back to index-based read methods for {dbObject.FullName}");
-                GenerateIndexBasedReadMethods(classModel, dbObject, tableConfig);
+                this.logger.LogMessage($"Falling back to index-based read methods for {dbObject.FullName}");
+                this.GenerateIndexBasedReadMethods(classModel, dbObject, tableConfig);
             }
 
             // Only generate methods that rely on a primary key if one is defined
@@ -310,7 +310,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                         Name = "input", // Use the input model instead of the entity
                         Type = classModel.CreateInput.Name
                     }
-                }
+                },
                 };
 
                 // Add scope key parameter using our helper method
@@ -329,7 +329,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                     Name = $"Update{classModel.Name}",
                     Type = MethodType.Update,
                     ReturnType = classModel.Name, // Return the updated entity
-                    Parameters = new List<ParameterModel>()
+                    Parameters = new List<ParameterModel>(),
                 };
 
                 // Add primary key parameters first
@@ -339,7 +339,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                     {
                         Name = pkProperty.Name.Camelize(),
                         Type = pkProperty.Type,
-                        SourcePropertyName = pkProperty.Name
+                        SourcePropertyName = pkProperty.Name,
                     });
                 }
 
@@ -347,7 +347,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                 updateMethod.Parameters.Add(new ParameterModel
                 {
                     Name = "input",
-                    Type = classModel.UpdateInput.Name
+                    Type = classModel.UpdateInput.Name,
                 });
 
                 // Add scope key parameter using our helper method
@@ -366,7 +366,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                         ignoredSourceColumns.Add(columnName);
                     }
 
-                    _logger.LogMessage($"Ignoring columns in UPDATE for {dbObject.FullName}: {string.Join(", ", tableConfig.UpdateConfig.IgnoreColumns)}");
+                    this.logger.LogMessage($"Ignoring columns in UPDATE for {dbObject.FullName}: {string.Join(", ", tableConfig.UpdateConfig.IgnoreColumns)}");
                 }
 
                 updateMethod.Metadata["IgnoredSourceColumns"] = ignoredSourceColumns;
@@ -378,7 +378,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                     Name = $"Delete{classModel.Name}",
                     Type = MethodType.Delete,
                     ReturnType = "void",
-                    IsPrimaryKeyMethod = true
+                    IsPrimaryKeyMethod = true,
                 };
 
                 foreach (var pkProperty in primaryKeyProperties)
@@ -387,7 +387,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                     {
                         Name = pkProperty.Name.Camelize(),
                         Type = pkProperty.Type,
-                        SourcePropertyName = pkProperty.Name
+                        SourcePropertyName = pkProperty.Name,
                     });
                 }
 
@@ -398,7 +398,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
             }
             else
             {
-                _logger.LogMessage($"No primary key defined for {dbObject.FullName}, skipping Create/Update/Delete methods");
+                this.logger.LogMessage($"No primary key defined for {dbObject.FullName}, skipping Create/Update/Delete methods");
             }
         }
 
@@ -412,25 +412,26 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
             Action<MethodModel> addScopeKeyIfNeeded = (method) =>
             {
                 if (classModel.ScopeKeyProperty == null)
+                {
                     return;
+                }
 
                 method.Parameters.Insert(0, new ParameterModel
                 {
                     Name = classModel.ScopeKeyProperty.Name.Camelize(),
                     Type = classModel.ScopeKeyProperty.Type,
                     SourcePropertyName = classModel.ScopeKeyProperty.Name,
-                    IsScopeKey = true
+                    IsScopeKey = true,
                 });
             };
 
             // Helper function to check for duplicate methods before adding
             Action<MethodModel> addMethodIfNotDuplicate = (newMethod) =>
             {
-                bool isDuplicate = classModel.Methods.Any(existingMethod =>
-                    existingMethod.Name == newMethod.Name &&
+                bool isDuplicate = classModel.Methods.Any(existingMethod => string.Equals(existingMethod.Name, newMethod.Name, StringComparison.Ordinal) &&
                     existingMethod.Parameters.Count == newMethod.Parameters.Count &&
                     existingMethod.Parameters.Select(p => p.Type)
-                        .SequenceEqual(newMethod.Parameters.Select(p => p.Type)));
+                        .SequenceEqual(newMethod.Parameters.Select(p => p.Type), StringComparer.Ordinal));
 
                 if (!isDuplicate)
                 {
@@ -438,7 +439,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                 }
                 else
                 {
-                    _logger.LogWarning($"Skipping duplicate method generation for '{newMethod.Name}' on class '{classModel.Name}'.");
+                    this.logger.LogWarning($"Skipping duplicate method generation for '{newMethod.Name}' on class '{classModel.Name}'.");
                 }
             };
 
@@ -447,20 +448,20 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
             {
                 Name = "GetAll",
                 Type = MethodType.Read,
-                ReturnType = $"IEnumerable<{classModel.Name}>"
+                ReturnType = $"IEnumerable<{classModel.Name}>",
             };
 
             // Add scope key parameter if configured
             addScopeKeyIfNeeded(getAllMethod);
 
             addMethodIfNotDuplicate(getAllMethod);
-            _logger.LogMessage($"Generated GetAll method for view {view.FullName}");
+            this.logger.LogMessage($"Generated GetAll method for view {view.FullName}");
 
             // If read methods are specified in configuration, generate them
             if (viewConfig?.ReadMethods != null && viewConfig.ReadMethods.Any())
             {
-                _logger.LogMessage($"Using configured read methods for view {view.FullName}");
-                GenerateCustomReadMethods(classModel, viewConfig);
+                this.logger.LogMessage($"Using configured read methods for view {view.FullName}");
+                this.GenerateCustomReadMethods(classModel, viewConfig);
             }
         }
 
@@ -473,11 +474,10 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
             // Helper function to check for duplicate methods before adding
             Action<MethodModel> addMethodIfNotDuplicate = (newMethod) =>
             {
-                bool isDuplicate = classModel.Methods.Any(existingMethod =>
-                    existingMethod.Name == newMethod.Name &&
+                bool isDuplicate = classModel.Methods.Any(existingMethod => string.Equals(existingMethod.Name, newMethod.Name, StringComparison.Ordinal) &&
                     existingMethod.Parameters.Count == newMethod.Parameters.Count &&
                     existingMethod.Parameters.Select(p => p.Type)
-                        .SequenceEqual(newMethod.Parameters.Select(p => p.Type)));
+                        .SequenceEqual(newMethod.Parameters.Select(p => p.Type), StringComparer.Ordinal));
 
                 if (!isDuplicate)
                 {
@@ -485,7 +485,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                 }
                 else
                 {
-                    _logger.LogWarning($"Skipping duplicate method generation for '{newMethod.Name}' on class '{classModel.Name}'.");
+                    this.logger.LogWarning($"Skipping duplicate method generation for '{newMethod.Name}' on class '{classModel.Name}'.");
                 }
             };
 
@@ -507,7 +507,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                 // Skip if we couldn't find properties for the index columns
                 if (!indexProperties.Any())
                 {
-                    _logger.LogWarning($"Skipping index-based method for index {index.Name} on {dbObject.FullName}: no matching properties found.");
+                    this.logger.LogWarning($"Skipping index-based method for index {index.Name} on {dbObject.FullName}: no matching properties found.");
                     continue;
                 }
 
@@ -524,7 +524,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                 {
                     Name = methodName,
                     Type = MethodType.Read,
-                    ReturnType = returnType
+                    ReturnType = returnType,
                 };
 
                 foreach (var property in indexProperties)
@@ -533,7 +533,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                     {
                         Name = property.Name.Camelize(),
                         Type = property.Type,
-                        SourcePropertyName = property.Name
+                        SourcePropertyName = property.Name,
                     });
                 }
 
@@ -546,7 +546,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                         Name = classModel.ScopeKeyProperty.Name.Camelize(),
                         Type = classModel.ScopeKeyProperty.Type,
                         SourcePropertyName = classModel.ScopeKeyProperty.Name,
-                        IsScopeKey = true
+                        IsScopeKey = true,
                     });
                 }
 
@@ -568,20 +568,19 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
             // Helper function to check for duplicate methods before adding
             Action<MethodModel> addMethodIfNotDuplicate = (newMethod) =>
             {
-                bool isDuplicate = classModel.Methods.Any(existingMethod =>
-                    existingMethod.Name == newMethod.Name &&
+                bool isDuplicate = classModel.Methods.Any(existingMethod => string.Equals(existingMethod.Name, newMethod.Name, StringComparison.Ordinal) &&
                     existingMethod.Parameters.Count == newMethod.Parameters.Count &&
                     existingMethod.Parameters.Select(p => p.Type)
-                        .SequenceEqual(newMethod.Parameters.Select(p => p.Type)));
+                        .SequenceEqual(newMethod.Parameters.Select(p => p.Type), StringComparer.Ordinal));
 
                 if (!isDuplicate)
                 {
                     classModel.Methods.Add(newMethod);
-                    _logger.LogMessage($"Generated custom read method: {newMethod.Name}");
+                    this.logger.LogMessage($"Generated custom read method: {newMethod.Name}");
                 }
                 else
                 {
-                    _logger.LogWarning($"Skipping duplicate method generation for '{newMethod.Name}' on class '{classModel.Name}'.");
+                    this.logger.LogWarning($"Skipping duplicate method generation for '{newMethod.Name}' on class '{classModel.Name}'.");
                 }
             };
 
@@ -591,7 +590,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                 {
                     Name = readMethodConfig.Name,
                     Type = MethodType.Read,
-                    ReturnType = $"IEnumerable<{classModel.Name}>"
+                    ReturnType = $"IEnumerable<{classModel.Name}>",
                 };
 
                 foreach (var paramColumn in readMethodConfig.MatchColumns)
@@ -605,12 +604,12 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                         {
                             Name = property.Name.Camelize(),
                             Type = property.Type,
-                            SourcePropertyName = property.Name
+                            SourcePropertyName = property.Name,
                         });
                     }
                     else
                     {
-                        _logger.LogWarning($"Could not find property for column '{paramColumn}' in table '{classModel.SourceObjectName}' when creating read method '{readMethodConfig.Name}'.");
+                        this.logger.LogWarning($"Could not find property for column '{paramColumn}' in table '{classModel.SourceObjectName}' when creating read method '{readMethodConfig.Name}'.");
                     }
                 }
 
@@ -631,7 +630,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                             Name = classModel.ScopeKeyProperty.Name.Camelize(),
                             Type = classModel.ScopeKeyProperty.Type,
                             SourcePropertyName = classModel.ScopeKeyProperty.Name,
-                            IsScopeKey = true
+                            IsScopeKey = true,
                         });
                     }
                 }
@@ -646,13 +645,13 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
         /// Resolves the final C# type for a column according to the strict precedence rules:
         /// 1st Priority: Column-specific csharpType override
         /// 2nd Priority: Global type mappings (by priority)
-        /// 3rd Priority: Default convention-based mapping
+        /// 3rd Priority: Default convention-based mapping.
         /// </summary>
         /// <summary>
         /// Resolves the C# type for a database column following the strict precedence rules:
         /// 1. Column-specific override (ultimate override)
         /// 2. Global type mappings (highest priority wins)
-        /// 3. Default convention-based mapping
+        /// 3. Default convention-based mapping.
         /// </summary>
         private (string type, bool overridden) ResolveCSharpType(DatabaseColumn column, string schema, string objectName, out PropertySourceInfo sourceInfo)
         {
@@ -660,7 +659,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
             string qualifiedName = $"{schema}.{objectName}";
 
             // 1st Priority: Column-specific override (ultimate override)
-            if (_configuration.Tables.TryGetValue(qualifiedName, out var tableConfig) &&
+            if (this.configuration.Tables.TryGetValue(qualifiedName, out var tableConfig) &&
                 tableConfig.ColumnOverrides != null)
             {
                 // Try to get column override
@@ -669,28 +668,28 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                 {
                     var details = $"Set to '{columnOverride.CSharpType}' by configuration for '{qualifiedName}.{column.Name}'.";
                     sourceInfo = new PropertySourceInfo("C# Type", "Column Override", details);
-                    _logger.LogMessage($"Applied column-specific C# type override for {qualifiedName}.{column.Name}: {columnOverride.CSharpType}");
+                    this.logger.LogMessage($"Applied column-specific C# type override for {qualifiedName}.{column.Name}: {columnOverride.CSharpType}");
                     return (columnOverride.CSharpType, true);
                 }
             }
 
             // 2nd Priority: Global type mappings (sorted by priority)
-            var matchingGlobalRule = FindMatchingGlobalTypeMapping(column, schema, objectName);
+            var matchingGlobalRule = this.FindMatchingGlobalTypeMapping(column, schema, objectName);
             if (matchingGlobalRule != null && !string.IsNullOrWhiteSpace(matchingGlobalRule.Apply?.CSharpType))
             {
                 var csharpType = matchingGlobalRule.Apply.CSharpType;
                 var details = $"Set to '{csharpType}' by rule with priority {matchingGlobalRule.Priority}. Description: {matchingGlobalRule.Description}";
                 sourceInfo = new PropertySourceInfo("C# Type", "Global Type Mapping", details);
-                _logger.LogMessage($"Applied global type mapping rule (priority {matchingGlobalRule.Priority}) for {qualifiedName}.{column.Name}: {csharpType}");
+                this.logger.LogMessage($"Applied global type mapping rule (priority {matchingGlobalRule.Priority}) for {qualifiedName}.{column.Name}: {csharpType}");
                 return (csharpType, true);
             }
 
             // 3rd Priority: Default convention-based mapping
             var sqlTypeString = column.DatabaseType.ToString();
-            var defaultType = MapSqlTypeToCSharpType(sqlTypeString, column.IsNullable);
+            var defaultType = this.MapSqlTypeToCSharpType(sqlTypeString, column.IsNullable);
             var sourceDetails = $"Mapped from SQL type '{sqlTypeString}' by default convention.";
             sourceInfo = new PropertySourceInfo("C# Type", "Default Convention", sourceDetails);
-            _logger.LogMessage($"Applied default type mapping for {qualifiedName}.{column.Name}: {sqlTypeString} -> {defaultType}");
+            this.logger.LogMessage($"Applied default type mapping for {qualifiedName}.{column.Name}: {sqlTypeString} -> {defaultType}");
             return (defaultType, false);
         }
 
@@ -700,14 +699,14 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
         /// </summary>
         private GlobalTypeMapping FindMatchingGlobalTypeMapping(DatabaseColumn column, string schema, string objectName)
         {
-            if (_configuration.GlobalTypeMappings == null || !_configuration.GlobalTypeMappings.Any())
+            if (this.configuration.GlobalTypeMappings == null || !this.configuration.GlobalTypeMappings.Any())
             {
                 return null;
             }
 
             // Find all matching rules and sort by priority (highest first)
-            var matchingRules = _configuration.GlobalTypeMappings
-                .Where(rule => DoesGlobalRuleMatch(rule, column, schema, objectName))
+            var matchingRules = this.configuration.GlobalTypeMappings
+                .Where(rule => this.DoesGlobalRuleMatch(rule, column, schema, objectName))
                 .OrderByDescending(rule => rule.Priority)
                 .ToList();
 
@@ -722,29 +721,39 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
         private bool DoesGlobalRuleMatch(GlobalTypeMapping rule, DatabaseColumn column, string schema, string objectName)
         {
             if (rule.Match == null)
-                return false;
+        {
+            return false;
+        }
 
-            // Check schema name regex (if specified)
-            if (!string.IsNullOrWhiteSpace(rule.Match.SchemaNameRegex) &&
+        // Check schema name regex (if specified)
+        if (!string.IsNullOrWhiteSpace(rule.Match.SchemaNameRegex) &&
                 !Regex.IsMatch(schema, rule.Match.SchemaNameRegex, RegexOptions.IgnoreCase))
-                return false;
+        {
+            return false;
+        }
 
-            // Check table name regex (if specified)
-            if (!string.IsNullOrWhiteSpace(rule.Match.TableNameRegex) &&
+        // Check table name regex (if specified)
+        if (!string.IsNullOrWhiteSpace(rule.Match.TableNameRegex) &&
                 !Regex.IsMatch(objectName, rule.Match.TableNameRegex, RegexOptions.IgnoreCase))
-                return false;
+        {
+            return false;
+        }
 
-            // Check column name regex (if specified)
-            if (!string.IsNullOrWhiteSpace(rule.Match.ColumnNameRegex) &&
+        // Check column name regex (if specified)
+        if (!string.IsNullOrWhiteSpace(rule.Match.ColumnNameRegex) &&
                 !Regex.IsMatch(column.Name, rule.Match.ColumnNameRegex, RegexOptions.IgnoreCase))
-                return false;
+        {
+            return false;
+        }
 
-            // Check SQL type (if specified)
-            if (rule.Match.SqlType != null && rule.Match.SqlType.Any() &&
-                !DoesSqlTypeMatch(rule.Match.SqlType, column.DatabaseType))
-                return false;
+        // Check SQL type (if specified)
+        if (rule.Match.SqlType != null && rule.Match.SqlType.Any() &&
+                !this.DoesSqlTypeMatch(rule.Match.SqlType, column.DatabaseType))
+        {
+            return false;
+        }
 
-            return true;
+        return true;
         }
 
         /// <summary>
@@ -758,7 +767,8 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
 
             // Check if any of the rule's SQL types match the column type
             return ruleSqlTypes.Any(ruleType =>
-                string.Equals(normalizedColumnType,
+                string.Equals(
+                    normalizedColumnType,
                               ruleType.Split('(')[0].Trim().ToUpperInvariant(),
                               StringComparison.OrdinalIgnoreCase));
         }
@@ -770,10 +780,12 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
         private string MapSqlTypeToCSharpType(string sqlType, bool isNullable)
         {
             if (string.IsNullOrWhiteSpace(sqlType))
-                return "object";
+        {
+            return "object";
+        }
 
-            // Clean up the SQL type (remove size specifications and normalize)
-            var cleanSqlType = sqlType.Split('(')[0].Trim().ToLowerInvariant();
+        // Clean up the SQL type (remove size specifications and normalize)
+        var cleanSqlType = sqlType.Split('(')[0].Trim().ToLowerInvariant();
 
             var csharpType = cleanSqlType switch
             {
@@ -797,7 +809,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
             };
 
             // Apply nullability (reference types don't need ? suffix)
-            if (isNullable && csharpType != "string" && csharpType != "byte[]" && csharpType != "object")
+            if (isNullable && !string.Equals(csharpType, "string", StringComparison.Ordinal) && !string.Equals(csharpType, "byte[]", StringComparison.Ordinal) && !string.Equals(csharpType, "object", StringComparison.Ordinal))
             {
                 csharpType += "?";
             }
@@ -809,19 +821,19 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
         /// Generates a create input model for a table. This model will be used as the parameter
         /// for the Create method. The model contains all settable properties in the table.
         /// </summary>
-        /// <param name="classModel">The class model representing the table</param>
-        /// <param name="dbObject">The database object (table)</param>
-        /// <param name="tableConfig">Optional configuration overrides for the table</param>
-        /// <returns>A CreateInputModel containing all the properties needed for creating a new record</returns>
+        /// <param name="classModel">The class model representing the table.</param>
+        /// <param name="dbObject">The database object (table).</param>
+        /// <param name="tableConfig">Optional configuration overrides for the table.</param>
+        /// <returns>A CreateInputModel containing all the properties needed for creating a new record.</returns>
         private CreateInputModel GenerateCreateInputModel(ClassModel classModel, DatabaseObject dbObject, TableConfiguration? tableConfig)
         {
-            _logger.LogMessage($"Generating Create input model for {dbObject.FullName}");
+            this.logger.LogMessage($"Generating Create input model for {dbObject.FullName}");
 
             var createInput = new CreateInputModel
             {
                 Name = $"Create{classModel.Name}Input",
                 Namespace = classModel.Namespace, // Use the same namespace as the parent entity
-                SourceTable = dbObject.FullName
+                SourceTable = dbObject.FullName,
             };
 
             // Create a set of columns to exclude from the create input
@@ -831,7 +843,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
             if (classModel.ScopeKeyProperty != null)
             {
                 excludedColumns.Add(classModel.ScopeKeyProperty.SourceColumnName);
-                _logger.LogMessage($"  Skipping column {classModel.ScopeKeyProperty.SourceColumnName} for Create input (scope key)");
+                this.logger.LogMessage($"  Skipping column {classModel.ScopeKeyProperty.SourceColumnName} for Create input (scope key)");
             }
 
             // Determine which columns are settable
@@ -845,7 +857,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                 if (column.DatabaseType.Value.Equals("timestamp", StringComparison.OrdinalIgnoreCase) ||
                     column.DatabaseType.Value.Equals("rowversion", StringComparison.OrdinalIgnoreCase))
                 {
-                    _logger.LogMessage($"  Skipping column {column.Name} for Create input (timestamp/rowversion)");
+                    this.logger.LogMessage($"  Skipping column {column.Name} for Create input (timestamp/rowversion)");
                     excludedColumns.Add(column.Name);
                     continue;
                 }
@@ -860,10 +872,10 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                 }
 
                 // Get the matching property from the entity class
-                var entityProperty = classModel.Properties.FirstOrDefault(p => p.SourceColumnName == column.Name);
+                var entityProperty = classModel.Properties.FirstOrDefault(p => string.Equals(p.SourceColumnName, column.Name, StringComparison.Ordinal));
                 if (entityProperty == null)
                 {
-                    _logger.LogMessage($"  Warning: Could not find matching property for column {column.Name} in Create input");
+                    this.logger.LogMessage($"  Warning: Could not find matching property for column {column.Name} in Create input");
                     continue;
                 }
 
@@ -873,16 +885,17 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                     Name = entityProperty.Name,
                     Type = entityProperty.Type,
                     IsNullable = entityProperty.IsNullable,
-                    SourceColumnName = column.Name
+                    SourceColumnName = column.Name,
                 });
             }
 
             return createInput;
         }
+
         /// <summary>
         /// Generates an update input model for a table. This model will be used as a parameter
         /// for the Update method. The model contains properties that can be updated, each wrapped
-        /// in a Maybe<T> type to distinguish between null values and absence of value.
+        /// in a Maybe.<T> type to distinguish between null values and absence of value.
         /// </summary>
         /// <param name="classModel">The class model representing the table</param>
         /// <param name="dbObject">The database object (table)</param>
@@ -890,13 +903,13 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
         /// <returns>An UpdateInputModel containing all the properties that can be updated</returns>
         private UpdateInputModel GenerateUpdateInputModel(ClassModel classModel, DatabaseObject dbObject, TableConfiguration? tableConfig)
         {
-            _logger.LogMessage($"Generating Update input model for {dbObject.FullName}");
+            this.logger.LogMessage($"Generating Update input model for {dbObject.FullName}");
 
             var updateInput = new UpdateInputModel
             {
                 Name = $"Update{classModel.Name}Input",
                 Namespace = classModel.Namespace, // Use the same namespace as the parent entity
-                SourceTable = dbObject.FullName
+                SourceTable = dbObject.FullName,
             };
 
             // Create a set of columns to ignore in the update
@@ -907,7 +920,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
             foreach (var pkColumn in dbObject.PrimaryKeyColumns)
             {
                 ignoredColumns.Add(pkColumn);
-                _logger.LogMessage($"  Ignoring primary key column: {pkColumn}");
+                this.logger.LogMessage($"  Ignoring primary key column: {pkColumn}");
             }
 
             // Also ignore timestamp/rowversion columns as they are system-managed
@@ -917,7 +930,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                     column.DatabaseType.Value.Equals("rowversion", StringComparison.OrdinalIgnoreCase))
                 {
                     ignoredColumns.Add(column.Name);
-                    _logger.LogMessage($"  Ignoring timestamp/rowversion column: {column.Name}");
+                    this.logger.LogMessage($"  Ignoring timestamp/rowversion column: {column.Name}");
                 }
             }
 
@@ -930,10 +943,10 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                     ignoredColumns.Add(columnName);
                 }
 
-                _logger.LogMessage($"  Additional ignored columns from config: {string.Join(", ", tableConfig.UpdateConfig.IgnoreColumns)}");
+                this.logger.LogMessage($"  Additional ignored columns from config: {string.Join(", ", tableConfig.UpdateConfig.IgnoreColumns)}");
             }
 
-            _logger.LogMessage($"  Total ignored columns for update: {string.Join(", ", ignoredColumns)}");
+            this.logger.LogMessage($"  Total ignored columns for update: {string.Join(", ", ignoredColumns)}");
 
             // STEP 3: Create PropertyModels for each updatable column
             // Add all non-ignored columns to the update input model
@@ -945,10 +958,10 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                 }
 
                 // Get the matching property from the entity class
-                var entityProperty = classModel.Properties.FirstOrDefault(p => p.SourceColumnName == column.Name);
+                var entityProperty = classModel.Properties.FirstOrDefault(p => string.Equals(p.SourceColumnName, column.Name, StringComparison.Ordinal));
                 if (entityProperty == null)
                 {
-                    _logger.LogMessage($"  Warning: Could not find matching property for column {column.Name} in Update input");
+                    this.logger.LogMessage($"  Warning: Could not find matching property for column {column.Name} in Update input");
                     continue;
                 }
 
@@ -956,10 +969,11 @@ namespace Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation
                 updateInput.Properties.Add(new PropertyModel
                 {
                     Name = entityProperty.Name,
+
                     // Wrap the type in Maybe<T> to distinguish between null values and absence of value
                     Type = $"Maybe<{entityProperty.Type}>",
                     IsNullable = false, // The Maybe itself is not nullable
-                    SourceColumnName = column.Name
+                    SourceColumnName = column.Name,
                 });
             }
 

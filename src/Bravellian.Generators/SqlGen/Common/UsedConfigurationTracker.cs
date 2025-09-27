@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,24 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-
 namespace Bravellian.Generators.SqlGen.Common.Configuration
 {
+    using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text.Json;
+    using System.Text.Json.Nodes;
+
     /// <summary>
     /// Tracks which parts of the SqlConfiguration are used during the generation process.
     /// This class is thread-safe.
     /// </summary>
     public class UsedConfigurationTracker
     {
-        private readonly ConcurrentDictionary<string, JsonNode?> _usedGlobalMappings = new();
-        private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, JsonNode?>> _usedTableConfigs = new();
-        private readonly JsonNode? _originalConfigNode;
+        private readonly ConcurrentDictionary<string, JsonNode?> usedGlobalMappings = new (StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, JsonNode?>> usedTableConfigs = new (StringComparer.Ordinal);
+        private readonly JsonNode? originalConfigNode;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UsedConfigurationTracker"/> class.
@@ -41,11 +41,11 @@ namespace Bravellian.Generators.SqlGen.Common.Configuration
             {
                 try
                 {
-                    _originalConfigNode = JsonNode.Parse(originalJsonConfig, new JsonNodeOptions { PropertyNameCaseInsensitive = true });
+                    this.originalConfigNode = JsonNode.Parse(originalJsonConfig, new JsonNodeOptions { PropertyNameCaseInsensitive = true });
                 }
                 catch (JsonException)
                 {
-                    _originalConfigNode = null;
+                    this.originalConfigNode = null;
                 }
             }
         }
@@ -56,19 +56,20 @@ namespace Bravellian.Generators.SqlGen.Common.Configuration
         /// <param name="rule">The global type mapping rule that was used.</param>
         public void MarkGlobalMappingUsed(GlobalTypeMapping rule)
         {
-            if (_originalConfigNode?["globalTypeMappings"] is not JsonArray globalMappings) return;
+            if (this.originalConfigNode?["globalTypeMappings"] is not JsonArray globalMappings)
+            {
+                return;
+            }
 
-            var ruleNode = globalMappings.FirstOrDefault(node =>
-                node?["apply"]?["csharpType"]?.GetValue<string>() == rule.Apply.CSharpType &&
-                node?["match"]?["sqlType"]?.ToString() == rule.Match.SqlType?.ToString() &&
-                (node?["match"]?["columnNameRegex"]?.GetValue<string>() ?? "") == (rule.Match.ColumnNameRegex ?? "") &&
-                (node?["match"]?["tableNameRegex"]?.GetValue<string>() ?? "") == (rule.Match.TableNameRegex ?? "") &&
-                (node?["match"]?["schemaNameRegex"]?.GetValue<string>() ?? "") == (rule.Match.SchemaNameRegex ?? "")
-            );
+            var ruleNode = globalMappings.FirstOrDefault(node => string.Equals(node?["apply"]?["csharpType"]?.GetValue<string>(), rule.Apply.CSharpType, StringComparison.Ordinal) &&
+string.Equals(node?["match"]?["sqlType"]?.ToString(), rule.Match.SqlType?.ToString(), StringComparison.Ordinal) &&
+string.Equals(node?["match"]?["columnNameRegex"]?.GetValue<string>() ?? string.Empty, rule.Match.ColumnNameRegex ?? string.Empty, StringComparison.Ordinal) &&
+string.Equals(node?["match"]?["tableNameRegex"]?.GetValue<string>() ?? string.Empty, rule.Match.TableNameRegex ?? string.Empty, StringComparison.Ordinal) &&
+string.Equals(node?["match"]?["schemaNameRegex"]?.GetValue<string>() ?? string.Empty, rule.Match.SchemaNameRegex ?? string.Empty, StringComparison.Ordinal));
 
             if (ruleNode != null)
             {
-                _usedGlobalMappings.TryAdd(ruleNode.ToJsonString(), ruleNode.DeepClone());
+                this.usedGlobalMappings.TryAdd(ruleNode.ToJsonString(), ruleNode.DeepClone());
             }
         }
 
@@ -79,9 +80,12 @@ namespace Bravellian.Generators.SqlGen.Common.Configuration
         /// <param name="property">The name of the property that was used (e.g., "csharpClassName").</param>
         public void MarkTablePropertyUsed(string tableKey, string property)
         {
-            if (_originalConfigNode?["tables"]?[tableKey]?[property] is not JsonNode propertyNode) return;
+            if (this.originalConfigNode?["tables"]?[tableKey]?[property] is not JsonNode propertyNode)
+            {
+                return;
+            }
 
-            var tableDict = _usedTableConfigs.GetOrAdd(tableKey, _ => new ConcurrentDictionary<string, JsonNode?>());
+            var tableDict = this.usedTableConfigs.GetOrAdd(tableKey, _ => new ConcurrentDictionary<string, JsonNode?>(StringComparer.Ordinal));
             tableDict.TryAdd(property, propertyNode.DeepClone());
         }
 
@@ -93,9 +97,12 @@ namespace Bravellian.Generators.SqlGen.Common.Configuration
         /// <param name="property">The name of the property used (e.g., "sqlType").</param>
         public void MarkColumnOverrideUsed(string tableKey, string columnName, string property)
         {
-            if (_originalConfigNode?["tables"]?[tableKey]?["columnOverrides"]?[columnName]?[property] is not JsonNode propertyNode) return;
+            if (this.originalConfigNode?["tables"]?[tableKey]?["columnOverrides"]?[columnName]?[property] is not JsonNode propertyNode)
+            {
+                return;
+            }
 
-            var tableDict = _usedTableConfigs.GetOrAdd(tableKey, _ => new ConcurrentDictionary<string, JsonNode?>());
+            var tableDict = this.usedTableConfigs.GetOrAdd(tableKey, _ => new ConcurrentDictionary<string, JsonNode?>(StringComparer.Ordinal));
             var columnOverrides = tableDict.GetOrAdd("columnOverrides", _ => new JsonObject()) as JsonObject;
 
             if (columnOverrides != null)
@@ -104,7 +111,8 @@ namespace Bravellian.Generators.SqlGen.Common.Configuration
                 {
                     columnOverrides[columnName] = new JsonObject();
                 }
-                (columnOverrides[columnName] as JsonObject)![property] = propertyNode.DeepClone();
+
+                (columnOverrides[columnName] as JsonObject) ![property] = propertyNode.DeepClone();
             }
         }
 
@@ -114,30 +122,32 @@ namespace Bravellian.Generators.SqlGen.Common.Configuration
         /// <returns>A JSON string of the used configuration, or null if no configuration was used.</returns>
         public string? GetUsedConfigurationAsJson()
         {
-            if (_usedGlobalMappings.IsEmpty && _usedTableConfigs.IsEmpty)
+            if (this.usedGlobalMappings.IsEmpty && this.usedTableConfigs.IsEmpty)
             {
                 return null;
             }
 
             var root = new JsonObject();
 
-            if (!_usedGlobalMappings.IsEmpty)
+            if (!this.usedGlobalMappings.IsEmpty)
             {
-                root["globalTypeMappings"] = new JsonArray(_usedGlobalMappings.Values.ToArray());
+                root["globalTypeMappings"] = new JsonArray(this.usedGlobalMappings.Values.ToArray());
             }
 
-            if (!_usedTableConfigs.IsEmpty)
+            if (!this.usedTableConfigs.IsEmpty)
             {
                 var tablesNode = new JsonObject();
-                foreach (var tableEntry in _usedTableConfigs.OrderBy(kv => kv.Key))
+                foreach (var tableEntry in this.usedTableConfigs.OrderBy(kv => kv.Key, StringComparer.Ordinal))
                 {
                     var tableNode = new JsonObject();
-                    foreach (var propEntry in tableEntry.Value.OrderBy(kv => kv.Key))
+                    foreach (var propEntry in tableEntry.Value.OrderBy(kv => kv.Key, StringComparer.Ordinal))
                     {
                         tableNode[propEntry.Key] = propEntry.Value;
                     }
+
                     tablesNode[tableEntry.Key] = tableNode;
                 }
+
                 root["tables"] = tablesNode;
             }
 

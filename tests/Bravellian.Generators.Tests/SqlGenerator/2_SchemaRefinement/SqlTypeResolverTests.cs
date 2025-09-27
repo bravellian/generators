@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement;
-using Bravellian.Generators.SqlGen.Pipeline._1_Ingestion.Model;
-using Bravellian.Generators.SqlGen.Common.Configuration;
-using Xunit;
 using System.Collections.Generic;
-using Microsoft.SqlServer.TransactSql.ScriptDom;
+using Bravellian.Generators.SqlGen.Common.Configuration;
+using Bravellian.Generators.SqlGen.Pipeline._1_Ingestion.Model;
+using Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement;
 using Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement.Model;
+using Microsoft.SqlServer.TransactSql.ScriptDom;
+using Xunit;
 
 namespace Bravellian.Generators.Tests.SqlGenerator._2_SchemaRefinement;
 
 public class SqlTypeResolverTests
 {
-    private readonly TestLogger _logger = new();
+    private readonly TestLogger logger = new ();
 
     private RawDatabaseSchema CreateBasicRawSchema()
     {
@@ -32,7 +32,7 @@ public class SqlTypeResolverTests
         {
             SchemaObjectName = new SchemaObjectName
             {
-                Identifiers = { new Identifier { Value = "dbo" }, new Identifier { Value = "MyTable" } }
+                Identifiers = { new Identifier { Value = "dbo" }, new Identifier { Value = "MyTable" } },
             },
             Definition = new TableDefinition
             {
@@ -44,18 +44,18 @@ public class SqlTypeResolverTests
                         DataType = new SqlDataTypeReference { SqlDataTypeOption = SqlDataTypeOption.Int }
                     }
                 }
-            }
+            },
         };
         return new RawDatabaseSchema { TableStatements = { createTable } };
     }
 
     private static DatabaseObject? FindObjectByName(DatabaseSchema schema, string schemaName, string objectName)
     {
-        return schema.Objects.Find(t => t.Schema == schemaName && t.Name == objectName);
+        return schema.Objects.Find(t => string.Equals(t.Schema, schemaName, StringComparison.Ordinal) && string.Equals(t.Name, objectName, StringComparison.Ordinal));
     }
 
     private static DatabaseColumn? FindColumnByName(DatabaseObject obj, string columnName)
     {
-        return obj.Columns.Find(c => c.Name == columnName);
+        return obj.Columns.Find(c => string.Equals(c.Name, columnName, StringComparison.Ordinal));
     }
 }

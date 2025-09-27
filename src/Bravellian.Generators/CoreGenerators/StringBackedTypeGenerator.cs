@@ -1,4 +1,4 @@
-﻿// Copyright (c) Samuel McAravey
+﻿// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,14 +19,13 @@ using System.Xml.Linq;
 
 namespace Bravellian.Generators;
 
-
 public static class StringBackedTypeGenerator
 {
     public static GeneratorParams? GetParams(XElement xml, IBvLogger? logger)
     {
         IReadOnlyDictionary<string, string> attributes = xml.GetAttributeDict();
         var additionalProperties = xml.Elements("Property").Select(e => e.GetAttributeDict()).Select(a => (a["type"].ToString(), a["name"].ToString())).ToList();
-        return new(attributes.TryGetValue("name")!, attributes.TryGetValue("namespace")!, true, attributes.TryGetValue("regex"), attributes.TryGetValue("regex-const"), additionalProperties);
+        return new (attributes.TryGetValue("name") !, attributes.TryGetValue("namespace") !, true, attributes.TryGetValue("regex"), attributes.TryGetValue("regex-const"), additionalProperties);
     }
 
     public static string? Generate(GeneratorParams? structToGenerate, IBvLogger? logger)

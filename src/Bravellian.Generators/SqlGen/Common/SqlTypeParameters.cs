@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,31 +20,31 @@ namespace Bravellian.Generators.SqlGen.Common;
 public class SqlTypeParameters
 {
     /// <summary>
-    /// Gets or sets the precision for decimal types.
+    /// Gets the precision for decimal types.
     /// </summary>
     public int? Precision { get; }
 
     /// <summary>
-    /// Gets or sets the scale for decimal types.
+    /// Gets the scale for decimal types.
     /// </summary>
     public int? Scale { get; }
 
     /// <summary>
-    /// Gets or sets the maximum length for string types.
+    /// Gets the maximum length for string types.
     /// </summary>
     public int? MaxLength { get; }
 
     /// <summary>
-    /// Gets or sets whether this is a MAX type (for strings and binary).
+    /// Gets a value indicating whether gets or sets whether this is a MAX type (for strings and binary).
     /// </summary>
     public bool IsMax { get; }
 
     private SqlTypeParameters(int? precision = null, int? scale = null, int? maxLength = null, bool isMax = false)
     {
-        Precision = precision;
-        Scale = scale;
-        MaxLength = maxLength;
-        IsMax = isMax;
+        this.Precision = precision;
+        this.Scale = scale;
+        this.MaxLength = maxLength;
+        this.IsMax = isMax;
     }
 
     /// <summary>
@@ -103,19 +103,21 @@ public class SqlTypeParameters
     /// <returns>The string representation.</returns>
     public override string ToString()
     {
-        if (Precision.HasValue && Scale.HasValue)
+        if (this.Precision.HasValue && this.Scale.HasValue)
         {
-            return $"({Precision},{Scale})";
+            return $"({this.Precision},{this.Scale})";
         }
-        if (MaxLength.HasValue)
+
+        if (this.MaxLength.HasValue)
         {
-            return $"({MaxLength})";
+            return $"({this.MaxLength})";
         }
-        if (IsMax)
+
+        if (this.IsMax)
         {
             return "(MAX)";
         }
+
         return string.Empty;
     }
 }
-

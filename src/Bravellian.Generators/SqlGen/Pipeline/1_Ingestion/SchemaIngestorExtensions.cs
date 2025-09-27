@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,8 @@ namespace Bravellian.Generators.SqlGen.Pipeline._1_Ingestion;
 
 public static class SchemaIngestorExtensions
 {
-    public static RawDatabaseSchema IngestSchemaFromFiles(this ISchemaIngestor ingestor,
+    public static RawDatabaseSchema IngestSchemaFromFiles(
+        this ISchemaIngestor ingestor,
         IEnumerable<string> sqlFilePaths,
         string? databaseName = null)
     {
@@ -31,6 +32,7 @@ public static class SchemaIngestorExtensions
             {
                 throw new FileNotFoundException($"SQL file not found: {filePath}");
             }
+
             sqlScriptText.Add(System.IO.File.ReadAllText(filePath));
         }
 

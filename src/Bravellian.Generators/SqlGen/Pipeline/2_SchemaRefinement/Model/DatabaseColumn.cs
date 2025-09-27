@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,11 +60,11 @@ public class DatabaseColumn
     /// Gets the original SQL type of the column.
     /// </summary>
     public PwSqlType? OriginalSqlType { get; }
-    
+
     /// <summary>
     /// Gets the names of indexes this column participates in.
     /// </summary>
-    public HashSet<string> IndexNames { get; } = [];
+    public HashSet<string> IndexNames { get; } =[];
 
     /// <summary>
     /// Gets the schema name.
@@ -82,12 +82,12 @@ public class DatabaseColumn
     public string? DatabaseName { get; }
 
     /// <summary>
-    /// Gets or sets whether the column type could not be definitively determined.
+    /// Gets or sets a value indicating whether gets or sets whether the column type could not be definitively determined.
     /// </summary>
     public bool IsIndeterminate { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the column type was overridden by a comment.
+    /// Gets or sets a value indicating whether gets or sets whether the column type was overridden by a comment.
     /// </summary>
     public bool IsTypeOverridden { get; set; }
 
@@ -96,13 +96,13 @@ public class DatabaseColumn
     /// </summary>
     public object? SourceInfo { get; set; }
 
-
     /// <summary>
     /// Gets or sets the overridden property name from a comment.
     /// </summary>
     public string? PropertyNameOverride { get; set; }
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="DatabaseColumn"/> class.
     /// Creates a new database column.
     /// </summary>
     /// <param name="name">The column name.</param>
@@ -209,6 +209,7 @@ public class DatabaseColumn
                     {
                         typeParams = SqlTypeParameters.ForDecimal(precision, scale);
                     }
+
                     break;
 
                 case SqlCoreType.Char:
@@ -228,6 +229,7 @@ public class DatabaseColumn
                             typeParams = SqlTypeParameters.ForFixedLengthString(maxLength);
                         }
                     }
+
                     break;
             }
         }
@@ -247,6 +249,7 @@ public class DatabaseColumn
                 {
                     return SqlTypeParameters.ForDecimal(precision, scale);
                 }
+
                 break;
 
             case SqlCoreType.Char:
@@ -261,14 +264,16 @@ public class DatabaseColumn
                     {
                         return SqlTypeParameters.ForMaxLengthString();
                     }
+
                     if (int.TryParse(parameters[0], out int maxLength))
                     {
                         return SqlTypeParameters.ForFixedLengthString(maxLength);
                     }
                 }
+
                 break;
         }
+
         return null;
     }
 }
-

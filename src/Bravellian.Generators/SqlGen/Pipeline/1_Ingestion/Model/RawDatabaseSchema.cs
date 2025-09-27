@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
-using Microsoft.SqlServer.TransactSql.ScriptDom;
-
-namespace Bravellian.Generators.SqlGen.Pipeline._1_Ingestion.Model
+namespace Bravellian.Generators.SqlGen.Pipeline.1_Ingestion.Model
 {
+    using System.Collections.Generic;
+    using Microsoft.SqlServer.TransactSql.ScriptDom;
+
     /// <summary>
-    /// Represents the raw database schema model after ingestion
+    /// Represents the raw database schema model after ingestion.
     /// </summary>
     public class RawDatabaseSchema
     {
         /// <summary>
-        /// Gets the database name.
+        /// Gets or sets the database name.
         /// </summary>
-        public string DatabaseName { get; set; }
+        public required string DatabaseName { get; set; }
 
         /// <summary>
         /// Gets or sets the table CREATE statements from the SQL files.
@@ -66,7 +66,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._1_Ingestion.Model
         /// <summary>
         /// Gets or sets the table name.
         /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the columns in the table.
@@ -97,7 +97,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._1_Ingestion.Model
         /// <summary>
         /// Gets or sets the view name.
         /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the columns in the view.
@@ -113,12 +113,12 @@ namespace Bravellian.Generators.SqlGen.Pipeline._1_Ingestion.Model
         /// <summary>
         /// Gets or sets the column name.
         /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the SQL data type.
         /// </summary>
-        public string SqlType { get; set; }
+        public required string SqlType { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the column is nullable.
@@ -128,28 +128,28 @@ namespace Bravellian.Generators.SqlGen.Pipeline._1_Ingestion.Model
         /// <summary>
         /// Gets or sets the C# type that this SQL type maps to.
         /// </summary>
-        public string CSharpType { get; set; }
-        
+        public required string CSharpType { get; set; }
+
         /// <summary>
         /// Gets or sets a value indicating whether the column is part of a primary key.
         /// </summary>
         public bool IsPrimaryKey { get; set; }
-        
+
         /// <summary>
-        /// Gets the precision for numeric data types.
+        /// Gets or sets the precision for numeric data types.
         /// </summary>
         public int? Precision { get; set; }
-        
+
         /// <summary>
-        /// Gets the scale for numeric data types.
+        /// Gets or sets the scale for numeric data types.
         /// </summary>
         public int? Scale { get; set; }
-        
+
         /// <summary>
-        /// Gets the maximum length for string data types.
+        /// Gets or sets the maximum length for string data types.
         /// </summary>
         public int? MaxLength { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the indexes this column participates in.
         /// </summary>
@@ -164,7 +164,7 @@ namespace Bravellian.Generators.SqlGen.Pipeline._1_Ingestion.Model
         /// <summary>
         /// Gets or sets the index name.
         /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the columns in the index.

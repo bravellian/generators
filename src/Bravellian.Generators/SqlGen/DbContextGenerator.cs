@@ -1,5 +1,16 @@
-// CONFIDENTIAL - Copyright (c) Bravellian LLC. All rights reserved.
-// See NOTICE.md for full restrictions and usage terms.
+// Copyright (c) Bravellian
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #nullable enable
 
@@ -22,6 +33,7 @@ public class DbContextGenerator
     private readonly IBvLogger logger;
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="DbContextGenerator"/> class.
     /// Creates a new instance of the DbContextGenerator.
     /// </summary>
     /// <param name="config">The SQL generation configuration.</param>
@@ -40,16 +52,16 @@ public class DbContextGenerator
     /// <returns>The generated DbContext source code.</returns>
     public string GenerateDbContext(IEnumerable<ClassModel> tables, string dbContextName)
     {
-        if (!config.GenerateDbContext)
+        if (!this.config.GenerateDbContext)
         {
-            logger.LogMessage($"Skipping DbContext generation because GenerateDbContext is false.");
+            this.logger.LogMessage($"Skipping DbContext generation because GenerateDbContext is false.");
             return string.Empty;
         }
 
-        logger.LogMessage($"Generating DbContext '{dbContextName}'...");
-        
+        this.logger.LogMessage($"Generating DbContext '{dbContextName}'...");
+
         var sb = new StringBuilder();
-        
+
         // Add file header
         sb.AppendLine("// CONFIDENTIAL - Copyright (c) Bravellian LLC. All rights reserved.");
         sb.AppendLine("// See NOTICE.md for full restrictions and usage terms.");
@@ -59,37 +71,37 @@ public class DbContextGenerator
         sb.AppendLine("// Changes to this file may cause incorrect behavior and will be lost if the code is regenerated.");
         sb.AppendLine("// </auto-generated>");
         sb.AppendLine();
-        
+
         // Add namespace declaration
-        sb.AppendLine($"namespace {config.Namespace};");
+        sb.AppendLine($"namespace {this.config.Namespace};");
         sb.AppendLine();
-        
+
         // Add using statements
         sb.AppendLine("using Microsoft.EntityFrameworkCore;");
         sb.AppendLine();
-        
+
         // Start class definition
-        sb.AppendLine($"public partial class {dbContextName} : {config.DbContextBaseClass}<{dbContextName}>");
+        sb.AppendLine($"public partial class {dbContextName} : {this.config.DbContextBaseClass}<{dbContextName}>");
         sb.AppendLine("{");
-        
+
         // Constructor
         sb.AppendLine($"    public {dbContextName}(DbContextOptions options)");
         sb.AppendLine($"        : base(options)");
         sb.AppendLine("    {");
         sb.AppendLine("    }");
         sb.AppendLine();
-        
+
         // Find entity names that are duplicated across different schemas.
         var duplicateEntityNames = tables
-            .GroupBy(t => t.Name)
+            .GroupBy(t => t.Name, StringComparer.Ordinal)
             .Where(g => g.Count() > 1)
             .Select(g => g.Key)
-            .ToHashSet();
-        
+            .ToHashSet(StringComparer.Ordinal);
+
         // DbSet properties
-        foreach (var table in tables.OrderBy(t => t.Name).ThenBy(t => t.SourceSchemaName))
+        foreach (var table in tables.OrderBy(t => t.Name, StringComparer.Ordinal).ThenBy(t => t.SourceSchemaName, StringComparer.Ordinal))
         {
-            var entityName = GetEntityName(table);
+            var entityName = this.GetEntityName(table);
             var propertyName = entityName;
 
             // If the entity name is used by more than one table, prefix the property name
@@ -101,16 +113,15 @@ public class DbContextGenerator
 
             sb.AppendLine($"    public virtual DbSet<{table.SourceSchemaName.Pascalize()}.{entityName}> {propertyName} {{ get; set; }} = null!;");
         }
-        
+
         sb.AppendLine("}");
-        
+
         return sb.ToString();
     }
-    
+
     private string GetEntityName(ClassModel table)
     {
         // This should match the naming logic used in the entity generator
         return table.Name;
     }
 }
-

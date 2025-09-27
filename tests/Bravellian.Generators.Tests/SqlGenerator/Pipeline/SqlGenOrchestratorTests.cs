@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Linq;
+using System.Text.Json;
+using Bravellian.Generators.SqlGen.Common.Configuration;
 using Bravellian.Generators.SqlGen.Pipeline;
 using Bravellian.Generators.SqlGen.Pipeline._1_Ingestion;
 using Bravellian.Generators.SqlGen.Pipeline._2_SchemaRefinement;
 using Bravellian.Generators.SqlGen.Pipeline._3_CSharpTransformation;
 using Bravellian.Generators.SqlGen.Pipeline._4_CodeGeneration;
-using Bravellian.Generators.SqlGen.Common.Configuration;
 using Xunit;
-using System.Linq;
-using System.Text.Json;
 
 namespace Bravellian.Generators.Tests.SqlGenerator.Pipeline;
 
 public class SqlGenOrchestratorTests
 {
-    private readonly TestLogger _logger = new();
-    
+    private readonly TestLogger logger = new ();
+
     [Fact]
     public void Generate_WithPhase1To4_ShouldProduceCorrectOutput()
     {
@@ -47,7 +47,7 @@ public class SqlGenOrchestratorTests
             GROUP BY CustomerId;
             GO
             """;
-            
+
         var config = new SqlConfiguration
         {
             Namespace = "MyCompany.Data.Entities",
@@ -58,30 +58,32 @@ public class SqlGenOrchestratorTests
                 new GlobalTypeMapping
                 {
                     Description = "Custom DECIMAL mapping",
-                    Match = new GlobalTypeMappingMatch 
-                    { 
-                        SqlType = new List<string> { "decimal" } 
+                    Match = new GlobalTypeMappingMatch
+                    {
+                        SqlType = new List<string> { "decimal" }
                     },
                     Apply = new GlobalTypeMappingApply { CSharpType = "decimal?" }
-                }
+                },
             },
             Tables = new Dictionary<string, TableConfiguration>
+(StringComparer.Ordinal)
             {
                 ["dbo.Orders"] = new TableConfiguration
                 {
                     CSharpClassName = "Order", // Override default name
                     ColumnOverrides = new Dictionary<string, ColumnOverride>
+(StringComparer.Ordinal)
                     {
                         ["TotalAmount"] = new ColumnOverride
                         {
                             CSharpType = "double" // Override type mapping
                         }
                     },
-                    ReadMethods = new List<ReadMethod> 
-                    { 
+                    ReadMethods = new List<ReadMethod>
+                    {
                         new ReadMethod
-                        { 
-                            Name = "GetByCustomerId", 
+                        {
+                            Name = "GetByCustomerId",
                             MatchColumns = new List<string> { "CustomerId" }
                         }
                     },
@@ -93,6 +95,7 @@ public class SqlGenOrchestratorTests
                 ["dbo.vwTopCustomers"] = new TableConfiguration
                 {
                     ColumnOverrides = new Dictionary<string, ColumnOverride>
+(StringComparer.Ordinal)
                     {
                         ["CustomerId"] = new ColumnOverride
                         {
@@ -106,16 +109,16 @@ public class SqlGenOrchestratorTests
                         },
                     },
                 },
-            }
+            },
         };
-            
+
         var orchestrator = new SqlGenOrchestrator(
-            new SqlSchemaIngestor(_logger),
-            new SchemaRefiner(_logger, config),
-            new CSharpModelTransformer(_logger, config, null),
-            new CSharpCodeGenerator(config, _logger),
+            new SqlSchemaIngestor(this.logger),
+            new SchemaRefiner(this.logger, config),
+            new CSharpModelTransformer(this.logger, config, null),
+            new CSharpCodeGenerator(config, this.logger),
             config,
-            _logger);
+            this.logger);
 
         // Act
         var generatedCode = orchestrator.Generate(new[] { sql });
@@ -123,41 +126,42 @@ public class SqlGenOrchestratorTests
         // Assert - check main class was generated
         Assert.NotNull(generatedCode);
         Assert.True(generatedCode.Any());
-            
+
         // Verify Order class (with renamed table)
         var orderClass = generatedCode["Order.cs"];
         Assert.NotNull(orderClass);
         Assert.NotNull(orderClass);
-        Assert.Contains("namespace MyCompany.Data.Entities", orderClass);
-        Assert.Contains("public class Order", orderClass);
-        Assert.Contains("public int OrderId { get; set; }", orderClass);
-        Assert.Contains("public double TotalAmount { get; set; }", orderClass); // Renamed and type overridden
-        
+        Assert.Contains("namespace MyCompany.Data.Entities", orderClass, StringComparison.Ordinal);
+        Assert.Contains("public class Order", orderClass, StringComparison.Ordinal);
+        Assert.Contains("public int OrderId { get; set; }", orderClass, StringComparison.Ordinal);
+        Assert.Contains("public double TotalAmount { get; set; }", orderClass, StringComparison.Ordinal); // Renamed and type overridden
+
         // Repository methods should be in a separate file
         var orderRepository = generatedCode["OrderRepository.cs"];
         Assert.NotNull(orderRepository);
         Assert.NotNull(orderRepository);
-        Assert.Contains("public static IEnumerable<Order> GetByCustomerId(this DbContext context, int customerId)", orderRepository); // Custom read method
-        Assert.Contains("public static void Update(this DbContext context, Order order)", orderRepository);
+        Assert.Contains("public static IEnumerable<Order> GetByCustomerId(this DbContext context, int customerId)", orderRepository, StringComparison.Ordinal); // Custom read method
+        Assert.Contains("public static void Update(this DbContext context, Order order)", orderRepository, StringComparison.Ordinal);
+
         // OrderDate should be excluded from Update in repository implementation
         // Since we now use EF Core patterns, we don't check direct SQL statements
-            
+
         // Verify View class
         var viewClass = generatedCode["vwTopCustomers.cs"];
         Assert.NotNull(viewClass);
         Assert.NotNull(viewClass);
-        Assert.Contains("public class vwTopCustomers", viewClass);
-        Assert.Contains("public int CustomerId { get; set; }", viewClass);
-        Assert.Contains("public decimal? TotalSpent { get; set; }", viewClass); // Should use global type mapping
-        
+        Assert.Contains("public class vwTopCustomers", viewClass, StringComparison.Ordinal);
+        Assert.Contains("public int CustomerId { get; set; }", viewClass, StringComparison.Ordinal);
+        Assert.Contains("public decimal? TotalSpent { get; set; }", viewClass, StringComparison.Ordinal); // Should use global type mapping
+
         // View repository shouldn't include update methods
         var viewRepository = generatedCode["vwTopCustomersRepository.cs"];
         if (viewRepository != null) // Repository might not exist if there are no methods
         {
-            Assert.DoesNotContain("public static int Update(", viewRepository); // View should be read-only
+            Assert.DoesNotContain("public static int Update(", viewRepository, StringComparison.Ordinal); // View should be read-only
         }
     }
-    
+
     [Fact]
     public void Generate_WithIndexes_ShouldCreateIndexedAccessMethods()
     {
@@ -176,11 +180,12 @@ public class SqlGenOrchestratorTests
             CREATE INDEX IX_Products_Name ON dbo.Products(Name);
             GO
             """;
-            
+
         var config = new SqlConfiguration
         {
             Namespace = "MyCompany.Data.Entities",
             Tables = new Dictionary<string, TableConfiguration>
+(StringComparer.Ordinal)
             {
                 ["dbo.Products"] = new TableConfiguration
                 {
@@ -190,32 +195,30 @@ public class SqlGenOrchestratorTests
                         new ReadMethod { Name = "GetByName", MatchColumns = new List<string> { "Name" } }
                     }
                 }
-            }
+            },
         };
-            
+
         var orchestrator = new SqlGenOrchestrator(
-            new SqlSchemaIngestor(_logger),
-            new SchemaRefiner(_logger, config),
-            new CSharpModelTransformer(_logger, config, null),
-            new CSharpCodeGenerator(config, _logger),
+            new SqlSchemaIngestor(this.logger),
+            new SchemaRefiner(this.logger, config),
+            new CSharpModelTransformer(this.logger, config, null),
+            new CSharpCodeGenerator(config, this.logger),
             config,
-            _logger);
+            this.logger);
 
         // Act
         var generatedCode = orchestrator.Generate(new[] { sql });
 
         // Assert - Check indexed access methods
-        var productClass = generatedCode.FirstOrDefault(c => c.Key.EndsWith("Products.cs"));
-        Assert.NotNull(productClass);
+        var productClass = generatedCode.FirstOrDefault(c => c.Key.EndsWith("Products.cs", StringComparison.Ordinal));
         Assert.NotNull(productClass.Value);
-        
+
         // Repository methods should be in a separate file
-        var productRepository = generatedCode.FirstOrDefault(c => c.Key.EndsWith("ProductsRepository.cs"));
-        Assert.NotNull(productRepository);
+        var productRepository = generatedCode.FirstOrDefault(c => c.Key.EndsWith("ProductsRepository.cs", StringComparison.Ordinal));
         Assert.NotNull(productRepository.Value);
-        
+
         // Verify read methods were created based on indexes and configuration
-        Assert.Contains("public static IEnumerable<Products> GetBySku(this DbContext context, string sku)", productRepository.Value); // Unique index = single result
-        Assert.Contains("public static IEnumerable<Products> GetByName(this DbContext context, string name)", productRepository.Value); // Non-unique index = array result
+        Assert.Contains("public static IEnumerable<Products> GetBySku(this DbContext context, string sku)", productRepository.Value, StringComparison.Ordinal); // Unique index = single result
+        Assert.Contains("public static IEnumerable<Products> GetByName(this DbContext context, string name)", productRepository.Value, StringComparison.Ordinal); // Non-unique index = array result
     }
 }

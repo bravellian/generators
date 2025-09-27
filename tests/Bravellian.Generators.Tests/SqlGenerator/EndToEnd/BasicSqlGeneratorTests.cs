@@ -1,4 +1,4 @@
-// Copyright (c) Samuel McAravey
+// Copyright (c) Bravellian
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -65,15 +65,17 @@ public class BasicSqlGeneratorTests
 
             // Assert
             Assert.Equal(sqlContent, readContent);
-            Assert.Contains("CREATE TABLE", readContent);
-            Assert.Contains("Users", readContent);
-            Assert.Contains("Id", readContent);
-            Assert.Contains("Name", readContent);
+            Assert.Contains("CREATE TABLE", readContent, StringComparison.Ordinal);
+            Assert.Contains("Users", readContent, StringComparison.Ordinal);
+            Assert.Contains("Id", readContent, StringComparison.Ordinal);
+            Assert.Contains("Name", readContent, StringComparison.Ordinal);
         }
         finally
         {
             if (File.Exists(tempFile))
+            {
                 File.Delete(tempFile);
+            }
         }
     }
 
@@ -95,8 +97,8 @@ public class BasicSqlGeneratorTests
         // Assert
         Assert.NotNull(config);
         Assert.Equal("MyApp.Data.Entities", config["namespace"].ToString());
-        Assert.True(bool.Parse(config["generateNavigationProperties"].ToString()!));
-        Assert.True(bool.Parse(config["generateDbContext"].ToString()!));
+        Assert.True(bool.Parse(config["generateNavigationProperties"].ToString() !));
+        Assert.True(bool.Parse(config["generateDbContext"].ToString() !));
     }
 
     [Fact]
@@ -124,16 +126,16 @@ public class BasicSqlGeneratorTests
             """;
 
         // Act & Assert
-        Assert.Contains("CREATE TABLE", sql);
-        Assert.Contains("[dbo].[Users]", sql);
-        Assert.Contains("[dbo].[Orders]", sql);
-        Assert.Contains("IDENTITY(1,1)", sql);
-        Assert.Contains("PRIMARY KEY", sql);
-        Assert.Contains("FOREIGN KEY", sql);
-        Assert.Contains("CREATE INDEX", sql);
-        Assert.Contains("decimal(18,2)", sql);
-        Assert.Contains("datetime2", sql);
-        Assert.Contains("nvarchar(255)", sql);
+        Assert.Contains("CREATE TABLE", sql, StringComparison.Ordinal);
+        Assert.Contains("[dbo].[Users]", sql, StringComparison.Ordinal);
+        Assert.Contains("[dbo].[Orders]", sql, StringComparison.Ordinal);
+        Assert.Contains("IDENTITY(1,1)", sql, StringComparison.Ordinal);
+        Assert.Contains("PRIMARY KEY", sql, StringComparison.Ordinal);
+        Assert.Contains("FOREIGN KEY", sql, StringComparison.Ordinal);
+        Assert.Contains("CREATE INDEX", sql, StringComparison.Ordinal);
+        Assert.Contains("decimal(18,2)", sql, StringComparison.Ordinal);
+        Assert.Contains("datetime2", sql, StringComparison.Ordinal);
+        Assert.Contains("nvarchar(255)", sql, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -141,6 +143,7 @@ public class BasicSqlGeneratorTests
     {
         // Arrange
         var typeMappings = new Dictionary<string, string>
+(StringComparer.Ordinal)
         {
             { "int", "int" },
             { "nvarchar", "string" },
@@ -153,7 +156,7 @@ public class BasicSqlGeneratorTests
             { "smallint", "short" },
             { "tinyint", "byte" },
             { "float", "double" },
-            { "real", "float" }
+            { "real", "float" },
         };
 
         // Act & Assert
@@ -161,7 +164,7 @@ public class BasicSqlGeneratorTests
         {
             var sqlType = mapping.Key;
             var expectedCSharpType = mapping.Value;
-            
+
             Assert.NotNull(sqlType);
             Assert.NotNull(expectedCSharpType);
             Assert.True(expectedCSharpType.Length > 0);
@@ -179,16 +182,16 @@ public class BasicSqlGeneratorTests
         foreach (var baseType in baseTypes)
         {
             var nullableType = $"{baseType}?";
-            Assert.Contains("?", nullableType);
-            Assert.StartsWith(baseType, nullableType);
+            Assert.Contains("?", nullableType, StringComparison.Ordinal);
+            Assert.StartsWith(baseType, nullableType, StringComparison.Ordinal);
         }
 
         foreach (var stringType in stringTypes)
         {
             // String is already nullable, so string? is also valid
             var nullableType = $"{stringType}?";
-            Assert.Contains("?", nullableType);
-            Assert.StartsWith(stringType, nullableType);
+            Assert.Contains("?", nullableType, StringComparison.Ordinal);
+            Assert.StartsWith(stringType, nullableType, StringComparison.Ordinal);
         }
     }
 
@@ -203,14 +206,14 @@ public class BasicSqlGeneratorTests
             "[Email] nvarchar(255) NULL",
             "[Total] decimal(18,2) NOT NULL",
             "[CreatedAt] datetime2 NOT NULL",
-            "[IsActive] bit NOT NULL"
+            "[IsActive] bit NOT NULL",
         };
 
         // Act & Assert
         foreach (var columnDef in columnDefinitions)
         {
-            Assert.Contains("[", columnDef);
-            Assert.Contains("]", columnDef);
+            Assert.Contains("[", columnDef, StringComparison.Ordinal);
+            Assert.Contains("]", columnDef, StringComparison.Ordinal);
             Assert.True(columnDef.Contains("NOT NULL") || columnDef.Contains("NULL"));
         }
     }
@@ -220,24 +223,26 @@ public class BasicSqlGeneratorTests
     {
         // Arrange
         var tableOverrides = new Dictionary<string, string>
+(StringComparer.Ordinal)
         {
             { "Users", "User" },
             { "Orders", "Order" },
-            { "Products", "Product" }
+            { "Products", "Product" },
         };
 
         var columnOverrides = new Dictionary<string, string>
+(StringComparer.Ordinal)
         {
             { "Id", "UserId" },
             { "Name", "FullName" },
-            { "Email", "EmailAddress" }
+            { "Email", "EmailAddress" },
         };
 
         // Act & Assert
         foreach (var tableOverride in tableOverrides)
         {
             Assert.NotEqual(tableOverride.Key, tableOverride.Value);
-            Assert.True(tableOverride.Key.EndsWith("s") && !tableOverride.Value.EndsWith("s"));
+            Assert.True(tableOverride.Key.EndsWith("s", StringComparison.Ordinal) && !tableOverride.Value.EndsWith("s", StringComparison.Ordinal));
         }
 
         foreach (var columnOverride in columnOverrides)
@@ -246,6 +251,4 @@ public class BasicSqlGeneratorTests
             Assert.True(columnOverride.Value.Length >= columnOverride.Key.Length);
         }
     }
-
 }
-
