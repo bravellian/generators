@@ -14,7 +14,13 @@
     <PackageId>Bravellian.Generators.Cli</PackageId>
     <Version>1.0.0</Version>
     <Authors>Bravellian</Authors>
+    <Owners>Bravellian</Owners>
     <Description>Command-line tool for Bravellian code generation</Description>
+    <PackageProjectUrl>https://github.com/bravellian/generators</PackageProjectUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/bravellian/generators</RepositoryUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReleaseNotes>For support, contact oss@bravellian.com</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
