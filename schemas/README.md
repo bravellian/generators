@@ -552,19 +552,24 @@ This directory contains JSON Schema files for validating definition files used w
 ```json
 {
   "$schema": "../schemas/erp-adapter-profile.schema.json",
-  "name": "SageIntacctAdapter",
-  "targetNamespace": "Bravellian.ERP.Adapters.SageIntacct",
-  "targetClassName": "SageIntacctErpAdapter",
-  "capabilitiesNamespace": "Bravellian.ERP.Capabilities",
-  "interfacesNamespace": "Bravellian.ERP.Interfaces",
-  "supportedCapabilities": [
-    "Vendor.CanRead",
-    "Vendor.CanWrite",
-    "Customer.CanRead",
-    "Customer.CanWrite",
-    "Invoice.CanRead",
-    "Invoice.CanPost"
-  ]
+  "capabilitiesReference": {
+    "generatedCapabilitiesNamespace": "Bravellian.ERP.Capabilities",
+    "generatedInterfacesNamespace": "Bravellian.ERP.Interfaces",
+    "capabilitiesFile": "../capabilities/erp-capabilities.json"
+  },
+  "adapterProfile": {
+    "name": "SageIntacctAdapter",
+    "targetNamespace": "Bravellian.ERP.Adapters.SageIntacct",
+    "targetClassName": "SageIntacctErpAdapter",
+    "supportedCapabilities": [
+      "Vendor.CanRead",
+      "Vendor.CanWrite",
+      "Customer.CanRead",
+      "Customer.CanWrite",
+      "Invoice.CanRead",
+      "Invoice.CanPost"
+    ]
+  }
 }
 ```
 
