@@ -24,6 +24,10 @@
             "type": "string",
             "description": "The unique name of the capability (e.g., 'Vendor.CanRead'). Interface name will be derived as 'I' + name with dots removed (e.g., 'IVendorCanRead')"
           },
+          "interface": {
+            "type": "string",
+            "description": "Optional explicit interface name. If not provided, interface name will be derived from the capability name"
+          },
           "description": {
             "type": "string",
             "description": "Human-readable description of what this capability does"
