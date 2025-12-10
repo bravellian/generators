@@ -354,25 +354,11 @@ public sealed class DtoEntitySourceGenerator : IIncrementalGenerator
             return true; // Conservative default
         }
 
-        // Remove nullable suffix and array brackets for analysis
-        var baseType = typeName.TrimEnd('?', '[', ']').Trim();
+        // Extract base type name, handling generics, arrays, and nullable markers
+        var baseType = ExtractBaseTypeName(typeName);
 
-        // Common value types
-        var valueTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "bool", "byte", "sbyte", "char", "decimal", "double", "float",
-            "int", "uint", "long", "ulong", "short", "ushort",
-            "DateTime", "DateTimeOffset", "TimeSpan", "Guid",
-            "System.Boolean", "System.Byte", "System.SByte", "System.Char",
-            "System.Decimal", "System.Double", "System.Single",
-            "System.Int32", "System.UInt32", "System.Int64", "System.UInt64",
-            "System.Int16", "System.UInt16",
-            "System.DateTime", "System.DateTimeOffset", "System.TimeSpan", "System.Guid"
-        };
-
-        // If it ends with '?', it's a nullable value type (but the base type is still a value type)
-        // We're looking at the cleaned base type here
-        if (valueTypes.Contains(baseType))
+        // Check if it's a known value type
+        if (KnownValueTypes.Contains(baseType))
         {
             return false; // It's a value type
         }
@@ -381,4 +367,49 @@ public sealed class DtoEntitySourceGenerator : IIncrementalGenerator
         // Note: This includes "string" which is a reference type
         return true;
     }
+
+    /// <summary>
+    /// Extracts the base type name from a potentially complex type string.
+    /// Handles nullable markers (?), array brackets ([]), and generic type parameters.
+    /// </summary>
+    private static string ExtractBaseTypeName(string typeName)
+    {
+        // Remove leading/trailing whitespace
+        var cleaned = typeName.Trim();
+        
+        // Remove nullable suffix (?)
+        if (cleaned.EndsWith("?"))
+        {
+            cleaned = cleaned.Substring(0, cleaned.Length - 1);
+        }
+        
+        // Remove array brackets ([], [,], etc.)
+        var bracketIndex = cleaned.IndexOf('[');
+        if (bracketIndex >= 0)
+        {
+            cleaned = cleaned.Substring(0, bracketIndex);
+        }
+        
+        // Remove generic type parameters (everything after <)
+        var genericIndex = cleaned.IndexOf('<');
+        if (genericIndex >= 0)
+        {
+            cleaned = cleaned.Substring(0, genericIndex);
+        }
+        
+        return cleaned.Trim();
+    }
+
+    // Static set of known value types for efficient lookup
+    private static readonly HashSet<string> KnownValueTypes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "bool", "byte", "sbyte", "char", "decimal", "double", "float",
+        "int", "uint", "long", "ulong", "short", "ushort",
+        "DateTime", "DateTimeOffset", "TimeSpan", "Guid",
+        "System.Boolean", "System.Byte", "System.SByte", "System.Char",
+        "System.Decimal", "System.Double", "System.Single",
+        "System.Int32", "System.UInt32", "System.Int64", "System.UInt64",
+        "System.Int16", "System.UInt16",
+        "System.DateTime", "System.DateTimeOffset", "System.TimeSpan", "System.Guid"
+    };
 }
