@@ -195,7 +195,8 @@ public sealed class DtoEntitySourceGenerator : IIncrementalGenerator
                 }
 
                 var propDocumentation = prop.TryGetProperty("documentation", out var propDocElement) ? propDocElement.GetString() : null;
-                var isRequired = prop.TryGetProperty("required", out var requiredElement) ? requiredElement.GetBoolean() : true;
+                var requiredSpecified = prop.TryGetProperty("required", out var requiredElement);
+                var isRequired = requiredSpecified ? requiredElement.GetBoolean() : true;
                 var isNullable = prop.TryGetProperty("nullable", out var nullableElement) && nullableElement.GetBoolean();
                 var max = prop.TryGetProperty("max", out var maxElement) ? maxElement.GetString() : null;
                 var min = prop.TryGetProperty("min", out var minElement) ? minElement.GetString() : null;
@@ -205,12 +206,17 @@ public sealed class DtoEntitySourceGenerator : IIncrementalGenerator
                 var isSettable = prop.TryGetProperty("settable", out var settableElement) && settableElement.GetBoolean();
                 var expression = prop.TryGetProperty("expression", out var expressionElement) ? expressionElement.GetString() : null;
                 var defaultValue = prop.TryGetProperty("defaultValue", out var defaultValueElement) ? defaultValueElement.GetString() : null;
+                var hasDefaultValue = !string.IsNullOrEmpty(defaultValue) && !noDefault;
+
+                if (!requiredSpecified && hasDefaultValue)
+                {
+                    isRequired = false;
+                }
 
                 // Validate property configuration (skip validation for expression properties)
                 if (string.IsNullOrEmpty(expression))
                 {
-                    var hasDefault = !string.IsNullOrEmpty(defaultValue) && !noDefault;
-                    var validationResult = ValidatePropertyConfiguration(propName, propType, isRequired, isNullable, hasDefault, isSettable, isStrict);
+                    var validationResult = ValidatePropertyConfiguration(propName, propType, isRequired, isNullable, hasDefaultValue, isSettable, isStrict);
                     if (validationResult != null && productionContext.HasValue)
                     {
                         var (isError, message) = validationResult.Value;
