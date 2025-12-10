@@ -14,10 +14,11 @@ The DTO generator validates property configurations based on the combination of 
 
 These configurations will produce **ERROR** diagnostics:
 
-1. **Case #1**: `required=false`, `nullable=false`, no `defaultValue`
-   - **Issue**: Non-nullable type that's not required and has no default can stay null at runtime without validation catching it.
-   - **Error Message**: "Invalid configuration for property '{name}': Non-nullable, non-required properties must have a default value. Either set required=true, nullable=true, or provide a defaultValue."
+1. **Case #1**: `required=false`, `nullable=false`, no `defaultValue` (Reference Types Only)
+   - **Issue**: Non-nullable reference type that's not required and has no default can stay null at runtime without validation catching it.
+   - **Error Message**: "Invalid configuration for property '{name}': Non-nullable reference type properties that are not required must have a default value. Either set required=true, nullable=true, or provide a defaultValue."
    - **Fix**: Add one of: `required: true`, `nullable: true`, or `defaultValue: "<value>"`
+   - **Note**: This validation only applies to **reference types** (string, custom classes, etc.). Value types (int, bool, DateTime, etc.) are exempt because they have implicit default values and cannot be null.
 
 2. **Case #8**: `required=true`, `nullable=true`, `defaultValue` present
    - **Issue**: Combination has confusing semantics - "required + nullable + default"
@@ -55,6 +56,45 @@ The following property configurations are valid:
 | #3   | false    | true     | absent       | Optional nullable |
 | #4   | false    | true     | present      | Optional nullable with default |
 | #5   | true     | false    | absent       | Required non-nullable (canonical) |
+
+## Value Types vs Reference Types
+
+The validation logic distinguishes between value types and reference types:
+
+- **Value Types** (e.g., `int`, `bool`, `DateTime`, `Guid`, `decimal`): Have implicit default values (0, false, DateTime.MinValue, etc.) and cannot be null. The `required=false, nullable=false, no defaultValue` combination is **valid** for value types.
+
+- **Reference Types** (e.g., `string`, custom classes, interfaces): Can be null. The `required=false, nullable=false, no defaultValue` combination is **invalid** for reference types because the property can remain null at runtime.
+
+### Examples
+
+```json
+{
+  "properties": [
+    {
+      "name": "Count",
+      "type": "int",
+      "required": false,
+      "nullable": false,
+      "documentation": "Valid: Value type without default (implicitly 0)"
+    },
+    {
+      "name": "Name",
+      "type": "string",
+      "required": false,
+      "nullable": false,
+      "documentation": "INVALID: Reference type without default"
+    },
+    {
+      "name": "NameWithDefault",
+      "type": "string",
+      "required": false,
+      "nullable": false,
+      "defaultValue": "\"Unknown\"",
+      "documentation": "Valid: Reference type with default"
+    }
+  ]
+}
+```
 
 ## Expression Properties
 
@@ -140,5 +180,8 @@ Properties with an `expression` value are skipped from validation as they are co
 
 - Validation is performed during JSON parsing in `DtoEntitySourceGenerator.ParseGeneratorParamsFromJson()`
 - Errors are reported via `GeneratorDiagnostics.ReportValidationError()`
+- Warnings are reported via `GeneratorDiagnostics.ReportValidationWarning()`
 - The validation logic is in `DtoEntitySourceGenerator.ValidatePropertyConfiguration()`
+- Type checking is performed by `DtoEntitySourceGenerator.IsReferenceType()` to distinguish value types from reference types
 - Validation is skipped when `productionContext` is null (CLI usage)
+- Case #1 validation only triggers for reference types; value types are exempt due to their implicit default values

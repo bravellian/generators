@@ -210,7 +210,7 @@ public sealed class DtoEntitySourceGenerator : IIncrementalGenerator
                 if (string.IsNullOrEmpty(expression))
                 {
                     var hasDefault = !string.IsNullOrEmpty(defaultValue) && !noDefault;
-                    var validationResult = ValidatePropertyConfiguration(propName, isRequired, isNullable, hasDefault, isSettable, isStrict);
+                    var validationResult = ValidatePropertyConfiguration(propName, propType, isRequired, isNullable, hasDefault, isSettable, isStrict);
                     if (validationResult != null && productionContext.HasValue)
                     {
                         var (isError, message) = validationResult.Value;
@@ -293,7 +293,7 @@ public sealed class DtoEntitySourceGenerator : IIncrementalGenerator
     /// Returns a tuple of (severity, message) if the configuration is invalid, or null if valid.
     /// Severity: true = Error, false = Warning
     /// </summary>
-    private static (bool isError, string message)? ValidatePropertyConfiguration(string propertyName, bool isRequired, bool isNullable, bool hasDefault, bool isSettable, bool isStrict)
+    private static (bool isError, string message)? ValidatePropertyConfiguration(string propertyName, string propertyType, bool isRequired, bool isNullable, bool hasDefault, bool isSettable, bool isStrict)
     {
         // For strict DTOs, settable must be false
         if (isStrict && isSettable)
@@ -303,10 +303,16 @@ public sealed class DtoEntitySourceGenerator : IIncrementalGenerator
 
         // Case #1 (Hard Invalid): required=false, nullable=false, no defaultValue
         // This creates a non-nullable type that's not required and has no default, which can stay null at runtime
+        // However, this is only problematic for reference types. Value types have implicit defaults and cannot be null.
         if (!isRequired && !isNullable && !hasDefault)
         {
-            return (true, $"Invalid configuration for property '{propertyName}': Non-nullable, non-required properties must have a default value. " +
-                   $"Either set required=true, nullable=true, or provide a defaultValue.");
+            // Only flag this as an error for reference types
+            if (IsReferenceType(propertyType))
+            {
+                return (true, $"Invalid configuration for property '{propertyName}': Non-nullable reference type properties that are not required must have a default value. " +
+                       $"Either set required=true, nullable=true, or provide a defaultValue.");
+            }
+            // For value types, this is safe - they have implicit defaults
         }
 
         // Case #8 (Hard Invalid): required=true, nullable=true, defaultValue present
@@ -335,5 +341,44 @@ public sealed class DtoEntitySourceGenerator : IIncrementalGenerator
 
         // All other cases are valid
         return null;
+    }
+
+    /// <summary>
+    /// Determines if a C# type string represents a reference type.
+    /// This is a heuristic based on common C# type patterns.
+    /// </summary>
+    private static bool IsReferenceType(string typeName)
+    {
+        if (string.IsNullOrEmpty(typeName))
+        {
+            return true; // Conservative default
+        }
+
+        // Remove nullable suffix and array brackets for analysis
+        var baseType = typeName.TrimEnd('?', '[', ']').Trim();
+
+        // Common value types
+        var valueTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "bool", "byte", "sbyte", "char", "decimal", "double", "float",
+            "int", "uint", "long", "ulong", "short", "ushort",
+            "DateTime", "DateTimeOffset", "TimeSpan", "Guid",
+            "System.Boolean", "System.Byte", "System.SByte", "System.Char",
+            "System.Decimal", "System.Double", "System.Single",
+            "System.Int32", "System.UInt32", "System.Int64", "System.UInt64",
+            "System.Int16", "System.UInt16",
+            "System.DateTime", "System.DateTimeOffset", "System.TimeSpan", "System.Guid"
+        };
+
+        // If it ends with '?', it's a nullable value type (but the base type is still a value type)
+        // We're looking at the cleaned base type here
+        if (valueTypes.Contains(baseType))
+        {
+            return false; // It's a value type
+        }
+
+        // Everything else is assumed to be a reference type (classes, strings, custom types, etc.)
+        // Note: This includes "string" which is a reference type
+        return true;
     }
 }
