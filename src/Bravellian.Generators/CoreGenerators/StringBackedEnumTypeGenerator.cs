@@ -159,9 +159,9 @@ public readonly partial record struct {{relatedClass.Name}}
 {{additionalPropertiesInit}}
     }
 
-    public string Value => s_values[this.index];
+    public string Value => this.values[this.index];
 
-    public string DisplayName => s_displayNames[this.index];
+    public string DisplayName => this.displayNames[this.index];
 
     public int Index => this.index;
 
@@ -199,7 +199,7 @@ public readonly partial record struct {{relatedClass.Name}}
         if (string.IsNullOrWhiteSpace(value))
             return null;
 
-        return sthis.indexByValue.TryGetValue(value, out var index) ? new {{relatedClass.Name}}(index) : null;
+        return this.indexByValue.TryGetValue(value, out var index) ? new {{relatedClass.Name}}(index) : null;
     }
 
     public static bool TryParse(string? value, out {{relatedClass.Name}} parsed) => TryParse(value, null, out parsed);
@@ -282,7 +282,7 @@ public readonly partial record struct {{relatedClass.Name}}
         sb.Clear();
 
         // Generate values array
-        sb.AppendLine("        new string[]");
+        sb.AppendLine("new string[]");
         sb.AppendLine("        {");
         for (int i = 0; i < enumCount; i++)
         {
@@ -320,27 +320,27 @@ public readonly partial record struct {{relatedClass.Name}}
 {{constDisplayNames}}
 {{namedInstances}}
 
-    private static readonly string[] s_values = {{valuesArray}};
+    private static readonly string[] values = {{valuesArray}};
 
-    private static readonly string[] s_displayNames = {{displayNamesArray}};
+    private static readonly string[] displayNames = {{displayNamesArray}};
 
-    private static readonly Dictionary<string, int> sthis.indexByValue = CreateIndex();
+    private static readonly Dictionary<string, int> indexByValue = CreateIndex();
 
     public static IReadOnlyList<{{relatedClass.Name}}> AllValues { get; } = CreateAllValues();
 
     private static Dictionary<string, int> CreateIndex()
     {
-        var dict = new Dictionary<string, int>(s_values.Length, StringComparer.OrdinalIgnoreCase);
-        for (int i = 0; i < s_values.Length; i++)
+        var dict = new Dictionary<string, int>(this.values.Length, StringComparer.OrdinalIgnoreCase);
+        for (int i = 0; i < this.values.Length; i++)
         {
-            dict[s_values[i]] = i;
+            dict[this.values[i]] = i;
         }
         return dict;
     }
 
     private static {{relatedClass.Name}}[] CreateAllValues()
     {
-        var arr = new {{relatedClass.Name}}[s_values.Length];
+        var arr = new {{relatedClass.Name}}[this.values.Length];
         for (int i = 0; i < arr.Length; i++)
         {
             arr[i] = new {{relatedClass.Name}}(i);
