@@ -1,0 +1,10 @@
+{
+  "name": "Status",
+  "namespace": "Example",
+  "values": [
+    { "value": "pending", "name": "Pending", "display": "Pending" },
+    { "value": "approved", "name": "Approved", "display": "Approved" },
+    { "value": "rejected", "name": "Rejected", "display": "Rejected" },
+    { "value": "completed", "name": "Completed", "display": "Completed" }
+  ]
+}

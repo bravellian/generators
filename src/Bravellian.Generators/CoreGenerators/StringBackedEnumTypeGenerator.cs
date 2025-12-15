@@ -11,6 +11,8 @@ namespace Bravellian.Generators;
 
 public static class StringBackedEnumTypeGenerator
 {
+    private const int MatchMethodThreshold = 25;
+
     public static GeneratorParams? GetParams(XElement xml, IBgLogger? logger, string sourceFilePath)
     {
         IReadOnlyDictionary<string, string> attributes = xml.GetAttributeDict();
@@ -23,7 +25,27 @@ public static class StringBackedEnumTypeGenerator
     {
         if (structToGenerate is { } sg)
         {
-            return GenerateClass(sg);
+            return GenerateMainFile(sg);
+        }
+
+        return null;
+    }
+
+    public static string? GenerateDataFile(GeneratorParams? structToGenerate, IBgLogger? logger)
+    {
+        if (structToGenerate is { } sg)
+        {
+            return GenerateData(sg);
+        }
+
+        return null;
+    }
+
+    public static string? GenerateConvertersFile(GeneratorParams? structToGenerate, IBgLogger? logger)
+    {
+        if (structToGenerate is { } sg)
+        {
+            return GenerateConverters(sg);
         }
 
         return null;
@@ -43,67 +65,70 @@ public static class StringBackedEnumTypeGenerator
         }
     }
 
-    private static string GenerateClass(GeneratorParams relatedClass)
+    private static string GenerateMainFile(GeneratorParams relatedClass)
     {
-        var constValues = string.Join(
-            "\r\n",
-            relatedClass.EnumValues.Select(p => $"    public const string {p.Name}Value = \"{p.Value}\";").Concat(
-            relatedClass.EnumValues.Select(p => $"    public const string {p.Name}DisplayName = \"{p.DisplayName}\";")));
-
-        var enumDefinitions = string.Join("\r\n\r\n", relatedClass.EnumValues.Select(p =>
+        var enumCount = relatedClass.EnumValues?.Count ?? 0;
+        if (enumCount == 0)
         {
-            var documentation = p.Documentation != null ? $"/// <summary>\r\n    /// {p.Documentation}\r\n    /// </summary>\r\n" : string.Empty;
-            return $"{documentation}    public static readonly {relatedClass.Name} {p.Name} = new({p.Name}Value, {p.Name}DisplayName);";
-        }));
-
-        var tryParse = string.Join("\r\n\r\n", relatedClass.EnumValues.Select(p => $$"""
-                    _ when string.Equals(value, {{p.Name}}Value, StringComparison.OrdinalIgnoreCase) => {{p.Name}},
-        """));
-        var allValuesLine = string.Join("\r\n", relatedClass.EnumValues.Select(p => $"        {p.Name},"));
-
-        var matchCases = string.Join("\r\n", relatedClass.EnumValues.Select(p => $$"""
-                        case {{p.Name}}Value:
-                            case{{p.Name}}();
-                            return;
-            """));
-        var matchTCases = string.Join("\r\n", relatedClass.EnumValues.Select(p => $$"""
-                        case {{p.Name}}Value:
-                            return case{{p.Name}}();
-            """));
-        var tryMatchCases = string.Join("\r\n", relatedClass.EnumValues.Select(p => $$"""
-                        case {{p.Name}}Value:
-                            case{{p.Name}}();
-                            return true;
-            """));
-        var tryMatchTCases = string.Join("\r\n", relatedClass.EnumValues.Select(p => $$"""
-                        case {{p.Name}}Value:
-                            result = case{{p.Name}}();
-                            return true;
-            """));
-        var matchParams = string.Join(", ", relatedClass.EnumValues.Select(p => $"Action case{p.Name}"));
-        var matchTParams = string.Join(", ", relatedClass.EnumValues.Select(p => $"Func<T> case{p.Name}"));
-
-        var additionalProperties = string.Empty;
-        var constructorInit = "        ProcessValue(value);";
-        var processValueSignature = "static partial void ProcessValue(string value);";
-        if (relatedClass.AdditionalProperties is { Count: > 0 })
-        {
-            additionalProperties = "\r\n\r\n" + string.Join("\r\n\r\n", relatedClass.AdditionalProperties.Select(p => $"    public {p.Type} {p.Name} {{ get; init; }}"));
-            var outParams = string.Join(", ", relatedClass.AdditionalProperties.Select(p => $"out {p.Type} {p.Name.ToLowerInvariant()}"));
-            processValueSignature = $"private static partial void ProcessValue(string value, {outParams});";
-            constructorInit = $$"""
-                    ProcessValue(value, {{string.Join(", ", relatedClass.AdditionalProperties.Select(p => $"out {p.Type} {p.Name.ToLowerInvariant()}"))}});
-            {{string.Join("\r\n", relatedClass.AdditionalProperties.Select(p => $"        this.{p.Name} = {p.Name.ToLowerInvariant()};"))}}
-            """;
+            return string.Empty;
         }
 
         var licenseHeader = relatedClass.LicenseHeader ?? string.Empty;
+        var sb = new System.Text.StringBuilder();
+
+        // Additional properties handling
+        var additionalPropertiesDeclaration = string.Empty;
+        var additionalPropertiesInit = string.Empty;
+        var processValueSignature = "static partial void ProcessValue(int index);";
+        
+        if (relatedClass.AdditionalProperties is { Count: > 0 })
+        {
+            foreach (var p in relatedClass.AdditionalProperties)
+            {
+                sb.Append("    public ").Append(p.Type).Append(' ').Append(p.Name).AppendLine(" { get; init; }");
+            }
+            additionalPropertiesDeclaration = sb.ToString();
+            sb.Clear();
+
+            for (int i = 0; i < relatedClass.AdditionalProperties.Count; i++)
+            {
+                if (i > 0) sb.Append(", ");
+                var p = relatedClass.AdditionalProperties[i];
+                sb.Append("out ").Append(p.Type).Append(' ').Append(p.Name.ToLowerInvariant());
+            }
+            var outParams = sb.ToString();
+            sb.Clear();
+
+            processValueSignature = $"private static partial void ProcessValue(int index, {outParams});";
+
+            sb.Append("        ProcessValue(_index, ");
+            for (int i = 0; i < relatedClass.AdditionalProperties.Count; i++)
+            {
+                if (i > 0) sb.Append(", ");
+                var p = relatedClass.AdditionalProperties[i];
+                sb.Append("out var ").Append(p.Name.ToLowerInvariant());
+            }
+            sb.AppendLine(");");
+            foreach (var p in relatedClass.AdditionalProperties)
+            {
+                sb.Append("        ").Append(p.Name).Append(" = ").Append(p.Name.ToLowerInvariant()).AppendLine(";");
+            }
+            additionalPropertiesInit = sb.ToString();
+            sb.Clear();
+        }
+
+        // Generate Match methods only if count is below threshold
+        var matchMethods = string.Empty;
+        if (enumCount <= MatchMethodThreshold)
+        {
+            matchMethods = GenerateMatchMethods(relatedClass);
+        }
+
+        var licenseHeaderSection = string.IsNullOrEmpty(licenseHeader) ? string.Empty : $"{licenseHeader}\n\n";
 
         return $$"""
 // <auto-generated/>
-{{licenseHeader}}
-
-#nullable enable
+{{licenseHeaderSection}}#nullable enable
 
 namespace {{relatedClass.Namespace}};
 
@@ -118,58 +143,45 @@ using CommunityToolkit.Diagnostics;
 
 [JsonConverter(typeof({{relatedClass.Name}}JsonConverter))]
 [TypeConverter(typeof({{relatedClass.Name}}TypeConverter))]
+[System.CodeDom.Compiler.GeneratedCode("StringBackedEnumGenerator","1.0.0")]
 public readonly partial record struct {{relatedClass.Name}}
         : IComparable,
           IComparable<{{relatedClass.Name}}>,
           IEquatable<{{relatedClass.Name}}>,
           IParsable<{{relatedClass.Name}}>
 {
-{{constValues}}
+    private readonly int _index;
 
-{{enumDefinitions}}
-
-{{additionalProperties}}
-
-    private {{relatedClass.Name}}([ConstantExpected] string value, [ConstantExpected] string displayName)
+{{additionalPropertiesDeclaration}}
+    private {{relatedClass.Name}}(int index)
     {
-        this.Value = value;
-        this.DisplayName = displayName;
-{{constructorInit}}
+        _index = index;
+{{additionalPropertiesInit}}
     }
 
-    public static IReadOnlySet<{{relatedClass.Name}}> AllValues { get; } = new HashSet<{{relatedClass.Name}}>
-    {
-{{allValuesLine}}
-    };
+    public string Value => s_values[_index];
 
-    public string Value { get; init; }
+    public string DisplayName => s_displayNames[_index];
 
-    public string DisplayName { get; init; }
+    public int Index => _index;
 
     public static {{relatedClass.Name}} From(string value) => Parse(value);
 
     {{processValueSignature}}
 
-    public override string ToString() => this.Value;
+    public override string ToString() => Value;
 
-    public bool Equals({{relatedClass.Name}} other)
-    {
-        return string.Equals(this.Value, other.Value);
-    }
+    public bool Equals({{relatedClass.Name}} other) => _index == other._index;
 
-    public override int GetHashCode()
-    {
-        return this.Value?.GetHashCode() ?? 0;
-    }
+    public override int GetHashCode() => _index;
 
-    public int CompareTo({{relatedClass.Name}} other)
-    {
-        return string.Compare(this.Value, other.Value);
-    }
+    public int CompareTo({{relatedClass.Name}} other) => string.Compare(Value, other.Value, StringComparison.Ordinal);
 
     public int CompareTo(object? obj)
     {
-        return obj is {{relatedClass.Name}} id ? this.Value.CompareTo(id.Value) : this.Value.CompareTo(obj);
+        if (obj is {{relatedClass.Name}} other)
+            return CompareTo(other);
+        return Value.CompareTo(obj);
     }
 
     public static bool operator <({{relatedClass.Name}} left, {{relatedClass.Name}} right) => left.CompareTo(right) < 0;
@@ -180,87 +192,14 @@ public readonly partial record struct {{relatedClass.Name}}
 
     public static bool operator >=({{relatedClass.Name}} left, {{relatedClass.Name}} right) => left.CompareTo(right) >= 0;
 
-    /// <summary>
-    /// Matches the current enum value against all possible cases and executes the corresponding delegate.
-    /// Throws <see cref="ArgumentOutOfRangeException."/> if no match is found.
-    /// </summary>
-{{string.Join("\r\n", relatedClass.EnumValues.Select(p => $"    /// <param name=\"case{p.Name}\">The delegate to execute for the {p.Name} case.</param>"))}}
-    /// <exception cref="ArgumentOutOfRangeException.">Thrown when the current value is not handled by any case.</exception>
-    public void Match({{matchParams}})
-    {
-        switch (this.Value)
-        {
-{{matchCases}}
-            default:
-                throw new NotSupportedException("Internal value is not valid.");
-        }
-    }
-
-    /// <summary>
-    /// Matches the current enum value against all possible cases and returns the result of executing the corresponding delegate.
-    /// Throws <see cref="ArgumentOutOfRangeException."/> if no match is found.
-    /// </summary>
-    /// <typeparam name="T">The type of the result.</typeparam>
-{{string.Join("\r\n", relatedClass.EnumValues.Select(p => $"    /// <param name=\"case{p.Name}\">The delegate to execute for the {p.Name} case.</param>"))}}
-    /// <returns>The result of executing the matching delegate.</returns>
-    /// <exception cref="ArgumentOutOfRangeException.">Thrown when the current value is not handled by any case.</exception>
-    public T Match<T>({{matchTParams}})
-    {
-        switch (this.Value)
-        {
-{{matchTCases}}
-            default:
-                throw new NotSupportedException("Internal value is not valid.");
-        }
-    }
-
-    /// <summary>
-    /// Attempts to match the current enum value against all possible cases and executes the corresponding delegate.
-    /// Returns false if no match is found.
-    /// </summary>
-{{string.Join("\r\n", relatedClass.EnumValues.Select(p => $"    /// <param name=\"case{p.Name}\">The delegate to execute for the {p.Name} case.</param>"))}}
-    /// <returns>True if a match was found and the corresponding delegate was executed, false otherwise.</returns>
-    public bool TryMatch({{matchParams}})
-    {
-        switch (this.Value)
-        {
-{{tryMatchCases}}
-            default:
-                return false;
-        }
-    }
-
-    /// <summary>
-    /// Attempts to match the current enum value against all possible cases and returns the result of executing the corresponding delegate.
-    /// Returns false if no match is found.
-    /// </summary>
-    /// <typeparam name="T">The type of the result.</typeparam>
-{{string.Join("\r\n", relatedClass.EnumValues.Select(p => $"    /// <param name=\"case{p.Name}\">The delegate to execute for the {p.Name} case.</param>"))}}
-    /// <param name="result">The result of executing the matching delegate, if a match was found.</param>
-    /// <returns>True if a match was found and the corresponding delegate was executed, false otherwise.</returns>
-    public bool TryMatch<T>({{matchTParams}}, out T result)
-    {
-        switch (this.Value)
-        {
-{{tryMatchTCases}}
-            default:
-                result = default!;
-                return false;
-        }
-    }
+{{matchMethods}}
 
     public static {{relatedClass.Name}}? TryParse(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
-        {
             return null;
-        }
 
-        return value switch
-        {
-{{tryParse}}
-            _ => null,
-        };
+        return s_indexByValue.TryGetValue(value, out var index) ? new {{relatedClass.Name}}(index) : null;
     }
 
     public static bool TryParse(string? value, out {{relatedClass.Name}} parsed) => TryParse(value, null, out parsed);
@@ -277,7 +216,7 @@ public readonly partial record struct {{relatedClass.Name}}
         }
         else
         {
-            throw new ArgumentOutOfRangeException($"The value {s} is not a valid {{relatedClass.Name}}.");
+            throw new ArgumentOutOfRangeException(nameof(s), $"The value '{s}' is not a valid {{relatedClass.Name}}.");
         }
     }
 
@@ -293,7 +232,149 @@ public readonly partial record struct {{relatedClass.Name}}
         result = default;
         return false;
     }
+}
 
+""";
+    }
+
+    private static string GenerateData(GeneratorParams relatedClass)
+    {
+        var enumCount = relatedClass.EnumValues?.Count ?? 0;
+        if (enumCount == 0)
+        {
+            return string.Empty;
+        }
+
+        var licenseHeader = relatedClass.LicenseHeader ?? string.Empty;
+        var licenseHeaderSection = string.IsNullOrEmpty(licenseHeader) ? string.Empty : $"{licenseHeader}\n\n";
+        var sb = new System.Text.StringBuilder();
+
+        // Generate value constants
+        for (int i = 0; i < enumCount; i++)
+        {
+            var p = relatedClass.EnumValues![i];
+            sb.Append("    public const string ").Append(p.Name).Append("Value = \"").Append(p.Value).AppendLine("\";");
+        }
+        var constValues = sb.ToString();
+        sb.Clear();
+
+        // Generate display name constants
+        for (int i = 0; i < enumCount; i++)
+        {
+            var p = relatedClass.EnumValues![i];
+            sb.Append("    public const string ").Append(p.Name).Append("DisplayName = \"").Append(p.DisplayName).AppendLine("\";");
+        }
+        var constDisplayNames = sb.ToString();
+        sb.Clear();
+
+        // Generate named instances
+        for (int i = 0; i < enumCount; i++)
+        {
+            var p = relatedClass.EnumValues![i];
+            if (p.Documentation != null)
+            {
+                sb.Append("    /// <summary>\r\n    /// ").Append(p.Documentation).AppendLine("\r\n    /// </summary>");
+            }
+            sb.Append("    public static readonly ").Append(relatedClass.Name).Append(' ').Append(p.Name)
+              .Append(" = new(").Append(i).AppendLine(");");
+        }
+        var namedInstances = sb.ToString();
+        sb.Clear();
+
+        // Generate values array
+        sb.AppendLine("        new string[]");
+        sb.AppendLine("        {");
+        for (int i = 0; i < enumCount; i++)
+        {
+            var p = relatedClass.EnumValues![i];
+            sb.Append("            \"").Append(p.Value).AppendLine("\",");
+        }
+        sb.Append("        }");
+        var valuesArray = sb.ToString();
+        sb.Clear();
+
+        // Generate display names array
+        sb.AppendLine("        new string[]");
+        sb.AppendLine("        {");
+        for (int i = 0; i < enumCount; i++)
+        {
+            var p = relatedClass.EnumValues![i];
+            sb.Append("            \"").Append(p.DisplayName).AppendLine("\",");
+        }
+        sb.Append("        }");
+        var displayNamesArray = sb.ToString();
+        sb.Clear();
+
+        return $$"""
+// <auto-generated/>
+{{licenseHeaderSection}}#nullable enable
+
+namespace {{relatedClass.Namespace}};
+
+using System;
+using System.Collections.Generic;
+
+[System.CodeDom.Compiler.GeneratedCode("StringBackedEnumGenerator","1.0.0")]
+public readonly partial record struct {{relatedClass.Name}}
+{
+{{constValues}}
+{{constDisplayNames}}
+{{namedInstances}}
+
+    private static readonly string[] s_values = {{valuesArray}};
+
+    private static readonly string[] s_displayNames = {{displayNamesArray}};
+
+    private static readonly Dictionary<string, int> s_indexByValue = CreateIndex();
+
+    public static IReadOnlyList<{{relatedClass.Name}}> AllValues { get; } = CreateAllValues();
+
+    private static Dictionary<string, int> CreateIndex()
+    {
+        var dict = new Dictionary<string, int>(s_values.Length, StringComparer.OrdinalIgnoreCase);
+        for (int i = 0; i < s_values.Length; i++)
+        {
+            dict[s_values[i]] = i;
+        }
+        return dict;
+    }
+
+    private static {{relatedClass.Name}}[] CreateAllValues()
+    {
+        var arr = new {{relatedClass.Name}}[s_values.Length];
+        for (int i = 0; i < arr.Length; i++)
+        {
+            arr[i] = new {{relatedClass.Name}}(i);
+        }
+        return arr;
+    }
+}
+
+""";
+    }
+
+    private static string GenerateConverters(GeneratorParams relatedClass)
+    {
+        var licenseHeader = relatedClass.LicenseHeader ?? string.Empty;
+        var licenseHeaderSection = string.IsNullOrEmpty(licenseHeader) ? string.Empty : $"{licenseHeader}\n\n";
+
+        return $$"""
+// <auto-generated/>
+{{licenseHeaderSection}}#nullable enable
+
+namespace {{relatedClass.Namespace}};
+
+using System;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+[System.CodeDom.Compiler.GeneratedCode("StringBackedEnumGenerator","1.0.0")]
+public readonly partial record struct {{relatedClass.Name}}
+{
+    [System.CodeDom.Compiler.GeneratedCode("StringBackedEnumGenerator","1.0.0")]
     public class {{relatedClass.Name}}JsonConverter : JsonConverter<{{relatedClass.Name}}>
     {
         public override {{relatedClass.Name}} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -305,7 +386,7 @@ public readonly partial record struct {{relatedClass.Name}}
                 return result;
             }
 
-            throw new JsonException();
+            throw new JsonException($"Invalid value for {{relatedClass.Name}}: {s}");
         }
 
         public override void Write(Utf8JsonWriter writer, {{relatedClass.Name}} value, JsonSerializerOptions options) =>
@@ -320,7 +401,7 @@ public readonly partial record struct {{relatedClass.Name}}
         }
     }
 
-    // TypeConverter for {{relatedClass.Name}} to and from string
+    [System.CodeDom.Compiler.GeneratedCode("StringBackedEnumGenerator","1.0.0")]
     public class {{relatedClass.Name}}TypeConverter : TypeConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) =>
@@ -350,6 +431,145 @@ public readonly partial record struct {{relatedClass.Name}}
         }
     }
 }
+
+""";
+    }
+
+    private static string GenerateMatchMethods(GeneratorParams relatedClass)
+    {
+        var enumCount = relatedClass.EnumValues?.Count ?? 0;
+        var sb = new System.Text.StringBuilder();
+
+        // Generate match params
+        for (int i = 0; i < enumCount; i++)
+        {
+            if (i > 0) sb.Append(", ");
+            sb.Append("Action case").Append(relatedClass.EnumValues![i].Name);
+        }
+        var matchParams = sb.ToString();
+        sb.Clear();
+
+        // Generate matchT params
+        for (int i = 0; i < enumCount; i++)
+        {
+            if (i > 0) sb.Append(", ");
+            sb.Append("Func<T> case").Append(relatedClass.EnumValues![i].Name);
+        }
+        var matchTParams = sb.ToString();
+        sb.Clear();
+
+        // Generate match cases using index
+        for (int i = 0; i < enumCount; i++)
+        {
+            var p = relatedClass.EnumValues![i];
+            sb.Append("                ").Append(i).AppendLine(":");
+            sb.Append("                    case").Append(p.Name).AppendLine("();");
+            sb.AppendLine("                    return;");
+        }
+        var matchCases = sb.ToString();
+        sb.Clear();
+
+        // Generate matchT cases using index
+        for (int i = 0; i < enumCount; i++)
+        {
+            var p = relatedClass.EnumValues![i];
+            sb.Append("                ").Append(i).AppendLine(":");
+            sb.Append("                    return case").Append(p.Name).AppendLine("();");
+        }
+        var matchTCases = sb.ToString();
+        sb.Clear();
+
+        // Generate tryMatch cases using index
+        for (int i = 0; i < enumCount; i++)
+        {
+            var p = relatedClass.EnumValues![i];
+            sb.Append("                ").Append(i).AppendLine(":");
+            sb.Append("                    case").Append(p.Name).AppendLine("();");
+            sb.AppendLine("                    return true;");
+        }
+        var tryMatchCases = sb.ToString();
+        sb.Clear();
+
+        // Generate tryMatchT cases using index
+        for (int i = 0; i < enumCount; i++)
+        {
+            var p = relatedClass.EnumValues![i];
+            sb.Append("                ").Append(i).AppendLine(":");
+            sb.Append("                    result = case").Append(p.Name).AppendLine("();");
+            sb.AppendLine("                    return true;");
+        }
+        var tryMatchTCases = sb.ToString();
+        sb.Clear();
+
+        return $$"""
+    /// <summary>
+    /// Matches the current enum value against all possible cases and executes the corresponding delegate.
+    /// Throws <see cref="ArgumentOutOfRangeException"/> if no match is found.
+    /// </summary>
+{{string.Join("\r\n", relatedClass.EnumValues.Select(p => $"    /// <param name=\"case{p.Name}\">The delegate to execute for the {p.Name} case.</param>"))}}
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when the current value is not handled by any case.</exception>
+    public void Match({{matchParams}})
+    {
+        switch (_index)
+        {
+{{matchCases}}
+            default:
+                throw new ArgumentOutOfRangeException(nameof(_index), "Internal index is not valid.");
+        }
+    }
+
+    /// <summary>
+    /// Matches the current enum value against all possible cases and returns the result of executing the corresponding delegate.
+    /// Throws <see cref="ArgumentOutOfRangeException"/> if no match is found.
+    /// </summary>
+    /// <typeparam name="T">The type of the result.</typeparam>
+{{string.Join("\r\n", relatedClass.EnumValues.Select(p => $"    /// <param name=\"case{p.Name}\">The delegate to execute for the {p.Name} case.</param>"))}}
+    /// <returns>The result of executing the matching delegate.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when the current value is not handled by any case.</exception>
+    public T Match<T>({{matchTParams}})
+    {
+        switch (_index)
+        {
+{{matchTCases}}
+            default:
+                throw new ArgumentOutOfRangeException(nameof(_index), "Internal index is not valid.");
+        }
+    }
+
+    /// <summary>
+    /// Attempts to match the current enum value against all possible cases and executes the corresponding delegate.
+    /// Returns false if no match is found.
+    /// </summary>
+{{string.Join("\r\n", relatedClass.EnumValues.Select(p => $"    /// <param name=\"case{p.Name}\">The delegate to execute for the {p.Name} case.</param>"))}}
+    /// <returns>True if a match was found and the corresponding delegate was executed, false otherwise.</returns>
+    public bool TryMatch({{matchParams}})
+    {
+        switch (_index)
+        {
+{{tryMatchCases}}
+            default:
+                return false;
+        }
+    }
+
+    /// <summary>
+    /// Attempts to match the current enum value against all possible cases and returns the result of executing the corresponding delegate.
+    /// Returns false if no match is found.
+    /// </summary>
+    /// <typeparam name="T">The type of the result.</typeparam>
+{{string.Join("\r\n", relatedClass.EnumValues.Select(p => $"    /// <param name=\"case{p.Name}\">The delegate to execute for the {p.Name} case.</param>"))}}
+    /// <param name="result">The result of executing the matching delegate, if a match was found.</param>
+    /// <returns>True if a match was found and the corresponding delegate was executed, false otherwise.</returns>
+    public bool TryMatch<T>({{matchTParams}}, out T result)
+    {
+        switch (_index)
+        {
+{{tryMatchTCases}}
+            default:
+                result = default!;
+                return false;
+        }
+    }
 
 """;
     }

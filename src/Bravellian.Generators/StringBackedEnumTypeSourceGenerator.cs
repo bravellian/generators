@@ -196,14 +196,31 @@ public sealed class StringBackedEnumTypeSourceGenerator : IIncrementalGenerator
                 licenseHeader
             );
 
-            var generatedCode = StringBackedEnumTypeGenerator.Generate(genParams, null);
-            if (string.IsNullOrEmpty(generatedCode))
+            var results = new List<(string fileName, string source)>();
+
+            // Generate main file
+            var mainCode = StringBackedEnumTypeGenerator.Generate(genParams, null);
+            if (!string.IsNullOrEmpty(mainCode))
             {
-                return null;
+                var mainFileName = $"{namespaceName!}.{name!}.g.cs";
+                results.Add((mainFileName, mainCode!));
             }
 
-            var fileName = $"{namespaceName!}.{name!}.g.cs";
-            var results = new List<(string fileName, string source)> { (fileName, generatedCode!) };
+            // Generate data file
+            var dataCode = StringBackedEnumTypeGenerator.GenerateDataFile(genParams, null);
+            if (!string.IsNullOrEmpty(dataCode))
+            {
+                var dataFileName = $"{namespaceName!}.{name!}.Data.g.cs";
+                results.Add((dataFileName, dataCode!));
+            }
+
+            // Generate converters file
+            var convertersCode = StringBackedEnumTypeGenerator.GenerateConvertersFile(genParams, null);
+            if (!string.IsNullOrEmpty(convertersCode))
+            {
+                var convertersFileName = $"{namespaceName!}.{name!}.Converters.g.cs";
+                results.Add((convertersFileName, convertersCode!));
+            }
 
             // Generate ValueConverter if path is configured
             if (ValueConverterConfig.IsEnabled)
@@ -216,7 +233,7 @@ public sealed class StringBackedEnumTypeSourceGenerator : IIncrementalGenerator
                 }
             }
 
-            return results;
+            return results.Count > 0 ? results : null;
         }
         catch (Exception ex)
         {

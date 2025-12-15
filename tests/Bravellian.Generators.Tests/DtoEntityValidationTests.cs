@@ -61,11 +61,11 @@ public static class DtoEntityValidationTests
             options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
         var driver = CSharpGeneratorDriver.Create(
-            generators: ImmutableArray.Create<IIncrementalGenerator>(generator),
+            generators: new[] { generator.AsSourceGenerator() },
             parseOptions: parseOptions,
             additionalTexts: additionalTexts);
 
-        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out _, out _, Xunit.TestContext.Current.CancellationToken);
+        driver = (CSharpGeneratorDriver)driver.RunGeneratorsAndUpdateCompilation(compilation, out _, out _, Xunit.TestContext.Current.CancellationToken);
         var runResult = driver.GetRunResult();
         return runResult.Diagnostics;
     }

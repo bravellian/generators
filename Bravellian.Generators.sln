@@ -16,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_src", "_src", "{827E0CD3-B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bravellian.Generators", "src\Bravellian.Generators\Bravellian.Generators.csproj", "{5552F0CC-4962-46F9-A359-1E606505A15B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bravellian.Generators.Tests", "tests\Bravellian.Generators.Tests\Bravellian.Generators.Tests.csproj", "{63ABA370-0A1C-1046-3FA2-3F789E3AC974}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +40,18 @@ Global
 		{5552F0CC-4962-46F9-A359-1E606505A15B}.Release|x64.Build.0 = Release|Any CPU
 		{5552F0CC-4962-46F9-A359-1E606505A15B}.Release|x86.ActiveCfg = Release|Any CPU
 		{5552F0CC-4962-46F9-A359-1E606505A15B}.Release|x86.Build.0 = Release|Any CPU
+		{63ABA370-0A1C-1046-3FA2-3F789E3AC974}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63ABA370-0A1C-1046-3FA2-3F789E3AC974}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63ABA370-0A1C-1046-3FA2-3F789E3AC974}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{63ABA370-0A1C-1046-3FA2-3F789E3AC974}.Debug|x64.Build.0 = Debug|Any CPU
+		{63ABA370-0A1C-1046-3FA2-3F789E3AC974}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{63ABA370-0A1C-1046-3FA2-3F789E3AC974}.Debug|x86.Build.0 = Debug|Any CPU
+		{63ABA370-0A1C-1046-3FA2-3F789E3AC974}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63ABA370-0A1C-1046-3FA2-3F789E3AC974}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63ABA370-0A1C-1046-3FA2-3F789E3AC974}.Release|x64.ActiveCfg = Release|Any CPU
+		{63ABA370-0A1C-1046-3FA2-3F789E3AC974}.Release|x64.Build.0 = Release|Any CPU
+		{63ABA370-0A1C-1046-3FA2-3F789E3AC974}.Release|x86.ActiveCfg = Release|Any CPU
+		{63ABA370-0A1C-1046-3FA2-3F789E3AC974}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
