@@ -171,7 +171,7 @@ public readonly partial record struct {{relatedClass.Name}}
 
     public override string ToString() => Value;
 
-    public bool Equals({{relatedClass.Name}} other) => this.index == other.this.index;
+    public bool Equals({{relatedClass.Name}} other) => this.index == other.index;
 
     public override int GetHashCode() => this.index;
 
