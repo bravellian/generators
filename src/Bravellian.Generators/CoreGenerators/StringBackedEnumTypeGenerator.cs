@@ -101,7 +101,7 @@ public static class StringBackedEnumTypeGenerator
 
             processValueSignature = $"private static partial void ProcessValue(int index, {outParams});";
 
-            sb.Append("        ProcessValue(_index, ");
+            sb.Append("        ProcessValue(this.index, ");
             for (int i = 0; i < relatedClass.AdditionalProperties.Count; i++)
             {
                 if (i > 0) sb.Append(", ");
@@ -150,20 +150,20 @@ public readonly partial record struct {{relatedClass.Name}}
           IEquatable<{{relatedClass.Name}}>,
           IParsable<{{relatedClass.Name}}>
 {
-    private readonly int _index;
+    private readonly int index;
 
 {{additionalPropertiesDeclaration}}
     private {{relatedClass.Name}}(int index)
     {
-        _index = index;
+        this.index = index;
 {{additionalPropertiesInit}}
     }
 
-    public string Value => s_values[_index];
+    public string Value => s_values[this.index];
 
-    public string DisplayName => s_displayNames[_index];
+    public string DisplayName => s_displayNames[this.index];
 
-    public int Index => _index;
+    public int Index => this.index;
 
     public static {{relatedClass.Name}} From(string value) => Parse(value);
 
@@ -171,9 +171,9 @@ public readonly partial record struct {{relatedClass.Name}}
 
     public override string ToString() => Value;
 
-    public bool Equals({{relatedClass.Name}} other) => _index == other._index;
+    public bool Equals({{relatedClass.Name}} other) => this.index == other.this.index;
 
-    public override int GetHashCode() => _index;
+    public override int GetHashCode() => this.index;
 
     public int CompareTo({{relatedClass.Name}} other) => string.Compare(Value, other.Value, StringComparison.Ordinal);
 
@@ -199,7 +199,7 @@ public readonly partial record struct {{relatedClass.Name}}
         if (string.IsNullOrWhiteSpace(value))
             return null;
 
-        return s_indexByValue.TryGetValue(value, out var index) ? new {{relatedClass.Name}}(index) : null;
+        return sthis.indexByValue.TryGetValue(value, out var index) ? new {{relatedClass.Name}}(index) : null;
     }
 
     public static bool TryParse(string? value, out {{relatedClass.Name}} parsed) => TryParse(value, null, out parsed);
@@ -314,7 +314,6 @@ namespace {{relatedClass.Namespace}};
 using System;
 using System.Collections.Generic;
 
-[System.CodeDom.Compiler.GeneratedCode("StringBackedEnumGenerator","1.0.0")]
 public readonly partial record struct {{relatedClass.Name}}
 {
 {{constValues}}
@@ -325,7 +324,7 @@ public readonly partial record struct {{relatedClass.Name}}
 
     private static readonly string[] s_displayNames = {{displayNamesArray}};
 
-    private static readonly Dictionary<string, int> s_indexByValue = CreateIndex();
+    private static readonly Dictionary<string, int> sthis.indexByValue = CreateIndex();
 
     public static IReadOnlyList<{{relatedClass.Name}}> AllValues { get; } = CreateAllValues();
 
@@ -371,7 +370,6 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-[System.CodeDom.Compiler.GeneratedCode("StringBackedEnumGenerator","1.0.0")]
 public readonly partial record struct {{relatedClass.Name}}
 {
     [System.CodeDom.Compiler.GeneratedCode("StringBackedEnumGenerator","1.0.0")]
@@ -453,7 +451,7 @@ public readonly partial record struct {{relatedClass.Name}}
         for (int i = 0; i < enumCount; i++)
         {
             if (i > 0) sb.Append(", ");
-            sb.Append("Func<T> case").Append(relatedClass.EnumValues![i].Name);
+            sb.Append($"Func<{relatedClass.Name}> case").Append(relatedClass.EnumValues![i].Name);
         }
         var matchTParams = sb.ToString();
         sb.Clear();
@@ -462,9 +460,9 @@ public readonly partial record struct {{relatedClass.Name}}
         for (int i = 0; i < enumCount; i++)
         {
             var p = relatedClass.EnumValues![i];
-            sb.Append("                ").Append(i).AppendLine(":");
-            sb.Append("                    case").Append(p.Name).AppendLine("();");
-            sb.AppendLine("                    return;");
+            sb.Append("            ").Append(i).AppendLine(":");
+            sb.Append("                case").Append(p.Name).AppendLine("();");
+            sb.AppendLine("                return;");
         }
         var matchCases = sb.ToString();
         sb.Clear();
@@ -473,8 +471,8 @@ public readonly partial record struct {{relatedClass.Name}}
         for (int i = 0; i < enumCount; i++)
         {
             var p = relatedClass.EnumValues![i];
-            sb.Append("                ").Append(i).AppendLine(":");
-            sb.Append("                    return case").Append(p.Name).AppendLine("();");
+            sb.Append("            ").Append(i).AppendLine(":");
+            sb.Append("                return case").Append(p.Name).AppendLine("();");
         }
         var matchTCases = sb.ToString();
         sb.Clear();
@@ -483,9 +481,9 @@ public readonly partial record struct {{relatedClass.Name}}
         for (int i = 0; i < enumCount; i++)
         {
             var p = relatedClass.EnumValues![i];
-            sb.Append("                ").Append(i).AppendLine(":");
-            sb.Append("                    case").Append(p.Name).AppendLine("();");
-            sb.AppendLine("                    return true;");
+            sb.Append("            ").Append(i).AppendLine(":");
+            sb.Append("                case").Append(p.Name).AppendLine("();");
+            sb.AppendLine("                return true;");
         }
         var tryMatchCases = sb.ToString();
         sb.Clear();
@@ -494,9 +492,9 @@ public readonly partial record struct {{relatedClass.Name}}
         for (int i = 0; i < enumCount; i++)
         {
             var p = relatedClass.EnumValues![i];
-            sb.Append("                ").Append(i).AppendLine(":");
-            sb.Append("                    result = case").Append(p.Name).AppendLine("();");
-            sb.AppendLine("                    return true;");
+            sb.Append("            ").Append(i).AppendLine(":");
+            sb.Append("                result = case").Append(p.Name).AppendLine("();");
+            sb.AppendLine("                return true;");
         }
         var tryMatchTCases = sb.ToString();
         sb.Clear();
@@ -510,11 +508,11 @@ public readonly partial record struct {{relatedClass.Name}}
     /// <exception cref="ArgumentOutOfRangeException">Thrown when the current value is not handled by any case.</exception>
     public void Match({{matchParams}})
     {
-        switch (_index)
+        switch (this.index)
         {
 {{matchCases}}
             default:
-                throw new ArgumentOutOfRangeException(nameof(_index), "Internal index is not valid.");
+                throw new ArgumentOutOfRangeException(nameof(this.index), "Internal index is not valid.");
         }
     }
 
@@ -522,17 +520,16 @@ public readonly partial record struct {{relatedClass.Name}}
     /// Matches the current enum value against all possible cases and returns the result of executing the corresponding delegate.
     /// Throws <see cref="ArgumentOutOfRangeException"/> if no match is found.
     /// </summary>
-    /// <typeparam name="T">The type of the result.</typeparam>
 {{string.Join("\r\n", relatedClass.EnumValues.Select(p => $"    /// <param name=\"case{p.Name}\">The delegate to execute for the {p.Name} case.</param>"))}}
     /// <returns>The result of executing the matching delegate.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when the current value is not handled by any case.</exception>
-    public T Match<T>({{matchTParams}})
+    public {{relatedClass.Name}} Match({{matchTParams}})
     {
-        switch (_index)
+        switch (this.index)
         {
 {{matchTCases}}
             default:
-                throw new ArgumentOutOfRangeException(nameof(_index), "Internal index is not valid.");
+                throw new ArgumentOutOfRangeException(nameof(this.index), "Internal index is not valid.");
         }
     }
 
@@ -544,7 +541,7 @@ public readonly partial record struct {{relatedClass.Name}}
     /// <returns>True if a match was found and the corresponding delegate was executed, false otherwise.</returns>
     public bool TryMatch({{matchParams}})
     {
-        switch (_index)
+        switch (this.index)
         {
 {{tryMatchCases}}
             default:
@@ -556,13 +553,12 @@ public readonly partial record struct {{relatedClass.Name}}
     /// Attempts to match the current enum value against all possible cases and returns the result of executing the corresponding delegate.
     /// Returns false if no match is found.
     /// </summary>
-    /// <typeparam name="T">The type of the result.</typeparam>
 {{string.Join("\r\n", relatedClass.EnumValues.Select(p => $"    /// <param name=\"case{p.Name}\">The delegate to execute for the {p.Name} case.</param>"))}}
     /// <param name="result">The result of executing the matching delegate, if a match was found.</param>
     /// <returns>True if a match was found and the corresponding delegate was executed, false otherwise.</returns>
-    public bool TryMatch<T>({{matchTParams}}, out T result)
+    public bool TryMatch({{matchTParams}}, out {{relatedClass.Name}} result)
     {
-        switch (_index)
+        switch (this.index)
         {
 {{tryMatchTCases}}
             default:
