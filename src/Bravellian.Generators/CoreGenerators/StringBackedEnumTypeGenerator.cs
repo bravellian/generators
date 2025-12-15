@@ -159,9 +159,9 @@ public readonly partial record struct {{relatedClass.Name}}
 {{additionalPropertiesInit}}
     }
 
-    public string Value => this.values[this.index];
+    public string Value => {{relatedClass.Name}}.values[this.index];
 
-    public string DisplayName => this.displayNames[this.index];
+    public string DisplayName => {{relatedClass.Name}}.displayNames[this.index];
 
     public int Index => this.index;
 
@@ -199,7 +199,7 @@ public readonly partial record struct {{relatedClass.Name}}
         if (string.IsNullOrWhiteSpace(value))
             return null;
 
-        return this.indexByValue.TryGetValue(value, out var index) ? new {{relatedClass.Name}}(index) : null;
+        return {{relatedClass.Name}}.indexByValue.TryGetValue(value, out var index) ? new {{relatedClass.Name}}(index) : null;
     }
 
     public static bool TryParse(string? value, out {{relatedClass.Name}} parsed) => TryParse(value, null, out parsed);
@@ -330,17 +330,17 @@ public readonly partial record struct {{relatedClass.Name}}
 
     private static Dictionary<string, int> CreateIndex()
     {
-        var dict = new Dictionary<string, int>(this.values.Length, StringComparer.OrdinalIgnoreCase);
-        for (int i = 0; i < this.values.Length; i++)
+        var dict = new Dictionary<string, int>({{relatedClass.Name}}.values.Length, StringComparer.OrdinalIgnoreCase);
+        for (int i = 0; i < {{relatedClass.Name}}.values.Length; i++)
         {
-            dict[this.values[i]] = i;
+            dict[{{relatedClass.Name}}.values[i]] = i;
         }
         return dict;
     }
 
     private static {{relatedClass.Name}}[] CreateAllValues()
     {
-        var arr = new {{relatedClass.Name}}[this.values.Length];
+        var arr = new {{relatedClass.Name}}[{{relatedClass.Name}}.values.Length];
         for (int i = 0; i < arr.Length; i++)
         {
             arr[i] = new {{relatedClass.Name}}(i);
